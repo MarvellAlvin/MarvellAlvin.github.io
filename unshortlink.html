@@ -82,14 +82,14 @@
 
             resultDiv.innerHTML = "Mencari URL asli...";
 
-            // Gunakan API Unshorten.me untuk memperluas link
+            // API Unshorten.me
             fetch(`https://unshorten.me/json/${encodeURIComponent(shortLink)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.resolved_url) {
                         const originalUrl = data.resolved_url;
                         resultDiv.innerHTML = `URL Asli: <a href="${originalUrl}" target="_blank">${originalUrl}</a>`;
-                        checkPhishing(originalUrl); // Cek apakah URL ini phishing
+                        checkPhishing(originalUrl); // Cek Url Phising
                     } else {
                         resultDiv.innerHTML = "Gagal mendapatkan URL asli!";
                     }
@@ -101,7 +101,7 @@
         }
 
         function checkPhishing(url) {
-            const apiKey = "YOUR_GOOGLE_SAFE_BROWSING_API_KEY"; // Ganti dengan API key kamu
+            const apiKey = "API_KEY"; // Jika punya ApiKey silahkan diisi (HIASAN)
             fetch(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`, {
                 method: "POST",
                 body: JSON.stringify({
