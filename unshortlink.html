@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pendeteksi Link Pendek</title>
+    <title>Pendeteksi Link Phishing</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -51,15 +51,22 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+        .safe {
+            color: green;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Pendeteksi Link Pendek</h1>
-        <input type="text" id="shortlink" placeholder="Masukkan link pendek (bit.ly atau s.id)">
+        <h1>Pendeteksi Link Phishing</h1>
+        <input type="text" id="shortlink" placeholder="Masukkan link pendek (bit.ly atau )">
         <button onclick="getOriginalLink()">Periksa Link</button>
-
         <div id="result" class="result"></div>
     </div>
 
@@ -75,11 +82,14 @@
 
             resultDiv.innerHTML = "Mencari URL asli...";
 
-            // Coba gunakan fetch dengan metode GET dan follow redirect
-            fetch(shortLink, { method: 'GET', redirect: 'follow' })
-                .then(response => {
-                    if (response.redirected) {
-                        resultDiv.innerHTML = `URL Asli: <a href="${response.url}" target="_blank">${response.url}</a>`;
+            // Gunakan API Unshorten.me untuk memperluas link
+            fetch(`https://unshorten.me/json/${encodeURIComponent(shortLink)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.resolved_url) {
+                        const originalUrl = data.resolved_url;
+                        resultDiv.innerHTML = `URL Asli: <a href="${originalUrl}" target="_blank">${originalUrl}</a>`;
+                        checkPhishing(originalUrl); // Cek apakah URL ini phishing
                     } else {
                         resultDiv.innerHTML = "Gagal mendapatkan URL asli!";
                     }
@@ -88,6 +98,34 @@
                     resultDiv.innerHTML = "Terjadi kesalahan saat memproses link!";
                     console.error(error);
                 });
+        }
+
+        function checkPhishing(url) {
+            const apiKey = "YOUR_GOOGLE_SAFE_BROWSING_API_KEY"; // Ganti dengan API key kamu
+            fetch(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`, {
+                method: "POST",
+                body: JSON.stringify({
+                    client: { clientId: "detektor-link", clientVersion: "1.0" },
+                    threatInfo: {
+                        threatTypes: ["MALWARE", "SOCIAL_ENGINEERING"],
+                        platformTypes: ["ANY_PLATFORM"],
+                        threatEntryTypes: ["URL"],
+                        threatEntries: [{ url: url }]
+                    }
+                }),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.matches) {
+                    document.getElementById("result").innerHTML += `<br><span class="warning">⚠️ Link terdeteksi sebagai phishing!</span>`;
+                } else {
+                    document.getElementById("result").innerHTML += `<br><span class="safe">✅ Link aman.</span>`;
+                }
+            })
+            .catch(error => {
+                console.error("Gagal mengecek phishing:", error);
+            });
         }
     </script>
 
