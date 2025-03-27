@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unshorten Link</title>
+</head>
+<body>
+    <input type="text" id="link" placeholder="Masukkan link yang ingin di-unshorten">
+    <button onclick="unshortenLink()">Unshorten Link</button>
+    <p id="result"></p>
+
+    <script>
+        function unshortenLink() {
+            var link = document.getElementById("link").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("HEAD", link, true);
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    var unshortenedLink = xhr.responseURL;
+                    document.getElementById("result").innerHTML = "Link asli: " + unshortenedLink;
+                } else {
+                    document.getElementById("result").innerHTML = "Gagal meng-unshorten link.";
+                }
+            };
+            xhr.send();
+        }
+    </script>
+</body>
+</html>
