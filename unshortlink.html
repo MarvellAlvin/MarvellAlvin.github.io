@@ -67,6 +67,7 @@
         function getOriginalLink() {
             const shortLink = document.getElementById("shortlink").value;
             const resultDiv = document.getElementById("result");
+
             if (shortLink === "") {
                 resultDiv.innerHTML = "Mohon masukkan link terlebih dahulu!";
                 return;
@@ -74,12 +75,11 @@
 
             resultDiv.innerHTML = "Mencari URL asli...";
 
-            // Melakukan permintaan HTTP untuk mendeteksi URL asli
-            fetch(shortLink, { method: 'HEAD' })
+            // Coba gunakan fetch dengan metode GET dan follow redirect
+            fetch(shortLink, { method: 'GET', redirect: 'follow' })
                 .then(response => {
-                    if (response.ok) {
-                        const originalUrl = response.url;
-                        resultDiv.innerHTML = `URL Asli: <a href="${originalUrl}" target="_blank">${originalUrl}</a>`;
+                    if (response.redirected) {
+                        resultDiv.innerHTML = `URL Asli: <a href="${response.url}" target="_blank">${response.url}</a>`;
                     } else {
                         resultDiv.innerHTML = "Gagal mendapatkan URL asli!";
                     }
