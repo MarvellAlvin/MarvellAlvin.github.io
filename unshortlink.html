@@ -1,28 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Unshorten Link</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendeteksi Link Pendek</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-    <input type="text" id="link" placeholder="Masukkan link yang ingin di-unshorten">
-    <button onclick="unshortenLink()">Unshorten Link</button>
-    <p id="result"></p>
+
+    <div class="container">
+        <h1>Pendeteksi Link Pendek</h1>
+        <input type="text" id="shortlink" placeholder="Masukkan link pendek (bit.ly atau s.id)">
+        <button onclick="getOriginalLink()">Periksa Link</button>
+
+        <div id="result" class="result"></div>
+    </div>
 
     <script>
-        function unshortenLink() {
-            var link = document.getElementById("link").value;
-            var xhr = new XMLHttpRequest();
-            xhr.open("HEAD", link, true);
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    var unshortenedLink = xhr.responseURL;
-                    document.getElementById("result").innerHTML = "Link asli: " + unshortenedLink;
-                } else {
-                    document.getElementById("result").innerHTML = "Gagal meng-unshorten link.";
-                }
-            };
-            xhr.send();
+        function getOriginalLink() {
+            const shortLink = document.getElementById("shortlink").value;
+            const resultDiv = document.getElementById("result");
+            if (shortLink === "") {
+                resultDiv.innerHTML = "Mohon masukkan link terlebih dahulu!";
+                return;
+            }
+
+            resultDiv.innerHTML = "Mencari URL asli...";
+
+            // Melakukan permintaan HTTP untuk mendeteksi URL asli
+            fetch(shortLink, { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        const originalUrl = response.url;
+                        resultDiv.innerHTML = `URL Asli: <a href="${originalUrl}" target="_blank">${originalUrl}</a>`;
+                    } else {
+                        resultDiv.innerHTML = "Gagal mendapatkan URL asli!";
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = "Terjadi kesalahan saat memproses link!";
+                    console.error(error);
+                });
         }
     </script>
+
 </body>
 </html>
