@@ -1,93 +1,71 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Belajar HTML</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: url('https://nathanprinsley-files.prinsh.com/data-1/images/NathanPrinsley-port_listener.gif') no-repeat center center fixed;
-      background-size: cover;
-      font-family: Arial, sans-serif;
-      color: #fff;
-      text-align: center;
-    }
-
-    .container {
-      margin-top: 60px;
-      padding: 20px;
-      background-color: rgba(0, 0, 0, 0.6);
-      border-radius: 20px;
-      display: inline-block;
-    }
-
-    h1 {
-      font-size: 2.5em;
-      background-color: #555;
-      padding: 20px;
-      border-radius: 30px;
-      margin-bottom: 30px;
-    }
-
-    .bab-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin: 10px;
-      padding: 12px 24px;
-      background-color: #1e50d9;
-      color: white;
-      text-decoration: none;
-      border: none;
-      border-radius: 10px;
-      font-size: 1em;
-      transition: background-color 0.3s ease;
-      min-width: 220px;
-    }
-
-    .bab-link:hover {
-      background-color: #0f3caa;
-    }
-
-    .bab-link span.icon {
-      margin-right: 8px;
-      font-size: 1.1em;
-    }
-
-    @media (max-width: 600px) {
-      .bab-link {
-        min-width: auto;
-        width: 90%;
-        font-size: 1em;
-      }
-
-      h1 {
-        font-size: 1.8em;
-      }
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <title>Belajar Html - Github MarvellAlvin</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="shortcut icon" href="assets/images/favicon.png" type="image/webp">
+  <link rel="apple-touch-icon" sizes="180x180" href="images/favicon.png">
+  <link rel="icon" href="assets/images/favicon.png" type="image/webp">
+  <link href="https:                                                                                             
 </head>
 <body>
-
-  <!-- Backsound Musik dari Link -->
-  <audio autoplay loop>
-    <source src="https://nathanprinsley-files.prinsh.com/data-1/mp3/alan-walker_on-my-way.mp3" type="audio/mpeg" />
-    Browser Anda tidak mendukung audio.
-  </audio>
-
-  <div class="container">
-    <h1>Judul<br>BELAJAR HTML</h1>
-
-    <a href="bab1.html" class="bab-link"><span class="icon">&#9998;</span> Bab 1 - Teks HTML</a>
-    <a href="bab2.html" class="bab-link"><span class="icon">&#128247;</span> Bab 2 - Insert Gambar</a>
-    <a href="bab3.html" class="bab-link"><span class="icon">&#128202;</span> Bab 3 - Tabel</a>
-    <a href="bab4.html" class="bab-link"><span class="icon">&#128190;</span> Bab 4 - Button</a>
-    <a href="bab5.html" class="bab-link"><span class="icon">&#128279;</span> Bab 5 - Link</a>
-    <a href="bab6.html" class="bab-link"><span class="icon">&#128451;</span> Bab 6 - Kombinasi</a>
-    <a href="#" class="bab-link" style="background-color: #a35;"><span class="icon">&#10145;</span> Dan Seterusnya</a>
+  <!-- Snowfall Background Animation -->
+  <section class="animated-background">
+    <div id="stars1"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>
+  </section>
+  <!-- End of Snowfall Background Animation -->
+  <div class="min-h-full flex-h-center" id="background_div">
+    <input type="hidden" value="https://bio.link" id="app-url">
+    <input type="hidden" value="null" id="is-featured">
+    <canvas id="bg-canvas" class="background-overlay"></canvas>
+    <div class="mt-48 page-full-wrap relative">
+      <input type="hidden" value="creator-page" id="page-type">
+      <img class="display-image m-auto" data-src="assets/images/logo.png" src="assets/images/logo.png" alt="[Your photo alt]">
+      <h2 class="page-title page-text-color page-text-font mt-16 text-center">BELAJAR HTML</h2>
+      <div class="mt-24">
+        <!-- Link Bab 1 - 6 -->
+        <div class="page-item-wrap relative">
+          <a class="page-item-each py-10 flex-both-center" href="/materi/bab1">
+            <img class="link-each-image" src="assets/images/book.png" alt="Bab 1">
+            <span class="item-title text-center">Bab 1 - Teks HTML</span>
+          </a>
+        </div>
+        <div class="page-item-wrap relative">
+          <a class="page-item-each py-10 flex-both-center" href="/materi/bab2">
+            <img class="link-each-image" src="assets/images/book.png" alt="Bab 2">
+            <span class="item-title text-center">Bab 2 - Menyisipkan Gambar</span>
+          </a>
+        </div>
+        <div class="page-item-wrap relative">
+          <a class="page-item-each py-10 flex-both-center" href="/materi/bab3">
+            <img class="link-each-image" src="assets/images/book.png" alt="Bab 3">
+            <span class="item-title text-center">Bab 3 - Tabel</span>
+          </a>
+        </div>
+        <div class="page-item-wrap relative">
+          <a class="page-item-each py-10 flex-both-center" href="/materi/bab4">
+            <img class="link-each-image" src="assets/images/book.png" alt="Bab 4">
+            <span class="item-title text-center">Bab 4 - Tombol</span>
+          </a>
+        </div>
+        <div class="page-item-wrap relative">
+          <a class="page-item-each py-10 flex-both-center" href="/materi/bab5">
+            <img class="link-each-image" src="assets/images/book.png" alt="Bab 5">
+            <span class="item-title text-center">Bab 5 - Link</span>
+          </a>
+        </div>
+        <div class="page-item-wrap relative">
+          <a class="page-item-each py-10 flex-both-center" href="/materi/bab6">
+            <img class="link-each-image" src="assets/images/book.png" alt="Bab 6">
+            <span class="item-title text-center">Bab 6 - Kombinasi</span>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
-
 </body>
 </html>
