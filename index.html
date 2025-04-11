@@ -1,1 +1,87 @@
-<script type="text/javascript" src="https://jso-tools.z-x.my.id/raw/~/TL2Q6EHQ8BGX5"></script>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Belajar HTML</title>
+  <style>
+    /* Background full screen */
+    body{
+        margin: 0;
+        padding: 0;
+        background:url("https://nathanprinsley-files.prinsh.com/data-1/images/NathanPrinsley-port_listener.gif") repeat center center fixed black;
+        color: white;
+        font-family: 'Goldman', cursive;
+    }
+
+    /* Container tengah */
+    .container {
+      margin-top: 60px;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    /* Judul */
+    h1 {
+      font-size: 2.5em;
+      background-color: #555;
+      padding: 20px;
+      border-radius: 30px;
+      margin-bottom: 30px;
+    }
+
+    /* Tombol Bab */
+    .bab-link {
+      display: block;
+      margin: 15px auto;
+      padding: 15px 30px;
+      width: fit-content;
+      background-color: #444;
+      color: #fce4ec;
+      text-decoration: none;
+      border-radius: 15px;
+      font-size: 1.2em;
+      transition: background-color 0.3s ease;
+    }
+
+    .bab-link:hover {
+      background-color: #666;
+    }
+
+    /* Responsif */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.8em;
+      }
+
+      .bab-link {
+        font-size: 1em;
+        padding: 12px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Backsound Musik -->
+  <audio autoplay loop>
+    <source src="https://nathanprinsley-files.prinsh.com/data-1/mp3/alan-walker_on-my-way.mp3" type="audio/mpeg">
+    Browser Anda tidak mendukung audio.
+  </audio>
+
+  <div class="container">
+    <h1>Judul<br><b>BELAJAR HTML</b></h1>
+
+    <a href="bab1.html" class="bab-link">Bab 1 - Teks HTML</a>
+    <a href="bab2.html" class="bab-link">Bab 2 - Insert Gambar dll</a>
+    <a href="bab3.html" class="bab-link">Bab 3 - Tabel</a>
+    <a href="bab4.html" class="bab-link">Bab 4 - Button</a>
+    <a href="bab5.html" class="bab-link">Bab 5 - Link</a>
+    <a href="bab6.html" class="bab-link">Bab 6 - Kombinasi Tabel, Gambar, Link, Button</a>
+    <a href="#" class="bab-link" style="background-color: #855;">dan seterusnya</a>
+  </div>
+
+</body>
+</html>
