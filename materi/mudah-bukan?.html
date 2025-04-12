@@ -1,0 +1,77 @@
+<!--
+Penjelasan Singkat:
+Bagian Text: Gunakan tag <p>, <b>, <i>, <u>, dan <br> seperti di Bab 1.
+Bagian Tabel: Gunakan <table>, <tr>, <th>, dan <td> seperti di Bab 3.
+Gambar: Disisipkan dengan <img> di dalam tabel.
+Link: Dimasukkan dalam kolom menggunakan <a>.
+Button: Tambah interaksi pakai <button> dan onclick.
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bab 6: Kombinasi Tabel, Gambar, Button, Link, dan Teks</title>
+</head>
+<body>
+
+<!-- ==================== BAB 1: TEKS ==================== -->
+<h1>Selamat Datang di Halaman Belajar HTML</h1>
+<p>Ini adalah contoh paragraf dari <b>Bab 1</b> yang menampilkan teks <i>berformat</i> seperti <u>garis bawah</u>, <b>tebal</b>, dan <i>miring.</i></p>
+<p>Kita juga bisa menggunakan tag <br> untuk membuat baris baru di tengah paragraf.</p>
+
+<hr>
+
+<!-- ==================== BAB 3: TABEL DASAR ==================== -->
+<h2>Data Produk</h2>
+  <h3>Menggunakan Tabel, Insert Gambar, Link, dan Tombol</h3>
+<table border="1" cellpadding="10" cellspacing="0">
+  <tr>
+    <th>Nama Produk</th>
+    <th>Gambar</th>
+    <th>Link</th>
+    <th>Aksi</th>
+  </tr>
+  
+  <!-- BAB 2,4,5 Insert gambar, link dan button/tombol -->
+  <!-- ==================== BARIS 1: PRODUK 1 ==================== -->
+  <tr>
+    <td>AK47</td>
+    <td>
+      <!-- Gambar Produk -->
+      <img src="/assets/images/AK47.png" alt="AK47" width="100">
+    </td>
+    <td>
+      <!-- Tautan ke situs luar -->
+      <a href="https://telegra.ph/CANNASHOP-BALI-09-22-2" target="_blank">Lihat Produk</a>
+    </td>
+    <td>
+      <!-- Tombol Aksi -->
+      <button onclick="alert('Anda menambahkan AK47 ke keranjang!')">Tambah ke Keranjang</button>
+    </td>
+  </tr>
+
+  <!-- ==================== BARIS 2: PRODUK 2 ==================== -->
+  <tr>
+    <td>Blueberry</td>
+    <td>
+      <img src="/assets/images/Blueberry.png" alt="Blueberry" width="100">
+    </td>
+    <td>
+      <a href="https://telegra.ph/CANNASHOP-BALI-09-22-2" target="_blank">Lihat Produk</a>
+    </td>
+    <td>
+      <button onclick="alert('Anda menambahkan Blueberry ke keranjang!')">Tambah ke Keranjang</button>
+    </td>
+  </tr>
+
+</table>
+
+<hr>
+<!-- ==================== FOOTER ==================== -->
+<p><i>Belajar HTML itu Mudah dan Menyenangkan bukan?</i></p>
+  
+  <div id="hastag">
+    @MarvellAlvin
+  </div>
+</body>
+</html>
