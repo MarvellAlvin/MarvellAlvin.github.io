@@ -1,0 +1,45 @@
+<!--
+Tombol di HTML biasa digunakan untuk aksi seperti mengirim form, menjalankan JavaScript, atau sekadar elemen interaktif.
+
+Tag Dasar Tombol:
+<button>: tag tombol modern
+<input type="button">: versi lama
+
+Atribut dan Style Tambahan:
+type="submit": untuk form
+disabled: menonaktifkan tombol
+style="...": memberi warna, ukuran, dll
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Contoh Tombol</title>
+</head>
+<body>
+
+<h2>Contoh Tombol</h2>
+
+<!-- Tombol biasa -->
+<button>Klik Saya</button>
+
+<!-- Tombol dengan event JavaScript -->
+<button onclick="alert('Halo, kamu menekan tombol!')">Tombol Interaktif</button>
+
+<!-- Tombol dari input -->
+<input type="button" value="Tombol Input" onclick="alert('Ini tombol dari input')">
+
+<!-- Tombol dengan Style -->
+<button style="background-color: blue; color: white; padding: 10px 20px; border-radius: 8px;">
+  Tombol Keren
+</button>
+
+<!-- Tombol untuk Formulir -->
+<form action="proses.html" method="post"> <!-- Path untuk proses kirim formulir jika ada -->
+  <input type="text" name="nama" placeholder="Masukkan nama">
+  <button type="submit">Kirim</button>
+</form>
+
+</body>
+</html>
+
