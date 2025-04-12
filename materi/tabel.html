@@ -1,0 +1,63 @@
+<!--
+Tabel digunakan untuk menampilkan data dalam bentuk baris dan kolom.
+
+Struktur dasar tag tabel:
+<table> : elemen utama tabel
+<tr> (table row) : baris
+<th> (table header) : judul kolom (otomatis tebal dan rata tengah)
+<td> (table data) : isi sel
+
+Tambahan Atribut Penting:
+border="1" : menampilkan garis tabel
+colspan : menggabungkan beberapa kolom
+rowspan : menggabungkan beberapa baris
+style : untuk styling, misalnya warna atau padding
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Contoh Tabel</title>
+</head>
+<body>
+
+<h2>Data Siswa</h2>
+
+<table border="1">
+  <tr>
+    <th>Nama</th>
+    <th>Umur</th>
+    <th>Kelas</th>
+  </tr>
+  <tr>
+    <td>Bayu</td>
+    <td>17</td>
+    <td>11 TKR</td>
+  </tr>
+  <tr>
+    <td>Ayu</td>
+    <td>16</td>
+    <td>11 DPIB</td>
+  </tr>
+</table>
+
+<h2>Contoh dengan colspan dan style</h2>
+
+<table border="1" style="width: 100%; text-align: center;">
+  <tr>
+    <th colspan="3">Jadwal Pelajaran</th>
+  </tr>
+  <tr>
+    <th>Hari</th>
+    <th>Mata Pelajaran</th>
+    <th>Jam</th>
+  </tr>
+  <tr>
+    <td>Senin</td>
+    <td>Matematika</td>
+    <td>07.00 - 08.30</td>
+  </tr>
+</table>
+
+</body>
+</html>
