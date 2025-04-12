@@ -1,0 +1,43 @@
+<!--
+Di HTML, gambar dimasukkan menggunakan tag <img>. Tag ini tidak memiliki penutup (self-closing) dan menggunakan atribut penting seperti:
+
+src = sumber gambar (URL atau file lokal)
+alt = teks alternatif jika gambar tidak bisa dimuat
+width dan height = ukuran gambar
+
+Audio: <audio controls src="lagu.mp3"></audio>
+Video: <video controls width="320" height="240"><source src="video.mp4" type="video/mp4"></video>
+
+Line pemisah: <hr>
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Menyisipkan Gambar</title>
+</head>
+<body>
+
+<h2>Contoh Gambar dari URL</h2>
+<img src="https://" alt="Foto Ku" width="300">
+
+<h2>Contoh Gambar dari File Lokal</h2>
+<img src="/assets/images/tes.png" alt="Gambar dari komputer" width="300">
+
+<h2>Contoh Audio</h2>
+<audio controls>
+  <source src="/assets/backsound/alan-walker_on-my-way.mp3" type="audio/mpeg">
+  Browser kamu tidak mendukung audio tag.
+</audio>
+
+<h2>Contoh Video</h2>
+<video width="320" height="240" controls>
+  <source src="/assets/images/halo.mp4" type="video/mp4">
+  Browser kamu tidak mendukung video tag.
+</video>
+
+<hr>
+<p>Ini teks setelah garis pemisah.</p>
+
+</body>
+</html>
