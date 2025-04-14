@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Coding Html</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #e9eef6;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 90%;
+            height: 300px;
+            font-family: monospace;
+            font-size: 16px;
+            padding: 10px;
+            border: 2px solid #333;
+            background-color: #fff;
+            resize: none;
+        }
+        iframe {
+            width: 90%;
+            height: 300px;
+            margin-top: 20px;
+            border: 2px solid #333;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Coding HTML</h1>
+    <textarea id="codeInput" oninput="updateOutput()" placeholder="Tulis kode HTML di sini..."></textarea>
+
+    <iframe id="outputFrame"></iframe>
+
+    <script>
+        function updateOutput() {
+            const code = document.getElementById("codeInput").value;
+            const outputFrame = document.getElementById("outputFrame");
+            outputFrame.srcdoc = code;
+        }
+
+        // Kosongkan saat pertama kali dibuka
+        updateOutput();
+    </script>
+</body>
+</html>
