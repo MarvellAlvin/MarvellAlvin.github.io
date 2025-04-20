@@ -4,50 +4,82 @@
     <meta charset="UTF-8">
     <title>Live HTML Editor</title>
     <style>
+        :root {
+            --bg-color: #e9eef6;
+            --text-color: #000;
+            --textarea-bg: #fff;
+            --iframe-bg: #fff;
+            --border-color: #333;
+            --button-bg: #007bff;
+            --button-hover: #0056b3;
+        }
+
+        .dark-mode {
+            --bg-color: #1e1e1e;
+            --text-color: #fff;
+            --textarea-bg: #2d2d2d;
+            --iframe-bg: #2d2d2d;
+            --border-color: #555;
+            --button-bg: #444;
+            --button-hover: #666;
+        }
+
         body {
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #e9eef6;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
+
         h1 {
             margin-bottom: 20px;
         }
+
         textarea {
             width: 90%;
             height: 300px;
             font-family: monospace;
             font-size: 16px;
             padding: 10px;
-            border: 2px solid #333;
-            background-color: #fff;
+            border: 2px solid var(--border-color);
+            background-color: var(--textarea-bg);
+            color: var(--text-color);
             resize: none;
+            transition: background-color 0.3s, color 0.3s;
         }
+
         iframe {
             width: 90%;
             height: 300px;
             margin-top: 20px;
-            border: 2px solid #333;
-            background-color: white;
+            border: 2px solid var(--border-color);
+            background-color: var(--iframe-bg);
+            transition: background-color 0.3s;
         }
+
         .buttons {
             margin-top: 15px;
         }
+
         button {
             padding: 10px 20px;
             font-size: 16px;
-            background-color: #007bff;
+            background-color: var(--button-bg);
             color: white;
             border: none;
             cursor: pointer;
             border-radius: 5px;
             margin-right: 10px;
+            transition: background-color 0.3s;
         }
+
         button:hover {
-            background-color: #0056b3;
+            background-color: var(--button-hover);
         }
     </style>
 </head>
@@ -60,6 +92,7 @@
     <div class="buttons">
         <button onclick="openInNewTab()">Buka di Tab Baru</button>
         <button onclick="downloadHTML()">Download HTML</button>
+        <button onclick="toggleTheme()">Ubah Tema</button>
     </div>
 
     <script>
@@ -89,7 +122,10 @@
             document.body.removeChild(a);
         }
 
-        // Kosongkan saat pertama kali dibuka
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
+
         updateOutput();
     </script>
 </body>
