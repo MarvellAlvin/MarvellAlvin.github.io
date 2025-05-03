@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendeteksi Link Phishing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+        .safe {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Pendeteksi Link Phishing</h1>
+        <input type="text" id="shortlink" placeholder="Masukkan link pendek (bit.ly atau s.id)">
+        <button onclick="getOriginalLink()">Periksa Link</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        function getOriginalLink() {
+            const shortLink = document.getElementById("shortlink").value;
+            const resultDiv = document.getElementById("result");
+
+            if (shortLink === "") {
+                resultDiv.innerHTML = "Mohon masukkan link terlebih dahulu!";
+                return;
+            }
+
+            resultDiv.innerHTML = "Mencari URL asli...";
+
+            // API Unshorten.me
+            fetch(`https://unshorten.me/json/${encodeURIComponent(shortLink)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.resolved_url) {
+                        const originalUrl = data.resolved_url;
+                        resultDiv.innerHTML = `URL Asli: <a href="${originalUrl}" target="_blank">${originalUrl}</a>`;
+                        checkPhishing(originalUrl); // Cek Url Phising
+                    } else {
+                        resultDiv.innerHTML = "Gagal mendapatkan URL asli!";
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = "Terjadi kesalahan saat memproses link!";
+                    console.error(error);
+                });
+        }
+
+        function checkPhishing(url) {
+            const apiKey = "API_KEY"; // Jika punya ApiKey silahkan diisi (HIASAN)
+            fetch(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`, {
+                method: "POST",
+                body: JSON.stringify({
+                    client: { clientId: "detektor-link", clientVersion: "1.0" },
+                    threatInfo: {
+                        threatTypes: ["MALWARE", "SOCIAL_ENGINEERING"],
+                        platformTypes: ["ANY_PLATFORM"],
+                        threatEntryTypes: ["URL"],
+                        threatEntries: [{ url: url }]
+                    }
+                }),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.matches) {
+                    document.getElementById("result").innerHTML += `<br><span class="warning">⚠️ Link terdeteksi sebagai phishing!</span>`;
+                } else {
+                    document.getElementById("result").innerHTML += `<br><span class="safe">✅ Link sepertinya aman, tolong lebih berhati²!\nTerimakasih*</span>`;
+                }
+            })
+            .catch(error => {
+                console.error("Gagal mengecek phishing:", error);
+            });
+        }
+    </script>
+
+</body>
+</html>
