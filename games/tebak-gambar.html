@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Tebak Gambar</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #score, #timer {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    #image {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      border: 2px solid #ccc;
+      background-color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .options button, #restartBtn {
+      margin: 10px;
+      padding: 10px 20px;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .options button:hover, #restartBtn:hover {
+      background-color: #0b7dda;
+    }
+
+    #restartBtn {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Game Tebak Gambar</h1>
+  <div id="score">Skor: 0</div>
+  <div id="timer">Waktu: 10</div>
+  <img id="image" src="" alt="Gambar">
+  <div class="options" id="options"></div>
+  <button id="restartBtn" onclick="mulaiGame()">Restart Game</button>
+
+  <script>
+    const gambar = [
+      {
+        src: "https://cdn-icons-png.flaticon.com/512/616/616408.png",
+        jawaban: "Kucing",
+        pilihan: ["Anjing", "Kucing", "Ayam"]
+      },
+      {
+        src: "https://cdn-icons-png.flaticon.com/512/616/616430.png",
+        jawaban: "Anjing",
+        pilihan: ["Kelinci", "Anjing", "Kuda"]
+      },
+      {
+        src: "https://cdn-icons-png.flaticon.com/512/616/616438.png",
+        jawaban: "Sapi",
+        pilihan: ["Kambing", "Kucing", "Sapi"]
+      },
+      {
+        src: "https://cdn-icons-png.flaticon.com/512/616/616418.png",
+        jawaban: "Kuda",
+        pilihan: ["Kuda", "Kucing", "Anjing"]
+      },
+      {
+        src: "https://cdn-icons-png.flaticon.com/512/616/616426.png",
+        jawaban: "Kelinci",
+        pilihan: ["Kelinci", "Ayam", "Anjing"]
+      }
+    ];
+
+    let skor = 0;
+    let indeks = 0;
+    let waktu = 10;
+    let timerInterval;
+
+    function mulaiGame() {
+      skor = 0;
+      indeks = 0;
+      document.getElementById("restartBtn").style.display = "none";
+      document.getElementById("score").textContent = "Skor: 0";
+      acakGambar();
+      tampilkanSoal();
+    }
+
+    function acakGambar() {
+      for (let i = gambar.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [gambar[i], gambar[j]] = [gambar[j], gambar[i]];
+      }
+    }
+
+    function tampilkanSoal() {
+      if (skor >= 10) {
+        alert("Selamat! Skor akhir: " + skor);
+        selesaiGame();
+        return;
+      }
+
+      if (indeks >= gambar.length) {
+        alert("Soal habis! Skor akhir: " + skor);
+        selesaiGame();
+        return;
+      }
+
+      const data = gambar[indeks];
+      document.getElementById("image").src = data.src;
+      const pilihanContainer = document.getElementById("options");
+      pilihanContainer.innerHTML = "";
+
+      data.pilihan.forEach(pilihan => {
+        const tombol = document.createElement("button");
+        tombol.textContent = pilihan;
+        tombol.onclick = () => {
+          clearInterval(timerInterval);
+          if (pilihan === data.jawaban) {
+            skor++;
+            alert("Benar!");
+          } else {
+            alert("Salah! Jawaban: " + data.jawaban);
+          }
+          document.getElementById("score").textContent = "Skor: " + skor;
+          indeks++;
+          tampilkanSoal();
+        };
+        pilihanContainer.appendChild(tombol);
+      });
+
+      waktu = 10;
+      document.getElementById("timer").textContent = "Waktu: " + waktu;
+      timerInterval = setInterval(() => {
+        waktu--;
+        document.getElementById("timer").textContent = "Waktu: " + waktu;
+        if (waktu <= 0) {
+          clearInterval(timerInterval);
+          alert("Waktu habis! Jawaban: " + data.jawaban);
+          indeks++;
+          tampilkanSoal();
+        }
+      }, 1000);
+    }
+
+    function selesaiGame() {
+      clearInterval(timerInterval);
+      document.getElementById("restartBtn").style.display = "inline-block";
+      document.getElementById("options").innerHTML = "";
+      document.getElementById("image").src = "";
+      document.getElementById("timer").textContent = "Waktu: -";
+    }
+
+    mulaiGame();
+  </script>
+
+</body>
+</html>
