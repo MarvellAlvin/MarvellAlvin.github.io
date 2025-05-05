@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Memory Card Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    #score, #tries {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .card {
+      width: 100px;
+      height: 100px;
+      background: gray;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .card.revealed {
+      cursor: default;
+    }
+    #restart-btn {
+      display: none;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #00b894;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Game Memory Card</h1>
+  <div id="score">Skor: 0</div>
+  <div id="tries">Percobaan: 0</div>
+  <div id="game-board"></div>
+  <button id="restart-btn" onclick="restartGame()">Main Lagi</button>
+
+  <script>
+    const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+    let cardColors, revealedCards, tries, score;
+
+    const board = document.getElementById('game-board');
+    const triesDisplay = document.getElementById('tries');
+    const scoreDisplay = document.getElementById('score');
+    const restartBtn = document.getElementById('restart-btn');
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function createBoard() {
+      board.innerHTML = '';
+      revealedCards = [];
+      tries = 0;
+      score = 0;
+      cardColors = shuffle([...colors, ...colors]);
+
+      cardColors.forEach(color => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.color = color;
+        card.onclick = () => revealCard(card);
+        board.appendChild(card);
+      });
+
+      updateDisplay();
+      restartBtn.style.display = 'none';
+    }
+
+    function revealCard(card) {
+      if (card.classList.contains('revealed') || revealedCards.length >= 2) return;
+
+      card.style.backgroundColor = card.dataset.color;
+      card.classList.add('revealed');
+      revealedCards.push(card);
+
+      if (revealedCards.length === 2) {
+        tries++;
+        updateDisplay();
+
+        const [card1, card2] = revealedCards;
+        if (card1.dataset.color === card2.dataset.color) {
+          revealedCards = [];
+          score++;
+          updateDisplay();
+          if (score === 6) {
+            setTimeout(() => {
+              alert("Selamat! Anda telah menemukan semua pasangan.");
+              restartBtn.style.display = 'inline-block';
+            }, 500);
+          }
+        } else {
+          setTimeout(() => {
+            card1.style.backgroundColor = 'gray';
+            card2.style.backgroundColor = 'gray';
+            card1.classList.remove('revealed');
+            card2.classList.remove('revealed');
+            revealedCards = [];
+          }, 1000);
+        }
+      }
+    }
+
+    function updateDisplay() {
+      triesDisplay.textContent = 'Percobaan: ' + tries;
+      scoreDisplay.textContent = 'Skor: ' + score;
+    }
+
+    function restartGame() {
+      createBoard();
+    }
+
+    createBoard();
+  </script>
+
+</body>
+</html>
