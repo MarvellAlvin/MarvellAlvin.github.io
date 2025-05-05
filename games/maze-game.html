@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Maze Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #maze {
+      display: grid;
+      grid-template-columns: repeat(10, 30px);
+      grid-template-rows: repeat(10, 30px);
+      margin: 20px auto;
+      width: fit-content;
+      border: 2px solid #333;
+    }
+
+    .cell {
+      width: 30px;
+      height: 30px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+    }
+
+    .wall {
+      background: #333;
+    }
+
+    .start {
+      background: #4caf50;
+    }
+
+    .end {
+      background: #f44336;
+    }
+
+    .player {
+      background: yellow;
+    }
+
+    .arrow-buttons {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .arrow-buttons button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 500px) {
+      #maze {
+        transform: scale(0.8);
+      }
+
+      .arrow-buttons {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Maze Game</h1>
+  <p>Gunakan tombol panah untuk bergerak!</p>
+  <div id="maze"></div>
+
+  <div class="arrow-buttons">
+    <button onclick="move(0, -1)">↑</button><br>
+    <button onclick="move(-1, 0)">←</button>
+    <button onclick="move(1, 0)">→</button><br>
+    <button onclick="move(0, 1)">↓</button>
+  </div>
+
+  <script>
+    const mazeSize = 10;
+    let maze = [];
+    let playerPos = { x: 1, y: 1 };
+    let startPos = { x: 1, y: 1 };
+    let endPos = { x: 8, y: 8 };
+
+    function generateMaze() {
+      maze = [];
+      for (let y = 0; y < mazeSize; y++) {
+        maze.push([]);
+        for (let x = 0; x < mazeSize; x++) {
+          if (x === 0 || y === 0 || x === mazeSize - 1 || y === mazeSize - 1) {
+            maze[y].push(1);  // Wall
+          } else {
+            maze[y].push(Math.random() < 0.2 ? 1 : 0);  // 20% walls randomly
+          }
+        }
+      }
+      maze[startPos.y][startPos.x] = 2; // Start
+      maze[endPos.y][endPos.x] = 3;   // End
+    }
+
+    function drawMaze() {
+      const mazeEl = document.getElementById('maze');
+      mazeEl.innerHTML = '';
+      for (let y = 0; y < mazeSize; y++) {
+        for (let x = 0; x < mazeSize; x++) {
+          const cell = document.createElement('div');
+          cell.classList.add('cell');
+
+          if (maze[y][x] === 1) cell.classList.add('wall');
+          if (maze[y][x] === 2) cell.classList.add('start');
+          if (maze[y][x] === 3) cell.classList.add('end');
+          if (x === playerPos.x && y === playerPos.y) {
+            cell.classList.add('player');
+          }
+
+          mazeEl.appendChild(cell);
+        }
+      }
+    }
+
+    function move(dx, dy) {
+      const newX = playerPos.x + dx;
+      const newY = playerPos.y + dy;
+
+      if (maze[newY] && maze[newY][newX] !== 1) {
+        playerPos = { x: newX, y: newY };
+        drawMaze();
+
+        if (maze[newY][newX] === 3) {
+          setTimeout(() => {
+            alert("Selamat! Kamu berhasil keluar dari labirin!");
+            // Acak posisi start dan end lagi setelah menang
+            randomizeStartEnd();
+            generateMaze();
+            playerPos = { x: startPos.x, y: startPos.y }; // Reset pemain ke start
+            drawMaze();
+          }, 100);
+        }
+      }
+    }
+
+    function randomizeStartEnd() {
+      // Mengacak posisi start dan end
+      startPos = { x: Math.floor(Math.random() * (mazeSize - 2)) + 1, y: Math.floor(Math.random() * (mazeSize - 2)) + 1 };
+      endPos = { x: Math.floor(Math.random() * (mazeSize - 2)) + 1, y: Math.floor(Math.random() * (mazeSize - 2)) + 1 };
+
+      // Pastikan posisi start dan end tidak sama
+      while (startPos.x === endPos.x && startPos.y === endPos.y) {
+        endPos = { x: Math.floor(Math.random() * (mazeSize - 2)) + 1, y: Math.floor(Math.random() * (mazeSize - 2)) + 1 };
+      }
+    }
+
+    // Event listener untuk tombol keyboard
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') move(0, -1);
+      if (e.key === 'ArrowDown') move(0, 1);
+      if (e.key === 'ArrowLeft') move(-1, 0);
+      if (e.key === 'ArrowRight') move(1, 0);
+    });
+
+    // Inisialisasi game
+    randomizeStartEnd();
+    generateMaze();
+    playerPos = { x: startPos.x, y: startPos.y };
+    drawMaze();
+  </script>
+</body>
+</html>
