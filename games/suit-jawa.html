@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Suit Jawa</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f2f2f2;
+      padding: 40px;
+    }
+    h1 {
+      color: #333;
+    }
+    .choices button {
+      font-size: 20px;
+      margin: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background: #00aaff;
+      color: white;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Suit Jawa: Batu Gunting Kertas</h1>
+  <p>Pilih salah satu:</p>
+  <div class="choices">
+    <button onclick="play('batu')">🪨 Batu</button>
+    <button onclick="play('gunting')">✂️ Gunting</button>
+    <button onclick="play('kertas')">📄 Kertas</button>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    function play(playerChoice) {
+      const options = ['batu', 'gunting', 'kertas'];
+      const botChoice = options[Math.floor(Math.random() * 3)];
+
+      let result = '';
+      if (playerChoice === botChoice) {
+        result = 'Seri! Kamu dan Bot memilih ' + botChoice;
+      } else if (
+        (playerChoice === 'batu' && botChoice === 'gunting') ||
+        (playerChoice === 'gunting' && botChoice === 'kertas') ||
+        (playerChoice === 'kertas' && botChoice === 'batu')
+      ) {
+        result = 'Kamu MENANG! Bot memilih ' + botChoice;
+      } else {
+        result = 'Kamu KALAH! Bot memilih ' + botChoice;
+      }
+
+      document.getElementById('result').textContent = result;
+    }
+  </script>
+</body>
+</html>
