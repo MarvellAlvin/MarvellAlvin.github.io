@@ -1,16 +1,161 @@
 @font-face {
   font-family: 'Font1';
-  src: url('fonts/font1.ttf') format('truetype');
+  src: url('fonts/aAnotherTag.ttf') format('truetype');
 }
 
 @font-face {
   font-family: 'Font2';
-  src: url('fonts/font2.ttf') format('truetype');
+  src: url('fonts/Anti-everything.ttf') format('truetype');
 }
 
 @font-face {
   font-family: 'Font3';
-  src: url('fonts/font3.ttf') format('truetype');
+  src: url('fonts/Barachieldemo-8OZXB.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font4';
+  src: url('fonts/ChaseZenJackulator.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font5';
+  src: url('fonts/Decipher_PERSONAL_USE_ONLY.otf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font6';
+  src: url('fonts/DecipherSymbols_PERSONAL_USE_ONLY.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font7';
+  src: url('fonts/Font (el&font bubble).ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font8';
+  src: url('fonts/Las Malas Calles.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font9';
+  src: url('fonts/MAREN-font_V01.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font10';
+  src: url('fonts/Nightvandals.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font11';
+  src: url('fonts/Phantom Urbanism.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font12';
+  src: url('fonts/Pixo Reto.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font13';
+  src: url('fonts/SlimWandals_PERSONA.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font14';
+  src: url('fonts/SlimWandalsAlt_PERSONAL.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font15';
+  src: url('fonts/SlimWandalsElement_PERSONAL.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font16';
+  src: url('fonts/sotra.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font17';
+  src: url('fonts/soychango.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font18';
+  src: url('fonts/srcuen_font.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font19';
+  src: url('fonts/Stab.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font20';
+  src: url('fonts/Streamzy.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font21';
+  src: url('fonts/Street Wars Demo.otf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font22';
+  src: url('fonts/Street Wars Demo.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font23';
+  src: url('fonts/Throw-up Font.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font24';
+  src: url('fonts/Throwupz-z7vX.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font25';
+  src: url('fonts/TOUGHWALL.otf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font26';
+  src: url('fonts/TOUGHWALL.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font27';
+  src: url('fonts/TOUGHWALL.woff') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font28';
+  src: url('fonts/Trisula Street.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font29';
+  src: url('fonts/Urban Calligraphy.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font30';
+  src: url('fonts/WaxedtownGTDemo.otf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font31';
+  src: url('fonts/WholecarWhite_PERSONAL_USE_ONLY.otf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Font32';
+  src: url('fonts/ZombiesComingGraffiti-4B8vY.ttf') format('truetype');
 }
 
 body {
