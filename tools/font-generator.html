@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Font Preview Gallery</title>
+  <link rel="stylesheet" href="style-font.css">
+</head>
+<body>
+  <h1>Font Preview Gallery</h1>
+  <p>Ketik teks di bawah ini untuk melihat preview dengan berbagai font:</p>
+  <textarea id="inputText" placeholder="Ketik sesuatu..."></textarea>
+
+  <div class="font-preview" style="font-family: 'Font1';">
+    <div class="font-title">Font1</div>
+    <div class="preview-text" id="previewFont1">Contoh Teks</div>
+  </div>
+
+  <div class="font-preview" style="font-family: 'Font2';">
+    <div class="font-title">Font2</div>
+    <div class="preview-text" id="previewFont2">Contoh Teks</div>
+  </div>
+
+  <div class="font-preview" style="font-family: 'Font3';">
+    <div class="font-title">Font3</div>
+    <div class="preview-text" id="previewFont3">Contoh Teks</div>
+  </div>
+
+  <script>
+    const input = document.getElementById("inputText");
+
+    input.addEventListener("input", () => {
+      const value = input.value || "Contoh Teks";
+      document.getElementById("previewFont1").textContent = value;
+      document.getElementById("previewFont2").textContent = value;
+      document.getElementById("previewFont3").textContent = value;
+    });
+  </script>
+</body>
+</html>
