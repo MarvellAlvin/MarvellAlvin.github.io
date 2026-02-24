@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asmaul Husna - 99 Nama Allah</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0b3a4a 0%, #0e4d62 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 150, 0.2);
+            border-radius: 40px;
+            padding: 24px;
+            color: white;
+            box-shadow: 0 20px 40px -15px black;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 500;
+            color: #fae6cb;
+            margin-bottom: 8px;
+        }
+        h1 span {
+            font-size: 1rem;
+            display: block;
+            opacity: 0.8;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+        .search-card {
+            background: rgba(20, 55, 70, 0.7);
+            border-radius: 60px;
+            padding: 20px 25px;
+            margin: 20px 0 30px;
+            border: 1px solid #c9a45b;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+        .search-label {
+            font-size: 1.2rem;
+            color: #ffeac2;
+        }
+        .search-input {
+            background: #1c5668;
+            border: 2px solid #deb887;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            width: 100px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: #ffb86b;
+            box-shadow: 0 0 10px #ffb86b88;
+        }
+        .search-button, .reset-button {
+            background: #c59b5b;
+            border: none;
+            color: #1d3a42;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 12px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 5px 0 #7a532a;
+            border: 1px solid #efc48c;
+        }
+        .reset-button {
+            background: #5f8b9c;
+            box-shadow: 0 5px 0 #2e5563;
+        }
+        .search-button:hover, .reset-button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 7px 0 #7a532a;
+        }
+        .reset-button:hover {
+            box-shadow: 0 7px 0 #2e5563;
+        }
+        .search-button:active, .reset-button:active {
+            transform: translateY(5px);
+            box-shadow: 0 2px 0 #7a532a;
+        }
+        .info-message {
+            text-align: center;
+            font-size: 1.1rem;
+            background: #1b5768;
+            padding: 12px;
+            border-radius: 50px;
+            margin: 10px 0 25px;
+            border: 1px dashed #e5b87b;
+        }
+        .husna-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 18px;
+            margin-top: 25px;
+        }
+        .husna-item {
+            background: rgba(15, 50, 60, 0.8);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 200, 120, 0.35);
+            border-radius: 30px;
+            padding: 22px 15px;
+            text-align: center;
+            transition: 0.15s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+        .husna-item:hover {
+            border-color: #f5c37c;
+            background: #195461;
+            transform: scale(1.01);
+        }
+        .husna-number {
+            background: #c8a066;
+            color: #0f2e38;
+            font-weight: 700;
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            border: 1px solid #ffd58c;
+        }
+        .husna-arab {
+            font-size: 2.2rem;
+            font-family: 'Traditional Arabic', 'Amiri', 'Scheherazade', serif;
+            line-height: 1.5;
+            margin: 10px 0;
+            color: #ffdebc;
+            font-weight: 500;
+        }
+        .husna-latin {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffd9a3;
+            margin: 8px 0;
+            letter-spacing: 1px;
+        }
+        .husna-arti {
+            font-size: 1rem;
+            opacity: 0.9;
+            background: #0d4050;
+            padding: 8px 12px;
+            border-radius: 40px;
+            border: 1px solid #b5905b;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.4rem;
+            color: #c7e7f0;
+        }
+        .error-message {
+            background: #a04848aa;
+            border-radius: 60px;
+            padding: 20px;
+            text-align: center;
+            color: #ffdbdb;
+            border: 2px solid #ff9494;
+            margin: 30px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            opacity: 0.5;
+            font-size: 0.9rem;
+        }
+        /* untuk pesan hasil pencarian */
+        .single-view {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .single-view .husna-item {
+            max-width: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>☪️ Asmaul Husna <span>99 Nama Allah Yang Maha Indah</span></h1>
+
+        <!-- Area Pencarian -->
+        <div class="search-card">
+            <span class="search-label">Cari nomor (1-99):</span>
+            <input type="number" id="searchInput" class="search-input" min="1" max="99" placeholder="67">
+            <button class="search-button" id="searchBtn">🔍 Cari</button>
+            <button class="reset-button" id="resetBtn">📋 Tampilkan Semua</button>
+        </div>
+
+        <!-- Info / Status -->
+        <div id="infoMessage" class="info-message">
+            Menampilkan semua Asmaul Husna (99 nama)
+        </div>
+
+        <!-- Area konten utama (hasil) -->
+        <div id="contentArea">
+            <div class="loading">Memuat data Asmaul Husna...</div>
+        </div>
+
+        <div class="footer">Sumber: api.myquran.com</div>
+    </div>
+
+    <script>
+        // Elemen DOM
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const infoMessage = document.getElementById('infoMessage');
+        const contentArea = document.getElementById('contentArea');
+
+        // State untuk menyimpan semua data (agar tidak perlu request ulang)
+        let allHusnaData = [];
+        let isLoading = false;
+
+        // Fungsi untuk menampilkan loading
+        function setLoading(loading) {
+            isLoading = loading;
+            if (loading) {
+                contentArea.innerHTML = '<div class="loading">⏳ Memuat...</div>';
+            }
+        }
+
+        // Fungsi menampilkan error
+        function showError(message) {
+            contentArea.innerHTML = `<div class="error-message">❌ ${message}</div>`;
+        }
+
+        // Fungsi untuk mengambil semua data Asmaul Husna (dari API)
+        async function fetchAllHusna() {
+            // Jika sudah pernah diambil, langsung tampilkan
+            if (allHusnaData.length > 0) {
+                renderAllHusna(allHusnaData);
+                infoMessage.textContent = 'Menampilkan semua Asmaul Husna (99 nama)';
+                return;
+            }
+
+            try {
+                setLoading(true);
+                const response = await fetch('https://api.myquran.com/v2/husna/semua');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const json = await response.json();
+                
+                if (json.status === true && Array.isArray(json.data) && json.data.length > 0) {
+                    allHusnaData = json.data; // simpan
+                    renderAllHusna(allHusnaData);
+                    infoMessage.textContent = 'Menampilkan semua Asmaul Husna (99 nama)';
+                } else {
+                    throw new Error('Format data tidak sesuai');
+                }
+            } catch (error) {
+                console.error(error);
+                showError('Gagal memuat data. Periksa koneksi internet.');
+                infoMessage.textContent = 'Gagal memuat data';
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Fungsi untuk menampilkan semua data dalam grid
+        function renderAllHusna(data) {
+            if (!data || data.length === 0) {
+                contentArea.innerHTML = '<div class="error-message">Tidak ada data</div>';
+                return;
+            }
+
+            let html = '<div class="husna-grid">';
+            data.forEach(item => {
+                html += `
+                    <div class="husna-item">
+                        <div class="husna-number">#${item.id}</div>
+                        <div class="husna-arab">${item.arab || '-'}</div>
+                        <div class="husna-latin">${item.latin || '-'}</div>
+                        <div class="husna-arti">${item.indo || '-'}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            contentArea.innerHTML = html;
+        }
+
+        // Fungsi untuk menampilkan satu item (hasil pencarian)
+        function renderSingleItem(item) {
+            if (!item) {
+                contentArea.innerHTML = '<div class="error-message">Data tidak ditemukan</div>';
+                return;
+            }
+            const html = `
+                <div class="single-view">
+                    <div class="husna-item">
+                        <div class="husna-number">#${item.id}</div>
+                        <div class="husna-arab">${item.arab || '-'}</div>
+                        <div class="husna-latin">${item.latin || '-'}</div>
+                        <div class="husna-arti">${item.indo || '-'}</div>
+                    </div>
+                </div>
+            `;
+            contentArea.innerHTML = html;
+        }
+
+        // Fungsi untuk mencari berdasarkan nomor
+        async function searchByNumber(number) {
+            // Validasi input
+            if (!number || number < 1 || number > 99) {
+                showError('Nomor harus antara 1 - 99');
+                infoMessage.textContent = 'Nomor tidak valid';
+                return;
+            }
+
+            try {
+                setLoading(true);
+                // Panggil API dengan endpoint nomor (contoh: /husna/67)
+                // Perhatikan URL: pastikan tidak ada double slash
+                const response = await fetch(`https://api.myquran.com/v2/husna/${number}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const json = await response.json();
+
+                if (json.status === true && json.data) {
+                    // Data ditemukan
+                    renderSingleItem(json.data);
+                    infoMessage.textContent = `Menampilkan Asmaul Husna nomor #${number}`;
+                } else {
+                    // Data tidak ditemukan (misal nomor >99)
+                    showError(`Nomor ${number} tidak ditemukan. (1-99)`);
+                    infoMessage.textContent = 'Pencarian gagal';
+                }
+            } catch (error) {
+                console.error(error);
+                showError('Gagal mengambil data. Periksa koneksi.');
+                infoMessage.textContent = 'Error koneksi';
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Event listener untuk tombol cari
+        searchBtn.addEventListener('click', function() {
+            const number = parseInt(searchInput.value, 10);
+            if (isNaN(number)) {
+                showError('Masukkan nomor yang valid');
+                return;
+            }
+            searchByNumber(number);
+        });
+
+        // Event listener untuk tombol reset (tampilkan semua)
+        resetBtn.addEventListener('click', function() {
+            fetchAllHusna(); // ini akan menampilkan semua
+            searchInput.value = ''; // kosongkan input
+        });
+
+        // Inisialisasi: tampilkan semua data saat halaman dimuat
+        window.addEventListener('load', function() {
+            fetchAllHusna();
+        });
+
+        // Tambahan: jika user tekan Enter di input, lakukan pencarian
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
