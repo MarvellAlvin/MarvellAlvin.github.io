@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Qur'an Digital - Juz & Surat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0b3e35 0%, #1b5e4f 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(200, 230, 200, 0.2);
+            border-radius: 40px;
+            padding: 24px;
+            color: white;
+            box-shadow: 0 20px 40px -15px black;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 500;
+            color: #f0f7e6;
+            margin-bottom: 8px;
+        }
+        h1 span {
+            font-size: 1rem;
+            display: block;
+            opacity: 0.8;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0 15px;
+        }
+        .tab-button {
+            background: #22665c;
+            border: 1px solid #8fc1a0;
+            color: white;
+            padding: 12px 32px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #0b3e35;
+        }
+        .tab-button.active {
+            background: #c9a86b;
+            color: #1d4a40;
+            border-color: #ffde9e;
+            box-shadow: 0 4px 0 #7a6335;
+        }
+        .tab-button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .search-card {
+            background: rgba(20, 70, 60, 0.7);
+            border-radius: 60px;
+            padding: 20px 25px;
+            margin: 20px 0 30px;
+            border: 1px solid #9fc7a5;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+        .search-label {
+            font-size: 1.2rem;
+            color: #e0f0da;
+        }
+        .search-input {
+            background: #1b6b5c;
+            border: 2px solid #9fc7a5;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            width: 120px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: #ffde9e;
+            box-shadow: 0 0 10px #ffde9e88;
+        }
+        .search-button, .info-button {
+            background: #c9a86b;
+            border: none;
+            color: #1d4a40;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 12px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 5px 0 #7a6335;
+        }
+        .info-button {
+            background: #619b8a;
+            box-shadow: 0 5px 0 #2e6b5c;
+        }
+        .search-button:hover, .info-button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .info-message {
+            text-align: center;
+            font-size: 1.1rem;
+            background: #1b6b5c;
+            padding: 14px;
+            border-radius: 50px;
+            margin: 15px 0 25px;
+            border: 1px dashed #c9d97a;
+        }
+        /* Grid untuk ayat */
+        .ayah-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-top: 25px;
+        }
+        .ayah-card {
+            background: rgba(20, 65, 55, 0.9);
+            border: 1px solid #9fc7a5;
+            border-radius: 32px;
+            padding: 22px 25px;
+            transition: 0.15s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+        .ayah-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            background: #135449;
+            padding: 8px 18px;
+            border-radius: 50px;
+            width: fit-content;
+            border: 1px solid #d4b77c;
+        }
+        .surah-badge {
+            background: #c9a86b;
+            color: #1d4a40;
+            padding: 5px 15px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .ayah-number {
+            background: #428a78;
+            padding: 5px 15px;
+            border-radius: 40px;
+            font-size: 1rem;
+        }
+        .arabic-text {
+            font-size: 2.2rem;
+            font-family: 'Traditional Arabic', 'Amiri', 'Scheherazade', serif;
+            line-height: 1.8;
+            text-align: right;
+            margin: 20px 0;
+            color: #f5f0d7;
+            font-weight: 500;
+            word-break: break-word;
+        }
+        .translation-text {
+            font-size: 1.2rem;
+            background: #195e4e;
+            padding: 18px 20px;
+            border-radius: 30px;
+            margin: 15px 0 10px;
+            border: 1px solid #c4b07a;
+            color: #f0f0e0;
+        }
+        .audio-link {
+            display: inline-block;
+            background: #307b68;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            text-decoration: none;
+            margin-top: 12px;
+            border: 1px solid #dbbc7c;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        .audio-link:hover {
+            background: #429883;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.4rem;
+            color: #d4ecd9;
+        }
+        .error-message {
+            background: #9e544a;
+            border-radius: 60px;
+            padding: 25px;
+            text-align: center;
+            color: #ffe1d6;
+            border: 2px solid #ffa07a;
+            margin: 30px 0;
+            font-size: 1.2rem;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            opacity: 0.5;
+            font-size: 0.9rem;
+        }
+        /* Untuk tampilan surat */
+        .surah-header {
+            background: #22665c;
+            border-radius: 50px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid #c9a86b;
+        }
+        .surah-name {
+            font-size: 2.5rem;
+            font-family: 'Traditional Arabic', serif;
+        }
+        .surah-meta {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .surah-desc {
+            background: #135449;
+            padding: 20px;
+            border-radius: 30px;
+            margin: 15px 0 5px;
+            text-align: left;
+            font-style: italic;
+        }
+        /* Responsif */
+        @media (max-width: 600px) {
+            .arabic-text { font-size: 1.8rem; }
+            .ayah-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📖 Al-Qur'an Digital <span>Baca & Renungkan</span></h1>
+
+        <!-- Tab Pilihan: Juz atau Surat -->
+        <div class="nav-tabs">
+            <button class="tab-button active" id="tabJuzBtn">📚 Per Juz</button>
+            <button class="tab-button" id="tabSurahBtn">📖 Per Surat</button>
+        </div>
+
+        <!-- Area pencarian dinamis (diisi oleh JS) -->
+        <div id="searchArea"></div>
+
+        <!-- Info status -->
+        <div id="infoMessage" class="info-message">
+            Pilih tab untuk memulai
+        </div>
+
+        <!-- Area konten utama (hasil) -->
+        <div id="contentArea">
+            <div class="loading">Memuat...</div>
+        </div>
+
+        <div class="footer">Sumber: api.myquran.com | masih dalam pengembangan</div>
+    </div>
+
+    <script>
+        // Elemen DOM
+        const tabJuz = document.getElementById('tabJuzBtn');
+        const tabSurah = document.getElementById('tabSurahBtn');
+        const searchArea = document.getElementById('searchArea');
+        const infoMessage = document.getElementById('infoMessage');
+        const contentArea = document.getElementById('contentArea');
+
+        // State aktif
+        let activeTab = 'juz'; // 'juz' atau 'surah'
+
+        // ========== RENDER SEARCH AREA BERDASARKAN TAB ==========
+        function renderSearchArea() {
+            if (activeTab === 'juz') {
+                searchArea.innerHTML = `
+                    <div class="search-card">
+                        <span class="search-label">Masukkan nomor Juz (1-30):</span>
+                        <input type="number" id="juzInput" class="search-input" min="1" max="30" value="30">
+                        <button class="search-button" id="loadJuzBtn">📥 Tampilkan Juz</button>
+                        <button class="info-button" id="infoJuzBtn">ℹ️ Info Juz 30</button>
+                    </div>
+                `;
+                // Event listener untuk tombol
+                document.getElementById('loadJuzBtn').addEventListener('click', () => {
+                    const juz = document.getElementById('juzInput').value;
+                    if (juz >= 1 && juz <= 30) fetchJuz(juz);
+                    else showError('Nomor juz harus 1-30');
+                });
+                document.getElementById('infoJuzBtn').addEventListener('click', () => {
+                    infoMessage.innerHTML = 'Juz 30 (Juz terakhir) terdiri dari surat-surat pendek: An-Naba\' (78) hingga An-Nas (114).';
+                });
+                // Optional: langsung muat juz 30 saat pertama kali
+                if (!contentArea.innerHTML.includes('ayat-card')) fetchJuz(30);
+            } 
+            else if (activeTab === 'surah') {
+                searchArea.innerHTML = `
+                    <div class="search-card">
+                        <span class="search-label">Masukkan nomor Surat (1-114):</span>
+                        <input type="number" id="surahInput" class="search-input" min="1" max="114" value="1">
+                        <button class="search-button" id="loadSurahBtn">📥 Tampilkan Surat</button>
+                        <button class="info-button" id="infoSurahBtn">ℹ️ Tentang Surat</button>
+                    </div>
+                `;
+                document.getElementById('loadSurahBtn').addEventListener('click', () => {
+                    const surah = document.getElementById('surahInput').value;
+                    if (surah >= 1 && surah <= 114) fetchSurah(surah);
+                    else showError('Nomor surat harus 1-114');
+                });
+                document.getElementById('infoSurahBtn').addEventListener('click', () => {
+                    const surah = document.getElementById('surahInput').value;
+                    if (surah >= 1 && surah <= 114) fetchSurahInfo(surah);
+                    else showError('Nomor surat tidak valid');
+                });
+                // Optional: muat surat Al-Fatihah saat pertama kali
+                if (!contentArea.innerHTML.includes('surah-header')) fetchSurah(1);
+            }
+        }
+
+        // ========== FUNGSI MENAMPILKAN ERROR ==========
+        function showError(msg) {
+            contentArea.innerHTML = `<div class="error-message">❌ ${msg}</div>`;
+        }
+
+        function setLoading() {
+            contentArea.innerHTML = '<div class="loading">⏳ Memuat data...</div>';
+        }
+
+        // ========== FETCH JUZ ==========
+        async function fetchJuz(juzNumber) {
+            setLoading();
+            infoMessage.innerHTML = `Menampilkan Juz ${juzNumber}`;
+            try {
+                const response = await fetch(`https://api.myquran.com/v3/quran/juz/${juzNumber}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const json = await response.json();
+                if (json.status === true && Array.isArray(json.data)) {
+                    renderJuz(json.data, juzNumber);
+                } else {
+                    throw new Error('Data tidak ditemukan');
+                }
+            } catch (error) {
+                console.error(error);
+                showError('Gagal mengambil data juz. Periksa koneksi.');
+                infoMessage.innerHTML = 'Gagal memuat';
+            }
+        }
+
+        // RENDER JUZ (daftar ayat)
+        function renderJuz(ayahList, juzNumber) {
+            if (!ayahList.length) {
+                contentArea.innerHTML = '<div class="error-message">Tidak ada ayat</div>';
+                return;
+            }
+
+            let html = `<div class="ayah-grid">`;
+            ayahList.forEach(ayah => {
+                // Cegah error jika properti tidak ada
+                const surahName = ayah.surah?.name_latin || `Surat ${ayah.surah_number}`;
+                const arab = ayah.arab || '(teks tidak tersedia)';
+                const translation = ayah.translation || '(terjemahan tidak tersedia)';
+                const audio = ayah.audio_url || '#';
+
+                html += `
+                    <div class="ayah-card">
+                        <div class="ayah-header">
+                            <span class="surah-badge">${surahName}</span>
+                            <span class="ayah-number">Ayat ${ayah.ayah_number}</span>
+                        </div>
+                        <div class="arabic-text">${arab}</div>
+                        <div class="translation-text">${translation}</div>
+                        <a href="${audio}" target="_blank" class="audio-link" rel="noopener noreferrer">🎧 Putar Audio</a>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            contentArea.innerHTML = html;
+        }
+
+        // ========== FETCH SURAT ==========
+        async function fetchSurah(surahNumber) {
+            setLoading();
+            infoMessage.innerHTML = `Menampilkan Surat ke-${surahNumber}`;
+            try {
+                const response = await fetch(`https://api.myquran.com/v3/quran/${surahNumber}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const json = await response.json();
+                if (json.status === true && json.data) {
+                    renderSurah(json.data);
+                } else {
+                    throw new Error('Data surat tidak ditemukan');
+                }
+            } catch (error) {
+                console.error(error);
+                showError('Gagal mengambil data surat.');
+                infoMessage.innerHTML = 'Gagal memuat';
+            }
+        }
+
+        // RENDER SURAT LENGKAP
+        function renderSurah(surahData) {
+            // surahData: { name, name_latin, number_of_ayahs, translation, description, ayahs, ... }
+            const ayahs = surahData.ayahs || [];
+            if (!ayahs.length) {
+                contentArea.innerHTML = '<div class="error-message">Surat ini tidak memiliki ayat?</div>';
+                return;
+            }
+
+            let html = `
+                <div class="surah-header">
+                    <div class="surah-name">${surahData.name || ''}</div>
+                    <div style="font-size:1.8rem; margin:10px 0">${surahData.name_latin || ''}</div>
+                    <div class="surah-meta">${surahData.translation || ''} | ${surahData.revelation || ''} | ${surahData.number_of_ayahs || 0} ayat</div>
+                    ${surahData.description ? `<div class="surah-desc">${surahData.description}</div>` : ''}
+                </div>
+                <div class="ayah-grid">
+            `;
+
+            ayahs.forEach(ayah => {
+                html += `
+                    <div class="ayah-card">
+                        <div class="ayah-header">
+                            <span class="surah-badge">${surahData.name_latin || 'Al-Qur\'an'}</span>
+                            <span class="ayah-number">Ayat ${ayah.ayah_number}</span>
+                        </div>
+                        <div class="arabic-text">${ayah.arab || ''}</div>
+                        <div class="translation-text">${ayah.translation || ''}</div>
+                        ${ayah.audio_url ? `<a href="${ayah.audio_url}" target="_blank" class="audio-link" rel="noopener noreferrer">🎧 Putar Audio</a>` : ''}
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            contentArea.innerHTML = html;
+        }
+
+        // Fungsi sederhana untuk info surat (opsional)
+        async function fetchSurahInfo(surahNumber) {
+            try {
+                const response = await fetch(`https://api.myquran.com/v3/quran/${surahNumber}`);
+                if (!response.ok) throw new Error();
+                const json = await response.json();
+                if (json.status && json.data) {
+                    const d = json.data;
+                    infoMessage.innerHTML = `📌 Surat ${d.name_latin} (${d.translation}): ${d.number_of_ayahs} ayat, diturunkan di ${d.revelation}. ${d.description || ''}`;
+                } else {
+                    infoMessage.innerHTML = `Informasi surat ke-${surahNumber} tidak tersedia.`;
+                }
+            } catch (e) {
+                infoMessage.innerHTML = `Gagal mengambil info surat.`;
+            }
+        }
+
+        // ========== EVENT LISTENER TAB ==========
+        tabJuz.addEventListener('click', () => {
+            activeTab = 'juz';
+            tabJuz.classList.add('active');
+            tabSurah.classList.remove('active');
+            renderSearchArea();
+        });
+
+        tabSurah.addEventListener('click', () => {
+            activeTab = 'surah';
+            tabSurah.classList.add('active');
+            tabJuz.classList.remove('active');
+            renderSearchArea();
+        });
+
+        // ========== INIT ==========
+        renderSearchArea(); // Pertama kali: tab juz aktif, langsung muat juz 30
+    </script>
+</body>
+</html>
