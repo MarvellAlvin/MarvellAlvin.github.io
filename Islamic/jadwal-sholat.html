@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Sholat & Kalender - Pilih Kota</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0b2a35 0%, #123b44 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 36px;
+            padding: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            color: #fff;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #e9f5f8;
+            letter-spacing: 1px;
+        }
+        h1 span {
+            font-weight: 300;
+            font-size: 1rem;
+            display: block;
+            color: #b3e0e8;
+            margin-top: 5px;
+        }
+        .search-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 50px;
+            align-items: center;
+        }
+        #search-input {
+            flex: 1 1 200px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 40px;
+            background: #2a4a55;
+            color: white;
+            font-size: 1rem;
+            outline: 1px solid #5f9ea0;
+        }
+        #search-input::placeholder {
+            color: #b0d0d8;
+        }
+        #search-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 40px;
+            background: #e7b183;
+            color: #1e3c44;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        #search-btn:hover {
+            background: #f5c69b;
+            transform: scale(0.98);
+        }
+        .search-results {
+            flex: 1 1 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .city-btn {
+            background: #1f525e;
+            border: 1px solid #b0d4da;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .city-btn:hover {
+            background: #2e707e;
+            border-color: #ffd89c;
+        }
+        .card {
+            background: rgba(10, 35, 45, 0.7);
+            border-radius: 28px;
+            padding: 22px;
+            margin-bottom: 22px;
+            border: 1px solid rgba(255, 215, 150, 0.25);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            margin-bottom: 18px;
+        }
+        .date-gregorian {
+            background: #1f525e;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #fbe9d2;
+            text-align: center;
+        }
+        .date-hijri {
+            background: #8b5f3c;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #fff3e0;
+            direction: ltr;
+            text-align: center;
+        }
+        .prayer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 25px;
+        }
+        .prayer-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 14px 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 239, 190, 0.2);
+            transition: transform 0.2s ease;
+        }
+        .prayer-item:hover {
+            transform: scale(1.02);
+            background: rgba(255, 239, 190, 0.15);
+            border-color: #f5c99e;
+        }
+        .prayer-name {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            color: #d4f0f5;
+        }
+        .prayer-time {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #ffdfb0;
+            line-height: 1.2;
+        }
+        .info-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            opacity: 0.7;
+            border-top: 1px dashed rgba(255,215,150,0.3);
+            padding-top: 18px;
+        }
+        .loading, .error {
+            text-align: center;
+            padding: 20px;
+            border-radius: 50px;
+        }
+        .loading {
+            color: #aad0d9;
+        }
+        .error {
+            background: #60202080;
+            color: #ffbaba;
+            border: 1px solid #ff8a8a;
+        }
+        .footer-note {
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 10px;
+            opacity: 0.5;
+        }
+        .city-name-title {
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: #fadfad;
+            text-align: center;
+            margin: 5px 0 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🕌 Jadwal Sholat <span>Pilih kota untuk melihat jadwal</span></h1>
+
+    <!-- Bagian Pencarian Kota -->
+    <div class="search-section">
+        <input type="text" id="search-input" placeholder="Masukkan nama kota (contoh: Surabaya)" value="Kediri">
+        <button id="search-btn">Cari Kota</button>
+        <div id="search-results" class="search-results"></div>
+    </div>
+
+    <!-- Menampilkan Nama Kota Aktif -->
+    <div id="city-name-display" class="city-name-title">📍 Kota Kediri</div>
+
+    <!-- Area Kalender -->
+    <div class="card" id="calendar-card">
+        <div class="calendar-header">
+            <div class="date-gregorian" id="gregorian-date">Memuat kalender...</div>
+            <div class="date-hijri" id="hijri-date">-</div>
+        </div>
+        <div style="text-align: center; color: #bfe3ea;" id="calendar-detail"></div>
+    </div>
+
+    <!-- Area Jadwal Sholat -->
+    <div class="card" id="prayer-card">
+        <h3 style="font-weight:400; margin-bottom:8px;">📆 Jadwal Hari Ini</h3>
+        <div id="prayer-times" class="loading">Mengambil jadwal sholat...</div>
+        <div class="prayer-grid" id="prayer-grid-container"></div>
+        <div class="info-text" id="prayer-source"></div>
+    </div>
+
+    <div class="footer-note">Data oleh api.myquran.com | bimasislam.kemenag.go.id</div>
+</div>
+
+<script>
+    (function() {
+        // ==================== KONFIGURASI ====================
+        const DEFAULT_KOTA = {
+            id: 'eda80a3d5b344bc40f3bc04f65b7a357',
+            name: 'KOTA KEDIRI'
+        };
+        const TZ = 'Asia/Jakarta'; // Zona waktu tetap (API kalender dan sholat menggunakan tz ini)
+
+        // Elemen DOM
+        const gregorianEl = document.getElementById('gregorian-date');
+        const hijriEl = document.getElementById('hijri-date');
+        const calendarDetailEl = document.getElementById('calendar-detail');
+        const prayerTimesDiv = document.getElementById('prayer-times');
+        const prayerGridContainer = document.getElementById('prayer-grid-container');
+        const prayerSourceEl = document.getElementById('prayer-source');
+        const cityNameDisplay = document.getElementById('city-name-display');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const searchResults = document.getElementById('search-results');
+
+        // State saat ini
+        let currentKotaId = localStorage.getItem('kotaId') || DEFAULT_KOTA.id;
+        let currentKotaName = localStorage.getItem('kotaName') || DEFAULT_KOTA.name;
+
+        // Update tampilan nama kota
+        function updateCityName(name) {
+            cityNameDisplay.textContent = `📍 ${name}`;
+        }
+
+        // ==================== FUNGSI LOAD DATA ====================
+        async function loadCalendar() {
+            try {
+                const calResponse = await fetch('https://api.myquran.com/v3/cal/today?adj=0&tz=' + TZ);
+                if (!calResponse.ok) throw new Error(`Gagal ambil kalender (HTTP ${calResponse.status})`);
+                const calJson = await calResponse.json();
+
+                if (calJson.status === true && calJson.data) {
+                    const ce = calJson.data.ce;
+                    const hijr = calJson.data.hijr;
+                    gregorianEl.textContent = ce.today || `${ce.dayName}, ${ce.day}/${ce.month}/${ce.year}`;
+                    hijriEl.textContent = hijr.today || `${hijr.dayName}, ${hijr.day} ${hijr.monthName} ${hijr.year} H`;
+                    calendarDetailEl.textContent = `📅 ${ce.dayName}, ${ce.day} ${ce.monthName} ${ce.year} Masehi • ${hijr.day} ${hijr.monthName} ${hijr.year} Hijriah`;
+                } else {
+                    throw new Error('Respons kalender tidak sesuai');
+                }
+            } catch (error) {
+                console.error('Error kalender:', error);
+                gregorianEl.textContent = 'Gagal memuat kalender';
+                hijriEl.textContent = 'error';
+                calendarDetailEl.innerHTML = `<span class="error">⚠️ Tidak dapat mengambil data kalender.</span>`;
+            }
+        }
+
+        async function loadPrayerSchedule(kotaId) {
+            // Tampilkan loading
+            prayerTimesDiv.style.display = 'block';
+            prayerTimesDiv.className = 'loading';
+            prayerTimesDiv.textContent = 'Mengambil jadwal sholat...';
+            prayerGridContainer.innerHTML = '';
+
+            try {
+                const prayerUrl = `https://api.myquran.com/v3/sholat/jadwal/${kotaId}/today?tz=${TZ}`;
+                const prayerResponse = await fetch(prayerUrl);
+                if (!prayerResponse.ok) throw new Error(`Gagal ambil jadwal sholat (HTTP ${prayerResponse.status})`);
+                const prayerJson = await prayerResponse.json();
+
+                if (prayerJson.status === true && prayerJson.data && prayerJson.data.jadwal) {
+                    const prayerData = prayerJson.data;
+                    const jadwal = prayerData.jadwal;
+                    const tanggalKey = Object.keys(jadwal)[0];
+                    const jadwalHariIni = jadwal[tanggalKey];
+
+                    const prayerList = [
+                        { name: 'Imsak', time: jadwalHariIni.imsak },
+                        { name: 'Subuh', time: jadwalHariIni.subuh },
+                        { name: 'Terbit', time: jadwalHariIni.terbit },
+                        { name: 'Dhuha', time: jadwalHariIni.dhuha },
+                        { name: 'Dzuhur', time: jadwalHariIni.dzuhur },
+                        { name: 'Ashar', time: jadwalHariIni.ashar },
+                        { name: 'Maghrib', time: jadwalHariIni.maghrib },
+                        { name: 'Isya', time: jadwalHariIni.isya }
+                    ];
+
+                    prayerTimesDiv.style.display = 'none';
+                    prayerGridContainer.innerHTML = '';
+                    prayerList.forEach(p => {
+                        const item = document.createElement('div');
+                        item.className = 'prayer-item';
+                        item.innerHTML = `<div class="prayer-name">${p.name}</div><div class="prayer-time">${p.time || '00:00'}</div>`;
+                        prayerGridContainer.appendChild(item);
+                    });
+
+                    prayerSourceEl.innerHTML = `${jadwalHariIni.tanggal} • ${prayerData.kabko}, ${prayerData.prov}`;
+                } else {
+                    throw new Error('Data jadwal sholat tidak ditemukan');
+                }
+            } catch (error) {
+                console.error('Error jadwal sholat:', error);
+                prayerTimesDiv.style.display = 'block';
+                prayerTimesDiv.className = 'error';
+                prayerTimesDiv.textContent = '❌ Gagal memuat jadwal sholat. Periksa koneksi atau ID kota.';
+            }
+        }
+
+        // Fungsi utama untuk memuat semua data berdasarkan kota
+        async function loadAllData(kotaId, kotaName) {
+            // Update state dan simpan
+            currentKotaId = kotaId;
+            currentKotaName = kotaName;
+            localStorage.setItem('kotaId', kotaId);
+            localStorage.setItem('kotaName', kotaName);
+            updateCityName(kotaName);
+
+            // Load kalender (tidak bergantung kota, tapi kita panggil untuk update tanggal)
+            await loadCalendar();
+            // Load jadwal sholat
+            await loadPrayerSchedule(kotaId);
+        }
+
+        // ==================== FUNGSI PENCARIAN KOTA ====================
+        async function searchCity(query) {
+            if (!query) return;
+            searchResults.innerHTML = '<div class="loading">Mencari...</div>';
+            try {
+                const response = await fetch(`https://api.myquran.com/v3/sholat/kabkota/cari/${encodeURIComponent(query)}`);
+                const data = await response.json();
+                if (data.status && data.data.length > 0) {
+                    displaySearchResults(data.data);
+                } else {
+                    searchResults.innerHTML = '<div class="error">Kota tidak ditemukan</div>';
+                }
+            } catch (error) {
+                console.error(error);
+                searchResults.innerHTML = '<div class="error">Gagal mencari kota</div>';
+            }
+        }
+
+        function displaySearchResults(kotaList) {
+            searchResults.innerHTML = '';
+            kotaList.forEach(kota => {
+                const btn = document.createElement('button');
+                btn.className = 'city-btn';
+                btn.textContent = kota.lokasi;
+                btn.dataset.id = kota.id;
+                btn.dataset.name = kota.lokasi;
+                btn.addEventListener('click', () => {
+                    // Pilih kota ini
+                    loadAllData(kota.id, kota.lokasi);
+                    // Bersihkan hasil pencarian
+                    searchResults.innerHTML = '';
+                    // Opsional, isi input dengan nama kota
+                    searchInput.value = kota.lokasi;
+                });
+                searchResults.appendChild(btn);
+            });
+        }
+
+        // ==================== EVENT LISTENER ====================
+        searchBtn.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            searchCity(query);
+        });
+
+        // Izinkan pencarian dengan tombol Enter
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchBtn.click();
+            }
+        });
+
+        // ==================== INISIALISASI ====================
+        // Load data untuk kota default/tersimpan
+        loadAllData(currentKotaId, currentKotaName);
+        // Isi input dengan nama kota saat ini
+        searchInput.value = currentKotaName;
+    })();
+</script>
+</body>
+</html>
