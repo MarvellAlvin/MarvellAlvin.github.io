@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencarian Hadis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Amiri', 'Times New Roman', serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0b3a2e, #1d5e4b);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            color: #f5f2e6;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #efd9b0;
+            text-shadow: 2px 2px 4px #0a2e25;
+        }
+        .sub {
+            text-align: center;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            font-style: italic;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 215, 150, 0.25);
+            border-radius: 30px;
+            padding: 24px;
+            margin-bottom: 25px;
+            box-shadow: 0 20px 40px -15px black;
+        }
+        .search-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 16px 20px;
+            border: none;
+            border-radius: 50px;
+            background: #234f44;
+            color: white;
+            font-size: 1.1rem;
+            border: 1px solid #b7a06e;
+        }
+        input[type="text"]::placeholder {
+            color: #bdd9d0;
+        }
+        button {
+            background: #c9a45b;
+            border: none;
+            color: #1b423a;
+            font-weight: bold;
+            padding: 16px 28px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border-bottom: 4px solid #7e5f32;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        }
+        button:hover {
+            background: #dfb978;
+            transform: translateY(-2px);
+            border-bottom-width: 6px;
+        }
+        button:active {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+        }
+        .hadis-item {
+            background: rgba(10, 50, 45, 0.6);
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 6px solid #e0bc7e;
+            border-right: 2px solid #a5884e;
+        }
+        .hadis-text {
+            font-size: 1.2rem;
+            line-height: 1.7;
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+        .hadis-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: #cac2aa;
+            border-top: 1px dashed #6e8b7c;
+            padding-top: 12px;
+            margin-top: 8px;
+        }
+        .loading, .error {
+            text-align: center;
+            padding: 40px;
+            background: #1a4a40b0;
+            border-radius: 40px;
+            margin: 20px 0;
+        }
+        .error {
+            background: #682b2bb0;
+            color: #ffd6b3;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            background: #316355;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            border-bottom: 3px solid #1c3d34;
+        }
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .info-paging {
+            text-align: center;
+            margin: 15px 0 5px;
+            color: #e2d6b8;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📖 Pencarian Hadis</h1>
+    <div class="sub">Cari hadis berdasarkan kata kunci</div>
+
+    <!-- KARTU PENCARIAN -->
+    <div class="card">
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Masukkan kata kunci, misal: kiamat, puasa, shalat..." value="kiamat">
+                <button id="searchBtn">Cari</button>
+            </div>
+        </div>
+
+        <!-- Area hasil pencarian -->
+        <div id="searchResultArea">
+            <div id="searchLoading" class="loading" style="display: none;">⏳ Mencari hadis...</div>
+            <div id="searchError" class="error" style="display: none;"></div>
+            <div id="searchContent"></div>
+            <div id="paginationInfo" class="info-paging"></div>
+            <div id="paginationControls" class="pagination"></div>
+        </div>
+    </div>
+
+    <div class="footer">Data hadis oleh api.myquran.com</div>
+</div>
+
+<script>
+    // State untuk pagination
+    let currentKeyword = '';
+    let currentPage = 1;
+    let totalPages = 1;
+    const limit = 10;
+
+    // Elemen DOM
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchLoading = document.getElementById('searchLoading');
+    const searchError = document.getElementById('searchError');
+    const searchContent = document.getElementById('searchContent');
+    const paginationInfo = document.getElementById('paginationInfo');
+    const paginationControls = document.getElementById('paginationControls');
+
+    // Helper: sembunyikan semua status pencarian
+    function resetSearchDisplay() {
+        searchLoading.style.display = 'none';
+        searchError.style.display = 'none';
+    }
+
+    // Tampilkan error pencarian
+    function showSearchError(msg) {
+        resetSearchDisplay();
+        searchError.style.display = 'block';
+        searchError.textContent = '❌ ' + msg;
+        searchContent.innerHTML = '';
+        paginationInfo.innerHTML = '';
+        paginationControls.innerHTML = '';
+    }
+
+    // Fungsi mencari hadis
+    async function searchHadis(keyword, page = 1) {
+        if (!keyword.trim()) {
+            showSearchError('Kata kunci tidak boleh kosong');
+            return;
+        }
+
+        resetSearchDisplay();
+        searchLoading.style.display = 'block';
+        searchContent.innerHTML = '';
+        paginationInfo.innerHTML = '';
+        paginationControls.innerHTML = '';
+
+        try {
+            const url = `https://api.myquran.com/v3/hadis/enc/cari/${encodeURIComponent(keyword)}?page=${page}&limit=${limit}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+
+            if (data.status === true && data.data) {
+                displaySearchResults(data.data, keyword, page);
+            } else {
+                throw new Error('Respons tidak valid dari server');
+            }
+        } catch (error) {
+            console.error(error);
+            showSearchError('Gagal mengambil data. Periksa koneksi atau coba lagi.');
+        } finally {
+            searchLoading.style.display = 'none';
+        }
+    }
+
+    // Tampilkan hasil pencarian
+    function displaySearchResults(data, keyword, currentPage) {
+        const hadisList = data.hadis || [];
+        const paging = data.paging;
+        totalPages = paging.total_pages;
+
+        if (hadisList.length === 0) {
+            searchContent.innerHTML = '<div class="error" style="display:block;">Tidak ada hadis ditemukan untuk kata kunci tersebut.</div>';
+            paginationInfo.innerHTML = '';
+            paginationControls.innerHTML = '';
+            return;
+        }
+
+        // Bangun HTML setiap hadis
+        let html = '';
+        hadisList.forEach(item => {
+            html += `
+                <div class="hadis-item">
+                    <div class="hadis-text">${item.text}</div>
+                    <div class="hadis-meta">
+                        <span>🆔 ID: ${item.id}</span>
+                        ${item.focus ? `<span>🔍 Sorotan: ${item.focus.length} bagian</span>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        searchContent.innerHTML = html;
+
+        // Informasi paging
+        paginationInfo.innerHTML = `Halaman ${paging.current} dari ${paging.total_pages} (Total ${paging.total_data} hadis)`;
+
+        // Tombol navigasi
+        let pagiHtml = '';
+        if (paging.has_prev) {
+            pagiHtml += `<button class="page-btn" data-page="${paging.prev_page}">⬅ Sebelumnya</button>`;
+        } else {
+            pagiHtml += `<button class="page-btn" disabled>⬅ Sebelumnya</button>`;
+        }
+
+        // Info halaman (opsional)
+        pagiHtml += `<span style="color:#cfc5a6; padding:0 10px;">${paging.current}</span>`;
+
+        if (paging.has_next) {
+            pagiHtml += `<button class="page-btn" data-page="${paging.next_page}">Berikutnya ➔</button>`;
+        } else {
+            pagiHtml += `<button class="page-btn" disabled>Berikutnya ➔</button>`;
+        }
+
+        paginationControls.innerHTML = pagiHtml;
+
+        // Tambah event listener ke tombol page
+        document.querySelectorAll('.page-btn[data-page]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const page = e.target.getAttribute('data-page');
+                if (page) {
+                    searchHadis(keyword, parseInt(page));
+                    // scroll ke atas hasil
+                    window.scrollTo({ top: 300, behavior: 'smooth' });
+                }
+            });
+        });
+    }
+
+    // Event listener
+    searchBtn.addEventListener('click', () => {
+        const keyword = searchInput.value.trim();
+        if (keyword) {
+            currentKeyword = keyword;
+            currentPage = 1;
+            searchHadis(keyword, 1);
+        } else {
+            showSearchError('Masukkan kata kunci terlebih dahulu.');
+        }
+    });
+
+    // Enter di input pencarian
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchBtn.click();
+        }
+    });
+
+    // Inisialisasi: langsung cari "kiamat" saat pertama buka
+    window.addEventListener('load', () => {
+        searchHadis('kiamat', 1);
+    });
+</script>
+</body>
+</html>
