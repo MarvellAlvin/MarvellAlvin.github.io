@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arah Kiblat - Berdasarkan Lokasi Saya</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #1e3c4a 0%, #1b4e5e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 40px;
+            padding: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #f5e7d3;
+        }
+        h1 span {
+            font-size: 1rem;
+            display: block;
+            opacity: 0.8;
+            font-weight: 300;
+            margin-top: 5px;
+        }
+        .card {
+            background: rgba(10, 35, 45, 0.6);
+            border-radius: 32px;
+            padding: 24px 16px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 215, 150, 0.25);
+        }
+        .compass {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            background: #234a55;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 -5px 15px rgba(255,255,200,0.3);
+            border: 4px solid #bb9a6e;
+            position: relative;
+        }
+        .compass::before {
+            content: "⬆️";
+            position: absolute;
+            top: -10px;
+            font-size: 32px;
+            filter: drop-shadow(0 5px 3px #00000066);
+        }
+        .needle {
+            width: 8px;
+            height: 140px;
+            background: linear-gradient(to top, #c79b4b 50%, #dddddd 50%);
+            border-radius: 20px;
+            transform-origin: bottom center;
+            transition: transform 0.5s ease-out;
+            box-shadow: 0 0 15px #ffd28f;
+            position: relative;
+        }
+        .needle::after {
+            content: "";
+            width: 24px;
+            height: 24px;
+            background: #dbb47a;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -12px;
+            left: -8px;
+            box-shadow: inset -2px -2px 5px #00000055, inset 2px 2px 5px #ffeecc;
+        }
+        .info-box {
+            background: #1b4f5b;
+            border-radius: 60px;
+            padding: 16px 20px;
+            margin: 20px 0 10px;
+            border: 1px solid #e0ba7c;
+            font-size: 1.2rem;
+        }
+        .direction-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffdebc;
+            line-height: 1.2;
+        }
+        .unit {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        .location-text {
+            background: #153b44;
+            border-radius: 40px;
+            padding: 12px;
+            margin: 15px 0 5px;
+            font-size: 1rem;
+            word-break: break-word;
+        }
+        .button {
+            background: #c59b5b;
+            border: none;
+            color: #1d2f35;
+            font-weight: 600;
+            font-size: 1.2rem;
+            padding: 16px 30px;
+            border-radius: 50px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 5px 0 #7a532a;
+            margin-top: 15px;
+        }
+        .button:hover {
+            background: #dbb072;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #7a532a;
+        }
+        .button:active {
+            transform: translateY(5px);
+            box-shadow: 0 2px 0 #7a532a;
+        }
+        .error {
+            background: #9e4a4a80;
+            border-radius: 50px;
+            padding: 16px;
+            color: #ffd6d6;
+            border: 1px solid #ffa2a2;
+            margin: 20px 0;
+        }
+        .footer-note {
+            font-size: 0.8rem;
+            opacity: 0.5;
+            margin-top: 20px;
+        }
+        .loading {
+            font-size: 1.2rem;
+            padding: 30px;
+            color: #cce3e8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧭 Arah Kiblat <span>Berdasarkan Lokasimu</span></h1>
+
+        <div class="card">
+            <div class="compass" id="compass">
+                <div class="needle" id="needle" style="transform: rotate(0deg);"></div>
+            </div>
+
+            <div class="info-box" id="directionBox">
+                <div class="direction-value" id="directionDisplay">-</div>
+                <div class="unit">derajat dari utara</div>
+            </div>
+
+            <div class="location-text" id="locationDisplay">
+                📍 Lokasi: (belum diketahui)
+            </div>
+
+            <button class="button" id="getLocationBtn">
+                🔍 Aktifkan Lokasi & Tampilkan Kiblat
+            </button>
+
+            <div id="errorMessage" class="error" style="display: none;"></div>
+            <div id="loadingMessage" class="loading" style="display: none;">⏳ Mendapatkan lokasi...</div>
+        </div>
+
+        <div class="footer-note">Data kiblat oleh api.myquran.com | Arah jarum menunjukkan kiblat</div>
+    </div>
+
+    <script>
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const directionDisplay = document.getElementById('directionDisplay');
+        const locationDisplay = document.getElementById('locationDisplay');
+        const needle = document.getElementById('needle');
+        const errorMessage = document.getElementById('errorMessage');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const directionBox = document.getElementById('directionBox');
+
+        // Fungsi untuk menampilkan/menyembunyikan loading
+        function setLoading(isLoading) {
+            loadingMessage.style.display = isLoading ? 'block' : 'none';
+            getLocationBtn.disabled = isLoading;
+            if (isLoading) {
+                errorMessage.style.display = 'none';
+            }
+        }
+
+        // Fungsi untuk menampilkan error
+        function showError(msg) {
+            errorMessage.textContent = '⚠️ ' + msg;
+            errorMessage.style.display = 'block';
+            loadingMessage.style.display = 'none';
+            getLocationBtn.disabled = false;
+        }
+
+        // Fungsi untuk memformat koordinat
+        function formatCoordinate(lat, lon) {
+            return `${lat.toFixed(6)}°, ${lon.toFixed(6)}°`;
+        }
+
+        // Fungsi untuk mengambil arah kiblat dari API
+        async function fetchQibla(lat, lon) {
+            // Pastikan format koordinat: lat,lon dengan maksimal 6 desimal (API tampaknya toleran)
+            const url = `https://api.myquran.com/v3/qibla/${lat},${lon}`;
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Gagal mengambil data (HTTP ${response.status})`);
+            }
+            const data = await response.json();
+            if (data.status === true && data.data && data.data.direction !== undefined) {
+                return data.data.direction;
+            } else {
+                throw new Error('Data arah kiblat tidak ditemukan');
+            }
+        }
+
+        // Fungsi utama saat lokasi didapatkan
+        async function onLocationSuccess(position) {
+            try {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                locationDisplay.innerHTML = `📍 Lokasi: ${formatCoordinate(lat, lon)}`;
+                setLoading(true);
+
+                // Panggil API kiblat
+                const direction = await fetchQibla(lat, lon);
+                
+                // Tampilkan arah
+                directionDisplay.textContent = direction.toFixed(2);
+                
+                // Putar jarum kompas (arah kiblat dari utara searah jarum jam)
+                // Pada kompas, 0° = utara, 90° = timur, 180° = selatan, 270° = barat
+                // Jarum kita putar sesuai arah kiblat
+                needle.style.transform = `rotate(${direction}deg)`;
+                
+                // Sembunyikan loading
+                setLoading(false);
+            } catch (error) {
+                console.error(error);
+                setLoading(false);
+                showError('Gagal mengambil arah kiblat. Pastikan koneksi internet stabil.');
+            }
+        }
+
+        // Fungsi jika gagal mendapatkan lokasi
+        function onLocationError(error) {
+            setLoading(false);
+            let msg = '';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    msg = 'Izin lokasi ditolak. Aktifkan izin untuk menggunakan fitur ini.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    msg = 'Informasi lokasi tidak tersedia.';
+                    break;
+                case error.TIMEOUT:
+                    msg = 'Waktu permintaan lokasi habis.';
+                    break;
+                default:
+                    msg = 'Terjadi kesalahan yang tidak diketahui.';
+            }
+            showError(msg);
+        }
+
+        // Event listener tombol
+        getLocationBtn.addEventListener('click', function() {
+            // Cek apakah browser mendukung geolocation
+            if (!navigator.geolocation) {
+                showError('Browser tidak mendukung geolocation.');
+                return;
+            }
+
+            // Reset tampilan
+            errorMessage.style.display = 'none';
+            setLoading(true);
+
+            // Minta lokasi
+            navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
+        });
+
+        // Opsional: langsung minta lokasi saat halaman dimuat (bisa diaktifkan jika mau)
+        // window.addEventListener('load', () => {
+        //     getLocationBtn.click();
+        // });
+    </script>
+</body>
+</html>
