@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Flappy Bird</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0a2f3f 0%, #0a1a2a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', 'VT323', monospace;
+        }
+
+        .game-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        canvas {
+            display: block;
+            border-radius: 16px;
+            box-shadow: 0 0 0 8px #ffd966, 0 0 0 12px #b45f2b;
+            cursor: pointer;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 30px;
+            pointer-events: none;
+        }
+
+        .score-box, .best-box {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #f7f3e0;
+            text-shadow: 2px 2px 0 #2c5a2e;
+            letter-spacing: 2px;
+            font-family: monospace;
+        }
+
+        .score-box span, .best-box span {
+            font-size: 18px;
+            margin-right: 8px;
+            color: #ffd966;
+        }
+
+        .start-message {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 12px 24px;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            white-space: nowrap;
+            pointer-events: none;
+            animation: pulse 1.2s infinite;
+            font-family: monospace;
+            border: 1px solid #ffd966;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(0.95); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+        }
+
+        @media (max-width: 550px) {
+            .score-box, .best-box { padding: 4px 14px; font-size: 20px; }
+            .score-box span, .best-box span { font-size: 14px; }
+            .start-message { font-size: 16px; white-space: nowrap; bottom: 25%; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <div class="ui-overlay">
+        <div class="score-box"><span>SCORE</span> <span id="scoreValue">0</span></div>
+        <div class="best-box"><span>BEST</span> <span id="bestValue">0</span></div>
+    </div>
+    <div id="startMessage" class="start-message">JUMP TO START</div>
+</div>
+
+<script>
+    (function(){
+        // ----- CANVAS -----
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // ----- GAME STATE -----
+        let gameRunning = false;
+        let score = 0;
+        let bestScore = localStorage.getItem('flappyBest') ? parseInt(localStorage.getItem('flappyBest')) : 0;
+        document.getElementById('bestValue').innerText = bestScore;
+
+        // ----- BIRD (Burung) -----
+        const bird = {
+            x: 80,
+            y: canvas.height/2,
+            radius: 14,
+            velocity: 0,
+            gravity: 0.25,
+            jumpPower: -5.2
+        };
+
+        // ----- PALM TREES (Pohon Sawit) - menggantikan pipes -----
+        let palmTrees = [];
+        const palmWidth = 55;      // lebar batang pohon
+        const palmGap = 160;       // jarak antara atas dan bawah pohon (tempat burung lewat)
+        const palmSpacing = 250;    // jarak antar pohon
+        let frameCounter = 0;
+
+        // ----- GROUND & SCROLL -----
+        let groundX = 0;
+        const groundHeight = 80;
+        const groundSpeed = 2.2;
+
+        // ----- BACKGROUND CLOUDS & MATAHARI -----
+        let clouds = [
+            { x: 100, y: 80, size: 40 },
+            { x: 280, y: 150, size: 55 },
+            { x: 30, y: 220, size: 45 },
+            { x: 320, y: 320, size: 50 }
+        ];
+        
+        // Matahari tropis
+        let sunX = 320, sunY = 70;
+
+        // ----- FUNGSI UTAMA -----
+        function resetGame() {
+            gameRunning = true;
+            score = 0;
+            document.getElementById('scoreValue').innerText = score;
+            bird.y = canvas.height/2;
+            bird.velocity = 0;
+            palmTrees = [];
+            frameCounter = 0;
+            groundX = 0;
+            const msg = document.getElementById('startMessage');
+            if(msg) msg.style.display = 'none';
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            if(score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('flappyBest', bestScore);
+                document.getElementById('bestValue').innerText = bestScore;
+            }
+            const msg = document.getElementById('startMessage');
+            if(msg) {
+                msg.style.display = 'block';
+                msg.innerText = 'GAME OVER - TAP / SPACE';
+            }
+        }
+
+        // Menambah pohon sawit baru (atas dan bawah)
+        function addPalmTree() {
+            const minTop = 70;
+            const maxTop = canvas.height - groundHeight - palmGap - 80;
+            const topHeight = Math.floor(Math.random() * (maxTop - minTop + 1) + minTop);
+            palmTrees.push({
+                x: canvas.width,
+                topHeight: topHeight,      // tinggi batang atas (dari atas)
+                counted: false
+            });
+        }
+
+        // Menggambar pohon sawit dengan daun yang indah
+        function drawPalmTree(x, y, isTop) {
+            // Batang pohon (coklat bergaris)
+            ctx.fillStyle = "#8B5A2B";
+            ctx.shadowBlur = 2;
+            ctx.shadowColor = "rgba(0,0,0,0.3)";
+            ctx.fillRect(x, y, palmWidth, isTop ? 0 : 0); // akan diatur panjangnya di fungsi pemanggil
+            
+            // Detail kulit batang
+            ctx.fillStyle = "#A66A38";
+            for(let i = 0; i < 4; i++) {
+                ctx.fillRect(x + 8 + i*12, y + 5, 5, isTop ? 0 : 0);
+            }
+            
+            // Daun sawit (pelepah) - dibuat melengkung dan natural
+            const leafColor = "#2C7A2F";
+            const leafLight = "#4CAF50";
+            
+            // Fungsi untuk menggambar daun melengkung (kurva)
+            function drawLeaf(startX, startY, angle, length, curve) {
+                ctx.save();
+                ctx.translate(startX, startY);
+                ctx.rotate(angle);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(curve, -length/2, 0, -length);
+                ctx.lineTo(0, -length);
+                ctx.quadraticCurveTo(-curve, -length/2, 0, 0);
+                ctx.fillStyle = leafColor;
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(curve+3, -length/3, 2, -length);
+                ctx.lineTo(0, -length);
+                ctx.quadraticCurveTo(-curve-3, -length/3, 0, 0);
+                ctx.fillStyle = leafLight;
+                ctx.fill();
+                ctx.restore();
+            }
+            
+            // Untuk pohon atas (daun menghadap ke bawah)
+            if(isTop) {
+                const topY = y + (palmWidth > 0 ? 0 : 0);
+                // Daun bagian atas pohon (menggantung ke bawah)
+                for(let i = 0; i < 6; i++) {
+                    const angle = -Math.PI/3 + (i * Math.PI/6) - 0.3;
+                    drawLeaf(x + palmWidth/2, y + 5, angle, 32, 12);
+                }
+                // Tambahan daun kecil
+                for(let i = 0; i < 4; i++) {
+                    const angle = -Math.PI/2.5 + (i * Math.PI/5) + 0.2;
+                    drawLeaf(x + palmWidth/2, y + 15, angle, 24, 8);
+                }
+                // Buah kelapa
+                ctx.fillStyle = "#8B5A2B";
+                ctx.shadowBlur = 1;
+                ctx.beginPath();
+                ctx.arc(x + palmWidth/2, y - 8, 6, 0, Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle = "#5D3A1A";
+                ctx.beginPath();
+                ctx.arc(x + palmWidth/2 - 2, y - 10, 2, 0, Math.PI*2);
+                ctx.fill();
+            } 
+            // Untuk pohon bawah (daun menghadap ke atas)
+            else {
+                const bottomY = y;
+                // Daun bagian bawah pohon (menggantung ke atas)
+                for(let i = 0; i < 6; i++) {
+                    const angle = Math.PI/2.5 + (i * Math.PI/8) - 0.5;
+                    drawLeaf(x + palmWidth/2, bottomY - 8, angle, 34, 14);
+                }
+                for(let i = 0; i < 4; i++) {
+                    const angle = Math.PI/2.2 + (i * Math.PI/7) + 0.3;
+                    drawLeaf(x + palmWidth/2, bottomY - 2, angle, 26, 10);
+                }
+                // Buah kelapa di bawah
+                ctx.fillStyle = "#8B5A2B";
+                ctx.beginPath();
+                ctx.arc(x + palmWidth/2, bottomY - 12, 6, 0, Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle = "#5D3A1A";
+                ctx.beginPath();
+                ctx.arc(x + palmWidth/2 - 2, bottomY - 14, 2, 0, Math.PI*2);
+                ctx.fill();
+            }
+        }
+
+        // Menggambar semua pohon sawit (pengganti pipes)
+        function drawPalmTrees() {
+            for(let tree of palmTrees) {
+                // Pohon ATAS (dari atas sampai batas topHeight)
+                const topTreeHeight = tree.topHeight;
+                // Batang pohon atas
+                ctx.fillStyle = "#7B4A2B";
+                ctx.fillRect(tree.x, 0, palmWidth, topTreeHeight);
+                // Detail batang
+                ctx.fillStyle = "#9B5E2F";
+                for(let i = 0; i < 6; i++) {
+                    ctx.fillRect(tree.x + 8, i * 18 + 10, 8, 6);
+                    ctx.fillRect(tree.x + 28, i * 18 + 15, 8, 5);
+                }
+                // Daun pohon atas (di ujung batang bawah)
+                if(topTreeHeight > 20) {
+                    drawPalmTree(tree.x, topTreeHeight - 15, true);
+                }
+                
+                // Pohon BAWAH (dari topHeight + gap sampai ground)
+                const bottomStartY = tree.topHeight + palmGap;
+                const bottomHeight = canvas.height - groundHeight - bottomStartY;
+                if(bottomHeight > 20) {
+                    ctx.fillStyle = "#7B4A2B";
+                    ctx.fillRect(tree.x, bottomStartY, palmWidth, bottomHeight);
+                    // Detail batang bawah
+                    ctx.fillStyle = "#9B5E2F";
+                    for(let i = 0; i < 4; i++) {
+                        ctx.fillRect(tree.x + 8, bottomStartY + i * 20 + 5, 8, 7);
+                        ctx.fillRect(tree.x + 28, bottomStartY + i * 20 + 10, 8, 6);
+                    }
+                    // Daun pohon bawah (di ujung batang atas)
+                    drawPalmTree(tree.x, bottomStartY + 5, false);
+                }
+                
+                // Tambahan aksen - serabut akar
+                ctx.fillStyle = "#C97E3A";
+                for(let i = 0; i < 3; i++) {
+                    ctx.fillRect(tree.x + 5 + i*15, bottomStartY - 5, 6, 8);
+                }
+            }
+        }
+
+        // update posisi, fisika, collision
+        function updateGame() {
+            if(!gameRunning) return;
+
+            // 1. BIRD PHYSICS
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+
+            // batas atas / bawah
+            if(bird.y - bird.radius <= 0) {
+                bird.y = bird.radius;
+                bird.velocity = 0;
+                if(gameRunning) gameOver();
+            }
+            if(bird.y + bird.radius >= canvas.height - groundHeight) {
+                if(gameRunning) gameOver();
+            }
+
+            // 2. PALM TREES LOGIC (pengganti pipes)
+            // spawn pohon setiap 95 frame (sedikit lebih lambat agar lebih santai)
+            if(frameCounter % 95 === 0) {
+                addPalmTree();
+            }
+
+            // update posisi pohon & collision + score
+            for(let i = 0; i < palmTrees.length; i++) {
+                const p = palmTrees[i];
+                p.x -= groundSpeed;
+
+                // collision detection (burung lingkaran dengan pohon persegi)
+                const birdLeft = bird.x - bird.radius;
+                const birdRight = bird.x + bird.radius;
+                const birdTop = bird.y - bird.radius;
+                const birdBottom = bird.y + bird.radius;
+
+                // pohon atas (rect)
+                const topTreeRect = { x: p.x, y: 0, w: palmWidth, h: p.topHeight };
+                // pohon bawah (rect)
+                const bottomTreeY = p.topHeight + palmGap;
+                const bottomTreeRect = { x: p.x, y: bottomTreeY, w: palmWidth, h: canvas.height - groundHeight - bottomTreeY };
+
+                // cek tabrakan dengan batang pohon
+                if( (birdRight > topTreeRect.x && birdLeft < topTreeRect.x + palmWidth &&
+                     birdBottom > topTreeRect.y && birdTop < topTreeRect.h) ||
+                    (birdRight > bottomTreeRect.x && birdLeft < bottomTreeRect.x + palmWidth &&
+                     birdBottom > bottomTreeRect.y && birdTop < bottomTreeRect.y + bottomTreeRect.h) ) {
+                    gameOver();
+                }
+                
+                // Tambahan: collision dengan daun pohon (area yang lebih luas untuk tantangan seru)
+                // Area daun atas (sedikit lebih lebar dari batang)
+                const leafTopArea = { x: p.x - 8, y: p.topHeight - 35, w: palmWidth + 16, h: 40 };
+                const leafBottomArea = { x: p.x - 8, y: bottomTreeY - 10, w: palmWidth + 16, h: 35 };
+                
+                if( (birdRight > leafTopArea.x && birdLeft < leafTopArea.x + leafTopArea.w &&
+                     birdBottom > leafTopArea.y && birdTop < leafTopArea.y + leafTopArea.h) ||
+                    (birdRight > leafBottomArea.x && birdLeft < leafBottomArea.x + leafBottomArea.w &&
+                     birdBottom > leafBottomArea.y && birdTop < leafBottomArea.y + leafBottomArea.h) ) {
+                    // Sedikit lebih forgiving (opsional, bisa diaktifkan untuk tantangan ekstra)
+                    // jika ingin lebih mudah, comment baris ini, biarkan hanya batang yang mematikan
+                    // gameOver(); // (uncomment jika ingin daun juga mematikan)
+                }
+
+                // score jika berhasil melewati pohon
+                if(!p.counted && p.x + palmWidth < bird.x - bird.radius) {
+                    p.counted = true;
+                    score++;
+                    document.getElementById('scoreValue').innerText = score;
+                    // efek suara tidak ada, tapi visual score bertambah
+                }
+            }
+
+            // hapus pohon di luar canvas
+            palmTrees = palmTrees.filter(p => p.x + palmWidth > 0);
+
+            // ground scroll
+            groundX = (groundX - groundSpeed) % 60;
+
+            frameCounter++;
+        }
+
+        // ----- DRAW SEMUA ELEMEN -----
+        function drawBackground() {
+            // sky gradasi tropis
+            const gradSky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradSky.addColorStop(0, "#FFD966");
+            gradSky.addColorStop(0.5, "#FFB347");
+            gradSky.addColorStop(0.8, "#87CEEB");
+            gradSky.addColorStop(1, "#C0E0FF");
+            ctx.fillStyle = gradSky;
+            ctx.fillRect(0, 0, canvas.width, canvas.height - groundHeight);
+            
+            // Matahari tropis dengan sinar
+            ctx.save();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = "#FFDD88";
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 22, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#FFCC55";
+            for(let i = 0; i < 8; i++) {
+                const angle = (i * Math.PI * 2 / 8);
+                const x1 = sunX + Math.cos(angle) * 32;
+                const y1 = sunY + Math.sin(angle) * 32;
+                ctx.beginPath();
+                ctx.moveTo(sunX + Math.cos(angle) * 24, sunY + Math.sin(angle) * 24);
+                ctx.lineTo(x1 + Math.cos(angle+0.3) * 8, y1 + Math.sin(angle+0.3) * 8);
+                ctx.lineTo(x1, y1);
+                ctx.lineTo(x1 + Math.cos(angle-0.3) * 8, y1 + Math.sin(angle-0.3) * 8);
+                ctx.fill();
+            }
+            ctx.restore();
+            
+            // awan putih tropis
+            ctx.fillStyle = "rgba(255,255,245,0.95)";
+            clouds.forEach(c => {
+                ctx.beginPath();
+                ctx.ellipse(c.x, c.y, c.size, c.size*0.7, 0, 0, Math.PI*2);
+                ctx.ellipse(c.x + c.size*0.5, c.y - c.size*0.3, c.size*0.6, c.size*0.5, 0, 0, Math.PI*2);
+                ctx.ellipse(c.x - c.size*0.4, c.y - c.size*0.2, c.size*0.55, c.size*0.5, 0, 0, Math.PI*2);
+                ctx.fill();
+            });
+            
+            // Awan bergerak perlahan (opsional)
+            clouds.forEach(c => { c.x += 0.1; if(c.x > canvas.width + 50) c.x = -80; });
+        }
+
+        function drawBird() {
+            ctx.save();
+            ctx.shadowBlur = 2;
+            ctx.shadowColor = "rgba(0,0,0,0.2)";
+            // badan burung (kuning tropis)
+            ctx.fillStyle = "#F5D742";
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#E0B82B";
+            ctx.beginPath();
+            ctx.ellipse(bird.x-2, bird.y-2, 4, 5, 0, 0, Math.PI*2);
+            ctx.fill();
+            // mata
+            ctx.fillStyle = "#000";
+            ctx.beginPath();
+            ctx.arc(bird.x+4, bird.y-3, 2.5, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(bird.x+5, bird.y-4, 1, 0, Math.PI*2);
+            ctx.fill();
+            // paruh
+            ctx.fillStyle = "#D9470A";
+            ctx.beginPath();
+            ctx.moveTo(bird.x+10, bird.y-2);
+            ctx.lineTo(bird.x+18, bird.y);
+            ctx.lineTo(bird.x+10, bird.y+2);
+            ctx.fill();
+            // jambul
+            ctx.fillStyle = "#E06C1A";
+            ctx.beginPath();
+            ctx.moveTo(bird.x-8, bird.y-8);
+            ctx.lineTo(bird.x-2, bird.y-12);
+            ctx.lineTo(bird.x, bird.y-5);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawGround() {
+            // Tanah pantai berpasir
+            ctx.fillStyle = "#E8C87C";
+            ctx.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
+            ctx.fillStyle = "#D4A259";
+            for(let i = 0; i < 20; i++) {
+                ctx.fillRect((groundX + i*60) % canvas.width, canvas.height - groundHeight + 12, 35, 12);
+            }
+            // Rumput pantai / ilalang
+            ctx.fillStyle = "#8CB86B";
+            for(let i=0;i<15;i++) {
+                ctx.fillRect(i*38 + groundX%38, canvas.height - groundHeight-6, 4, 12);
+                ctx.fillRect(i*38 + 15 + groundX%38, canvas.height - groundHeight-10, 3, 16);
+            }
+            // Garis ombak kecil
+            ctx.fillStyle = "#F4E3B1";
+            for(let i=0;i<8;i++) {
+                ctx.fillRect(i*55 + (groundX*0.5)%55, canvas.height - groundHeight-2, 25, 4);
+            }
+        }
+
+        function drawScoreOnCanvas() {
+            if(!gameRunning && score > 0) {
+                ctx.font = "bold 32px 'Courier New'";
+                ctx.fillStyle = "#2c2c2c";
+                ctx.shadowBlur = 0;
+                ctx.fillText("GAME OVER", canvas.width/2-100, canvas.height/2-70);
+                ctx.font = "18px monospace";
+                ctx.fillStyle = "#5D3A1A";
+                ctx.fillText("tap to fly again", canvas.width/2-85, canvas.height/2-20);
+            }
+        }
+
+        function animate() {
+            updateGame();
+            // DRAW
+            drawBackground();
+            drawPalmTrees();    // Menggambar pohon sawit sebagai pengganti pipes
+            drawBird();
+            drawGround();
+            drawScoreOnCanvas();
+            requestAnimationFrame(animate);
+        }
+
+        // ----- JUMP / START -----
+        function handleJump(e) {
+            if(e.type === 'keydown') {
+                if(e.code === 'Space' || e.code === 'ArrowUp') {
+                    e.preventDefault();
+                }
+            }
+            if(!gameRunning) {
+                resetGame();
+                return;
+            }
+            if(gameRunning) {
+                bird.velocity = bird.jumpPower;
+                if(bird.y - bird.radius < 5) bird.velocity = -3;
+            }
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleJump(e);
+        });
+        window.addEventListener('keydown', handleJump);
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleJump(e);
+        });
+
+        // Inisialisasi state awal
+        gameRunning = false;
+        document.getElementById('startMessage').style.display = 'block';
+        
+        // Override resetGame untuk memastikan state bersih
+        const originalReset = resetGame;
+        window.resetGame = resetGame;
+        resetGame = function() {
+            gameRunning = true;
+            score = 0;
+            document.getElementById('scoreValue').innerText = score;
+            bird.y = canvas.height/2;
+            bird.velocity = 0;
+            palmTrees = [];
+            frameCounter = 0;
+            groundX = 0;
+            const msg = document.getElementById('startMessage');
+            if(msg) msg.style.display = 'none';
+        };
+        
+        window.resetGame = resetGame;
+        window.gameOver = gameOver;
+        
+        // Mulai animasi
+        animate();
+        document.getElementById('bestValue').innerText = bestScore;
+        
+        // Final patch untuk handleJump
+        const superJump = handleJump;
+        window.handleJump = handleJump;
+    })();
+</script>
+</body>
+</html>
