@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Catur</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3a2f 0%, #0a2a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: #2b2b1f;
+            border-radius: 28px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 1px solid #e6c87a;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 12px;
+            background: #1e2a1a;
+            padding: 6px 16px;
+            border-radius: 50px;
+        }
+
+        .mode-btn {
+            background: #3a4a2e;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 15px;
+            transition: 0.2s;
+            color: #eedd99;
+        }
+
+        .mode-btn.active {
+            background: #e6b422;
+            color: #1e2a1a;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .score-panel {
+            display: flex;
+            gap: 25px;
+            background: #000000aa;
+            padding: 6px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(4px);
+        }
+
+        .score-white, .score-black {
+            font-weight: bold;
+            font-size: 18px;
+            padding: 4px 12px;
+            border-radius: 30px;
+        }
+
+        .score-white { background: #ece8d9; color: #3a3a2a; }
+        .score-black { background: #3a3a2a; color: #ece8d9; }
+
+        .turn-indicator {
+            background: #c9b37c;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #2a2418;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .info-panel {
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .status {
+            background: #1e2a1a;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: #ffecb3;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .reset-btn {
+            background: #ff9800;
+            border: none;
+            padding: 8px 28px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 15px;
+            transition: 0.1s;
+        }
+        
+        .reset-btn:active { transform: scale(0.96); }
+
+        .howto {
+            font-size: 11px;
+            color: #ccaa66;
+            background: #00000066;
+            padding: 6px 15px;
+            border-radius: 30px;
+        }
+
+        @media (max-width: 600px) {
+            canvas { width: 95vw; height: 95vw; max-width: 500px; max-height: 500px; }
+            .mode-btn { padding: 5px 12px; font-size: 12px; }
+            .score-white, .score-black { font-size: 13px; }
+            .turn-indicator { font-size: 12px; padding: 4px 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="game-header">
+        <div class="mode-selector">
+            <button class="mode-btn" id="modeFriend">👥 VS TEMAN</button>
+            <button class="mode-btn" id="modeBot">🤖 VS BOT</button>
+        </div>
+        <div class="score-panel">
+            <div class="score-white">⚪ PUTIH: <span id="whiteScore">0</span></div>
+            <div class="score-black">⚫ HITAM: <span id="blackScore">0</span></div>
+        </div>
+        <div class="turn-indicator" id="turnText">Giliran: PUTIH</div>
+    </div>
+
+    <canvas id="chessCanvas" width="560" height="560"></canvas>
+
+    <div class="info-panel">
+        <div class="status" id="gameStatus">▶ Game aktif</div>
+        <button class="reset-btn" id="resetGameBtn">🔄 RESET</button>
+        <div class="howto">✨ Klik bidak → highlight hijau dan biru</div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // ---------- KONFIGURASI CANVAS ----------
+        const canvas = document.getElementById('chessCanvas');
+        const ctx = canvas.getContext('2d');
+        const CELL_SIZE = canvas.width / 8;
+        
+        // ---------- STATE PERMAINAN ----------
+        let board = [];
+        let currentTurn = 'white';
+        let gameOver = false;
+        let winner = null;
+        let selectedRow = null, selectedCol = null;
+        let validMoves = [];
+        
+        let whiteScore = 0;
+        let blackScore = 0;
+        let gameMode = 'friend';
+        
+        // DOM elements
+        const whiteScoreSpan = document.getElementById('whiteScore');
+        const blackScoreSpan = document.getElementById('blackScore');
+        const turnText = document.getElementById('turnText');
+        const gameStatusDiv = document.getElementById('gameStatus');
+        
+        // Nilai buah untuk skor
+        const pieceValues = { 'p': 1, 'n': 3, 'b': 3, 'r': 5, 'q': 9, 'k': 0 };
+        
+        // ---------- INISIALISASI PAPAN ----------
+        function initBoard() {
+            board = Array(8).fill().map(() => Array(8).fill(null));
+            
+            // Pawns
+            for(let i=0; i<8; i++) {
+                board[1][i] = {type: 'p', color: 'black'};
+                board[6][i] = {type: 'p', color: 'white'};
+            }
+            
+            // Major pieces
+            const pieces = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'];
+            for(let i=0; i<8; i++) {
+                board[0][i] = {type: pieces[i], color: 'black'};
+                board[7][i] = {type: pieces[i], color: 'white'};
+            }
+        }
+        
+        // Reset semua state
+        function resetGame() {
+            initBoard();
+            currentTurn = 'white';
+            gameOver = false;
+            winner = null;
+            selectedRow = null;
+            selectedCol = null;
+            validMoves = [];
+            whiteScore = 0;
+            blackScore = 0;
+            updateScoreUI();
+            updateTurnUI();
+            gameStatusDiv.innerText = '▶ Game aktif';
+            drawBoard();
+        }
+        
+        function updateScoreUI() {
+            whiteScoreSpan.innerText = whiteScore;
+            blackScoreSpan.innerText = blackScore;
+        }
+        
+        function updateTurnUI() {
+            turnText.innerText = `Giliran: ${currentTurn === 'white' ? 'PUTIH ⚪' : 'HITAM ⚫'}`;
+        }
+        
+        // ---------- FUNGSI VALIDASI GERAK (Catur Standar) ----------
+        function isValidMove(piece, fromRow, fromCol, toRow, toCol, boardState) {
+            const target = boardState[toRow][toCol];
+            if(target && target.color === piece.color) return false;
+            
+            const dr = toRow - fromRow;
+            const dc = toCol - fromCol;
+            const absDR = Math.abs(dr);
+            const absDC = Math.abs(dc);
+            
+            switch(piece.type) {
+                case 'p': // PAWN
+                    const dir = piece.color === 'white' ? -1 : 1;
+                    const startRow = piece.color === 'white' ? 6 : 1;
+                    // Maju 1
+                    if(dr === dir && dc === 0 && !target) return true;
+                    // Makan diagonal
+                    if(dr === dir && Math.abs(dc) === 1 && target) return true;
+                    // Maju 2 dari awal
+                    if(fromRow === startRow && dr === 2*dir && dc === 0 && !target && !boardState[fromRow+dir][fromCol]) return true;
+                    return false;
+                    
+                case 'n': // KNIGHT
+                    return (absDR===2 && absDC===1) || (absDR===1 && absDC===2);
+                    
+                case 'b': // BISHOP
+                    if(absDR !== absDC) return false;
+                    return isClearDiagonal(fromRow, fromCol, toRow, toCol, boardState);
+                    
+                case 'r': // ROOK
+                    if(fromRow !== toRow && fromCol !== toCol) return false;
+                    return isClearStraight(fromRow, fromCol, toRow, toCol, boardState);
+                    
+                case 'q': // QUEEN
+                    if(fromRow === toRow || fromCol === toCol) 
+                        return isClearStraight(fromRow, fromCol, toRow, toCol, boardState);
+                    if(absDR === absDC) 
+                        return isClearDiagonal(fromRow, fromCol, toRow, toCol, boardState);
+                    return false;
+                    
+                case 'k': // KING
+                    if(absDR <= 1 && absDC <= 1) return true;
+                    return false;
+                    
+                default: return false;
+            }
+        }
+        
+        function isClearDiagonal(fromRow, fromCol, toRow, toCol, boardState) {
+            const rowStep = toRow > fromRow ? 1 : -1;
+            const colStep = toCol > fromCol ? 1 : -1;
+            let r = fromRow + rowStep, c = fromCol + colStep;
+            while(r !== toRow && c !== toCol) {
+                if(boardState[r][c]) return false;
+                r += rowStep; c += colStep;
+            }
+            return true;
+        }
+        
+        function isClearStraight(fromRow, fromCol, toRow, toCol, boardState) {
+            if(fromRow === toRow) {
+                const step = toCol > fromCol ? 1 : -1;
+                for(let c = fromCol+step; c !== toCol; c+=step) {
+                    if(boardState[fromRow][c]) return false;
+                }
+            } else {
+                const step = toRow > fromRow ? 1 : -1;
+                for(let r = fromRow+step; r !== toRow; r+=step) {
+                    if(boardState[r][fromCol]) return false;
+                }
+            }
+            return true;
+        }
+        
+        // Mendapatkan semua langkah valid untuk suatu bidak
+        function getAllValidMovesForPiece(row, col, boardState, color) {
+            const piece = boardState[row][col];
+            if(!piece || piece.color !== color) return [];
+            const moves = [];
+            for(let i=0; i<8; i++) {
+                for(let j=0; j<8; j++) {
+                    if(isValidMove(piece, row, col, i, j, boardState)) {
+                        // Simulasi sementara untuk cek apakah langkah membuat raja sendiri skak
+                        const tempBoard = copyBoard(boardState);
+                        tempBoard[i][j] = tempBoard[row][col];
+                        tempBoard[row][col] = null;
+                        if(!isKingInCheck(tempBoard, color)) {
+                            moves.push({row: i, col: j});
+                        }
+                    }
+                }
+            }
+            return moves;
+        }
+        
+        // Cek apakah raja dalam keadaan skak
+        function isKingInCheck(boardState, color) {
+            let kingPos = null;
+            for(let i=0; i<8; i++) {
+                for(let j=0; j<8; j++) {
+                    const p = boardState[i][j];
+                    if(p && p.type === 'k' && p.color === color) {
+                        kingPos = {row: i, col: j}; break;
+                    }
+                }
+            }
+            if(!kingPos) return false;
+            
+            const opponent = color === 'white' ? 'black' : 'white';
+            for(let i=0; i<8; i++) {
+                for(let j=0; j<8; j++) {
+                    const p = boardState[i][j];
+                    if(p && p.color === opponent) {
+                        if(isValidMove(p, i, j, kingPos.row, kingPos.col, boardState)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        
+        // Eksekusi langkah
+        function makeMove(fromRow, fromCol, toRow, toCol) {
+            const piece = board[fromRow][fromCol];
+            if(!piece || piece.color !== currentTurn) return false;
+            
+            // Cek validasi langkah dasar
+            if(!isValidMove(piece, fromRow, fromCol, toRow, toCol, board)) return false;
+            
+            // Simulasi
+            const tempBoard = copyBoard(board);
+            tempBoard[toRow][toCol] = tempBoard[fromRow][fromCol];
+            tempBoard[fromRow][fromCol] = null;
+            
+            // Cek apakah raja sendiri skak setelah langkah
+            if(isKingInCheck(tempBoard, currentTurn)) return false;
+            
+            // Eksekusi langkah sebenarnya
+            const eaten = board[toRow][toCol];
+            board[toRow][toCol] = board[fromRow][fromCol];
+            board[fromRow][fromCol] = null;
+            
+            // Update skor jika memakan
+            if(eaten) {
+                const val = pieceValues[eaten.type];
+                if(currentTurn === 'white') whiteScore += val;
+                else blackScore += val;
+                updateScoreUI();
+            }
+            
+            // Ganti giliran
+            currentTurn = (currentTurn === 'white') ? 'black' : 'white';
+            updateTurnUI();
+            
+            // Cek skakmat
+            const nextTurn = currentTurn;
+            if(isCheckmated(nextTurn)) {
+                gameOver = true;
+                winner = (nextTurn === 'white') ? 'black' : 'white';
+                gameStatusDiv.innerText = `${winner === 'white' ? 'PUTIH' : 'HITAM'} MENANG! (Skakmat)`;
+            } else if(isKingInCheck(board, nextTurn)) {
+                gameStatusDiv.innerText = `⚠️ SKAK! ${nextTurn === 'white' ? 'Putih' : 'Hitam'} terancam!`;
+            } else {
+                gameStatusDiv.innerText = '▶ Game aktif';
+            }
+            
+            drawBoard();
+            return true;
+        }
+        
+        function isCheckmated(color) {
+            for(let i=0; i<8; i++) {
+                for(let j=0; j<8; j++) {
+                    const p = board[i][j];
+                    if(p && p.color === color) {
+                        const moves = getAllValidMovesForPiece(i, j, board, color);
+                        if(moves.length > 0) return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        function copyBoard(boardState) {
+            return boardState.map(row => row.map(cell => cell ? {...cell} : null));
+        }
+        
+        // ---------- HIGHLIGHT WARNA (kuda biru, lainnya hijau) ----------
+        function getHighlightColor(row, col) {
+            if(selectedRow === row && selectedCol === col) return 'rgba(255,235,140,0.6)';
+            for(let move of validMoves) {
+                if(move.row === row && move.col === col) {
+                    const selectedPiece = board[selectedRow][selectedCol];
+                    if(selectedPiece && selectedPiece.type === 'n') {
+                        return 'rgba(80,180,255,0.7)'; // Biru untuk kuda
+                    }
+                    return 'rgba(100,220,100,0.65)'; // Hijau untuk bidak lain
+                }
+            }
+            return null;
+        }
+        
+        // ---------- DRAW PAPAN ----------
+        function drawBoard() {
+            for(let row=0; row<8; row++) {
+                for(let col=0; col<8; col++) {
+                    const isLight = (row+col) % 2 === 0;
+                    ctx.fillStyle = isLight ? '#f0d9b5' : '#b58863';
+                    ctx.fillRect(col*CELL_SIZE, row*CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    
+                    const highlight = getHighlightColor(row, col);
+                    if(highlight) {
+                        ctx.fillStyle = highlight;
+                        ctx.fillRect(col*CELL_SIZE, row*CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    }
+                    
+                    const piece = board[row][col];
+                    if(piece) {
+                        let symbol = '';
+                        switch(piece.type) {
+                            case 'k': symbol = piece.color === 'white' ? '♔' : '♚'; break;
+                            case 'q': symbol = piece.color === 'white' ? '♕' : '♛'; break;
+                            case 'r': symbol = piece.color === 'white' ? '♖' : '♜'; break;
+                            case 'b': symbol = piece.color === 'white' ? '♗' : '♝'; break;
+                            case 'n': symbol = piece.color === 'white' ? '♘' : '♞'; break;
+                            case 'p': symbol = piece.color === 'white' ? '♙' : '♟'; break;
+                        }
+                        ctx.font = `bold ${CELL_SIZE * 0.55}px 'Segoe UI', 'Arial'`;
+                        ctx.fillStyle = piece.color === 'white' ? '#fffef7' : '#2d2b1f';
+                        ctx.shadowBlur = 1;
+                        ctx.fillText(symbol, col*CELL_SIZE + CELL_SIZE*0.22, row*CELL_SIZE + CELL_SIZE*0.78);
+                        ctx.shadowBlur = 0;
+                    }
+                }
+            }
+        }
+        
+        // ---------- INTERAKSI KLIK ----------
+        function handleCanvasClick(e) {
+            if(gameOver) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let clientX, clientY;
+            
+            if(e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+                e.preventDefault();
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            const x = (clientX - rect.left) * scaleX;
+            const y = (clientY - rect.top) * scaleY;
+            const col = Math.floor(x / CELL_SIZE);
+            const row = Math.floor(y / CELL_SIZE);
+            if(row < 0 || row >= 8 || col < 0 || col >= 8) return;
+            
+            // Jika sudah pilih bidak
+            if(selectedRow !== null) {
+                // Coba pindah ke kotak tujuan
+                const success = makeMove(selectedRow, selectedCol, row, col);
+                selectedRow = null;
+                validMoves = [];
+                drawBoard();
+                
+                // Jika mode bot dan giliran hitam serta game belum over
+                if(gameMode === 'bot' && !gameOver && currentTurn === 'black') {
+                    setTimeout(() => botMove(), 120);
+                }
+            } else {
+                // Pilih bidak baru
+                const piece = board[row][col];
+                if(piece && piece.color === currentTurn) {
+                    selectedRow = row;
+                    selectedCol = col;
+                    validMoves = getAllValidMovesForPiece(row, col, board, currentTurn);
+                    drawBoard();
+                } else {
+                    selectedRow = null;
+                    validMoves = [];
+                    drawBoard();
+                }
+            }
+        }
+        
+        // ---------- BOT (AI ACAK) ----------
+        function botMove() {
+            if(gameOver) return;
+            if(currentTurn !== 'black') return;
+            
+            let allMoves = [];
+            for(let i=0; i<8; i++) {
+                for(let j=0; j<8; j++) {
+                    const p = board[i][j];
+                    if(p && p.color === 'black') {
+                        const moves = getAllValidMovesForPiece(i, j, board, 'black');
+                        for(let mv of moves) {
+                            allMoves.push({fromRow: i, fromCol: j, toRow: mv.row, toCol: mv.col});
+                        }
+                    }
+                }
+            }
+            
+            if(allMoves.length === 0) {
+                if(isCheckmated('black')) {
+                    gameOver = true;
+                    winner = 'white';
+                    gameStatusDiv.innerText = 'PUTIH MENANG! (Skakmat)';
+                    drawBoard();
+                }
+                return;
+            }
+            
+            const randomMove = allMoves[Math.floor(Math.random() * allMoves.length)];
+            makeMove(randomMove.fromRow, randomMove.fromCol, randomMove.toRow, randomMove.toCol);
+            drawBoard();
+        }
+        
+        // ---------- MODE & RESET ----------
+        function setMode(mode) {
+            gameMode = mode;
+            resetGame();
+            document.getElementById('modeFriend').classList.toggle('active', mode === 'friend');
+            document.getElementById('modeBot').classList.toggle('active', mode === 'bot');
+        }
+        
+        document.getElementById('modeFriend').addEventListener('click', () => setMode('friend'));
+        document.getElementById('modeBot').addEventListener('click', () => setMode('bot'));
+        document.getElementById('resetGameBtn').addEventListener('click', () => resetGame());
+        
+        canvas.addEventListener('click', handleCanvasClick);
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleCanvasClick(e);
+        });
+        
+        resetGame();
+    })();
+</script>
+</body>
+</html>
