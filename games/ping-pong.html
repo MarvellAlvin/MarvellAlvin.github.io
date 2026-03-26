@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ping Pong</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a2f2a 0%, #06201a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', 'VT323', monospace;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: #1a2a1f;
+            border-radius: 28px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 2px solid #5a8f4c;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 12px;
+            background: #0e2a1a;
+            padding: 6px 16px;
+            border-radius: 50px;
+        }
+
+        .mode-btn {
+            background: #2c4a2a;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 15px;
+            transition: 0.2s;
+            color: #eedd99;
+        }
+
+        .mode-btn.active {
+            background: #e6b422;
+            color: #1e2a1a;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .score-panel {
+            display: flex;
+            gap: 40px;
+            background: #000000aa;
+            padding: 8px 28px;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+        }
+
+        .score-left, .score-right {
+            font-weight: bold;
+            font-size: 32px;
+            font-family: monospace;
+        }
+
+        .score-left { color: #ffaa66; }
+        .score-right { color: #66ffaa; }
+
+        .score-label {
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: #ccc;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 16px;
+            box-shadow: 0 0 0 4px #c9b37c, 0 10px 30px rgba(0,0,0,0.5);
+            background-color: #0a2a1a;
+            cursor: none;
+            touch-action: none;
+        }
+
+        .controls-info {
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: #0e2a1aaa;
+            padding: 10px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(4px);
+        }
+
+        .key-hint {
+            color: #ffdd99;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .key-hint span {
+            background: #2c2c1a;
+            padding: 4px 10px;
+            border-radius: 30px;
+            margin: 0 4px;
+            display: inline-block;
+        }
+
+        .status {
+            background: #000000aa;
+            padding: 6px 20px;
+            border-radius: 40px;
+            color: #ffd966;
+            font-weight: bold;
+        }
+
+        .reset-btn {
+            background: #ff9800;
+            border: none;
+            padding: 6px 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 14px;
+            transition: 0.1s;
+        }
+        
+        .reset-btn:active { transform: scale(0.96); }
+
+        @media (max-width: 700px) {
+            canvas { width: 95vw; height: 70vw; max-width: 550px; }
+            .score-left, .score-right { font-size: 24px; }
+            .key-hint { font-size: 10px; }
+            .mode-btn { padding: 5px 12px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="game-header">
+        <div class="mode-selector">
+            <button class="mode-btn" id="modeFriend">👥 VS TEMAN</button>
+            <button class="mode-btn" id="modeBot">🤖 VS BOT</button>
+        </div>
+        <div class="score-panel">
+            <div style="text-align: center">
+                <div class="score-left" id="leftScore">0</div>
+                <div class="score-label">KIRI (W/S)</div>
+            </div>
+            <div style="text-align: center">
+                <div class="score-right" id="rightScore">0</div>
+                <div class="score-label" id="rightLabel">KANAN (↑/↓)</div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="pongCanvas" width="900" height="500"></canvas>
+
+    <div class="controls-info">
+        <div class="key-hint">
+            🎮 <span>W / S</span> dan <span>↑ / ↓</span> untuk bermain
+        </div>
+        <div class="status" id="gameStatus">▶ GAME AKTIF</div>
+        <button class="reset-btn" id="resetGameBtn">🔄 RESET</button>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // ---------- KONFIGURASI CANVAS ----------
+        const canvas = document.getElementById('pongCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Dimensi
+        let width = canvas.width;
+        let height = canvas.height;
+        
+        // ---------- PARAMETER GAME ----------
+        let gameRunning = true;
+        let gameMode = 'friend'; // 'friend' atau 'bot'
+        
+        // Skor
+        let leftScore = 0;
+        let rightScore = 0;
+        const WINNING_SCORE = 7;
+        
+        // Paddle Kiri (Player 1)
+        let leftPaddle = {
+            x: 20,
+            y: height/2 - 50,
+            width: 12,
+            height: 100,
+            speed: 7,
+            up: false,
+            down: false
+        };
+        
+        // Paddle Kanan (Player 2 atau Bot)
+        let rightPaddle = {
+            x: width - 32,
+            y: height/2 - 50,
+            width: 12,
+            height: 100,
+            speed: 6,
+            up: false,
+            down: false
+        };
+        
+        // Bola
+        let ball = {
+            x: width/2,
+            y: height/2,
+            radius: 8,
+            dx: 4,
+            dy: 3,
+            speed: 4.2
+        };
+        
+        // DOM elements
+        const leftScoreSpan = document.getElementById('leftScore');
+        const rightScoreSpan = document.getElementById('rightScore');
+        const gameStatusSpan = document.getElementById('gameStatus');
+        const rightLabel = document.getElementById('rightLabel');
+        
+        // ---------- FUNGSI UTAMA ----------
+        function resetGame() {
+            leftScore = 0;
+            rightScore = 0;
+            updateScoreUI();
+            gameRunning = true;
+            gameStatusSpan.innerText = '▶ GAME AKTIF';
+            resetBall();
+            resetPaddles();
+            
+            // Reset status tombol
+            leftPaddle.up = false;
+            leftPaddle.down = false;
+            rightPaddle.up = false;
+            rightPaddle.down = false;
+        }
+        
+        function resetBall() {
+            ball.x = width/2;
+            ball.y = height/2;
+            // Arah acak setelah gol
+            let angle = (Math.random() * Math.PI/2) - Math.PI/4;
+            let direction = (Math.random() > 0.5) ? 1 : -1;
+            ball.dx = Math.cos(angle) * ball.speed * direction;
+            ball.dy = Math.sin(angle) * ball.speed;
+            // Pastikan tidak terlalu landai
+            if(Math.abs(ball.dx) < 2) ball.dx = ball.dx > 0 ? 2.5 : -2.5;
+            if(Math.abs(ball.dy) < 1.5) ball.dy = ball.dy > 0 ? 2 : -2;
+        }
+        
+        function resetPaddles() {
+            leftPaddle.y = height/2 - leftPaddle.height/2;
+            rightPaddle.y = height/2 - rightPaddle.height/2;
+        }
+        
+        function updateScoreUI() {
+            leftScoreSpan.innerText = leftScore;
+            rightScoreSpan.innerText = rightScore;
+        }
+        
+        // Cek pemenang
+        function checkWinner() {
+            if(leftScore >= WINNING_SCORE) {
+                gameRunning = false;
+                gameStatusSpan.innerText = '🏆 PLAYER KIRI MENANG! 🏆';
+                return true;
+            } else if(rightScore >= WINNING_SCORE) {
+                gameRunning = false;
+                gameStatusSpan.innerText = '🏆 PLAYER KANAN MENANG! 🏆';
+                return true;
+            }
+            return false;
+        }
+        
+        // ---------- LOGIKA BOT (AI sederhana) ----------
+        function botMovement() {
+            if(gameMode !== 'bot') return;
+            if(!gameRunning) return;
+            
+            // Bot mengikuti bola dengan sedikit jeda
+            const paddleCenter = rightPaddle.y + rightPaddle.height/2;
+            const ballCenter = ball.y;
+            const diff = ballCenter - paddleCenter;
+            
+            // Bot bergerak dengan kecepatan smooth
+            if(Math.abs(diff) > 10) {
+                if(diff > 0) {
+                    rightPaddle.y += rightPaddle.speed;
+                } else {
+                    rightPaddle.y -= rightPaddle.speed;
+                }
+            }
+            
+            // Batas paddle
+            if(rightPaddle.y < 0) rightPaddle.y = 0;
+            if(rightPaddle.y + rightPaddle.height > height) rightPaddle.y = height - rightPaddle.height;
+        }
+        
+        // ---------- UPDATE PERGERAKAN PADDLE (MEMPERBAIKI) ----------
+        function updatePaddles() {
+            // Paddle Kiri (W/S)
+            if(leftPaddle.up && leftPaddle.y > 0) {
+                leftPaddle.y -= leftPaddle.speed;
+            }
+            if(leftPaddle.down && leftPaddle.y + leftPaddle.height < height) {
+                leftPaddle.y += leftPaddle.speed;
+            }
+            
+            // Paddle Kanan: tergantung mode
+            if(gameMode === 'friend') {
+                // Mode teman: kontrol manual dengan ArrowUp/ArrowDown
+                if(rightPaddle.up && rightPaddle.y > 0) {
+                    rightPaddle.y -= rightPaddle.speed;
+                }
+                if(rightPaddle.down && rightPaddle.y + rightPaddle.height < height) {
+                    rightPaddle.y += rightPaddle.speed;
+                }
+            } else {
+                // Mode bot: AI mengontrol paddle kanan
+                botMovement();
+            }
+            
+            // Pastikan paddle tidak keluar batas (double check)
+            leftPaddle.y = Math.max(0, Math.min(leftPaddle.y, height - leftPaddle.height));
+            if(gameMode === 'friend') {
+                rightPaddle.y = Math.max(0, Math.min(rightPaddle.y, height - rightPaddle.height));
+            }
+        }
+        
+        // Update posisi bola dan collision
+        function updateBall() {
+            if(!gameRunning) return;
+            
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+            
+            // Collision dengan dinding atas/bawah
+            if(ball.y - ball.radius <= 0) {
+                ball.y = ball.radius;
+                ball.dy = -ball.dy;
+            }
+            if(ball.y + ball.radius >= height) {
+                ball.y = height - ball.radius;
+                ball.dy = -ball.dy;
+            }
+            
+            // Collision dengan paddle kiri
+            if(ball.dx < 0 && 
+               ball.x - ball.radius <= leftPaddle.x + leftPaddle.width &&
+               ball.x + ball.radius >= leftPaddle.x &&
+               ball.y + ball.radius >= leftPaddle.y &&
+               ball.y - ball.radius <= leftPaddle.y + leftPaddle.height) {
+                
+                // Hitung pantulan berdasarkan posisi tumbukan
+                let collidePoint = ball.y - (leftPaddle.y + leftPaddle.height/2);
+                collidePoint = collidePoint / (leftPaddle.height/2);
+                let angle = collidePoint * (Math.PI/3);
+                ball.dx = Math.abs(Math.cos(angle) * ball.speed);
+                ball.dy = Math.sin(angle) * ball.speed;
+                // Tambah kecepatan sedikit setiap pantulan
+                ball.speed += 0.1;
+                ball.dx = ball.dx > 0 ? ball.dx : -ball.dx;
+                ball.dx = Math.abs(ball.dx) * (ball.dx > 0 ? 1 : -1);
+                // Batas kecepatan maksimal
+                if(ball.speed > 9) ball.speed = 9;
+            }
+            
+            // Collision dengan paddle kanan
+            if(ball.dx > 0 &&
+               ball.x + ball.radius >= rightPaddle.x &&
+               ball.x - ball.radius <= rightPaddle.x + rightPaddle.width &&
+               ball.y + ball.radius >= rightPaddle.y &&
+               ball.y - ball.radius <= rightPaddle.y + rightPaddle.height) {
+                
+                let collidePoint = ball.y - (rightPaddle.y + rightPaddle.height/2);
+                collidePoint = collidePoint / (rightPaddle.height/2);
+                let angle = collidePoint * (Math.PI/3);
+                ball.dx = -Math.abs(Math.cos(angle) * ball.speed);
+                ball.dy = Math.sin(angle) * ball.speed;
+                ball.speed += 0.1;
+                if(ball.speed > 9) ball.speed = 9;
+                ball.dx = ball.dx < 0 ? ball.dx : -ball.dx;
+            }
+            
+            // Gol untuk kiri (bola keluar kanan)
+            if(ball.x + ball.radius >= width) {
+                leftScore++;
+                updateScoreUI();
+                if(!checkWinner()) {
+                    resetBall();
+                    ball.speed = 4.2;
+                } else {
+                    gameRunning = false;
+                }
+            }
+            
+            // Gol untuk kanan (bola keluar kiri)
+            if(ball.x - ball.radius <= 0) {
+                rightScore++;
+                updateScoreUI();
+                if(!checkWinner()) {
+                    resetBall();
+                    ball.speed = 4.2;
+                } else {
+                    gameRunning = false;
+                }
+            }
+        }
+        
+        // ---------- GAMBAR SEMUA ELEMEN ----------
+        function draw() {
+            // Bersihkan canvas
+            ctx.fillStyle = '#0a2f1f';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Garis tengah putus-putus
+            ctx.strokeStyle = '#88aa66';
+            ctx.setLineDash([12, 20]);
+            ctx.beginPath();
+            ctx.moveTo(width/2, 0);
+            ctx.lineTo(width/2, height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Lingkaran tengah
+            ctx.beginPath();
+            ctx.arc(width/2, height/2, 45, 0, Math.PI*2);
+            ctx.strokeStyle = '#88aa66';
+            ctx.stroke();
+            
+            // Paddle kiri
+            ctx.fillStyle = '#ffaa66';
+            ctx.fillRect(leftPaddle.x, leftPaddle.y, leftPaddle.width, leftPaddle.height);
+            
+            // Paddle kanan
+            ctx.fillStyle = '#66ffaa';
+            ctx.fillRect(rightPaddle.x, rightPaddle.y, rightPaddle.width, rightPaddle.height);
+            
+            // Bola dengan efek gradien
+            const grad = ctx.createRadialGradient(ball.x, ball.y, 2, ball.x, ball.y, ball.radius);
+            grad.addColorStop(0, '#fff5cc');
+            grad.addColorStop(1, '#e6b422');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+            ctx.fill();
+            
+            // Efek pantulan kecil
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(ball.x-2, ball.y-2, 2, 0, Math.PI*2);
+            ctx.fill();
+            
+            // Skor di tengah atas
+            ctx.font = `bold 42px monospace`;
+            ctx.fillStyle = '#eedd99';
+            ctx.fillText(leftScore, width/2 - 70, 65);
+            ctx.fillText(rightScore, width/2 + 40, 65);
+            
+            // Pesan game over
+            if(!gameRunning) {
+                ctx.font = `bold 28px monospace`;
+                ctx.fillStyle = '#ffcc77';
+                ctx.fillText(gameStatusSpan.innerText, width/2 - 150, height/2 - 40);
+                ctx.font = `16px monospace`;
+                ctx.fillStyle = '#bbaa66';
+                ctx.fillText("Tekan RESET untuk bermain lagi", width/2 - 140, height/2 + 30);
+            }
+        }
+        
+        // ---------- ANIMASI LOOP ----------
+        function gameLoop() {
+            updatePaddles();
+            updateBall();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // ---------- KONTROL KEYBOARD (DIPERBAIKI) ----------
+        function handleKeyDown(e) {
+            const key = e.key;
+            
+            // Kontrol Paddle Kiri (W/S)
+            if(key === 'w' || key === 'W') {
+                leftPaddle.up = true;
+                e.preventDefault();
+            }
+            if(key === 's' || key === 'S') {
+                leftPaddle.down = true;
+                e.preventDefault();
+            }
+            
+            // Kontrol Paddle Kanan (ArrowUp/ArrowDown)
+            if(key === 'ArrowUp') {
+                rightPaddle.up = true;
+                e.preventDefault();
+            }
+            if(key === 'ArrowDown') {
+                rightPaddle.down = true;
+                e.preventDefault();
+            }
+        }
+        
+        function handleKeyUp(e) {
+            const key = e.key;
+            
+            // Lepas kontrol Paddle Kiri
+            if(key === 'w' || key === 'W') {
+                leftPaddle.up = false;
+                e.preventDefault();
+            }
+            if(key === 's' || key === 'S') {
+                leftPaddle.down = false;
+                e.preventDefault();
+            }
+            
+            // Lepas kontrol Paddle Kanan
+            if(key === 'ArrowUp') {
+                rightPaddle.up = false;
+                e.preventDefault();
+            }
+            if(key === 'ArrowDown') {
+                rightPaddle.down = false;
+                e.preventDefault();
+            }
+        }
+        
+        // ---------- KONTROL TOUCH UNTUK HP ----------
+        function setupTouchControls() {
+            let touchLeftActive = false;
+            let touchRightActive = false;
+            let lastTouchY = { left: null, right: null };
+            
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const scaleY = height / rect.height;
+                
+                for(let i = 0; i < e.touches.length; i++) {
+                    const touch = e.touches[i];
+                    const touchX = touch.clientX - rect.left;
+                    const touchY = (touch.clientY - rect.top) * scaleY;
+                    const isLeftSide = touchX < rect.width/2;
+                    
+                    if(isLeftSide) {
+                        // Kontrol paddle kiri dengan sentuhan
+                        let newY = touchY - leftPaddle.height/2;
+                        newY = Math.max(0, Math.min(newY, height - leftPaddle.height));
+                        leftPaddle.y = newY;
+                    } else if(gameMode === 'friend') {
+                        // Mode teman: kontrol paddle kanan dengan sentuhan
+                        let newY = touchY - rightPaddle.height/2;
+                        newY = Math.max(0, Math.min(newY, height - rightPaddle.height));
+                        rightPaddle.y = newY;
+                    }
+                }
+            });
+            
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+            });
+        }
+        
+        // ---------- MODE & RESET ----------
+        function setMode(mode) {
+            gameMode = mode;
+            resetGame();
+            document.getElementById('modeFriend').classList.toggle('active', mode === 'friend');
+            document.getElementById('modeBot').classList.toggle('active', mode === 'bot');
+            
+            // Update label kontrol kanan
+            if(mode === 'bot') {
+                rightLabel.innerHTML = 'KANAN (BOT)';
+            } else {
+                rightLabel.innerHTML = 'KANAN (↑/↓)';
+            }
+        }
+        
+        document.getElementById('modeFriend').addEventListener('click', () => setMode('friend'));
+        document.getElementById('modeBot').addEventListener('click', () => setMode('bot'));
+        document.getElementById('resetGameBtn').addEventListener('click', () => resetGame());
+        
+        // Event listener keyboard
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        setupTouchControls();
+        
+        // Mulai game
+        resetGame();
+        gameLoop();
+    })();
+</script>
+</body>
+</html>
