@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>T-Rex Gemoy Runner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1a2a3a 0%, #0f1a24 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Courier New', 'Fira Code', monospace;
+            padding: 20px;
+        }
+
+        /* Container utama dengan efek glassmorphism */
+        .game-container {
+            background: rgba(20, 30, 40, 0.65);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 24px 32px 32px 32px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 24px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.4), inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+            background-color: #ebebd0;
+        }
+
+        /* Panel informasi modern */
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 18px;
+            padding: 0 12px;
+            color: #f0f3f8;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+        }
+
+        .score-box {
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-size: 1.7rem;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+            font-weight: 800;
+            border-left: 3px solid #ffd966;
+            border-bottom: 2px solid #ffd966;
+        }
+
+        .highscore-box {
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .highscore-box span:first-child {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            margin-top: 22px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(5px);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            color: white;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 215, 100, 0.5);
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            background: rgba(0, 0, 0, 0.85);
+            border-color: #ffd966;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-badge {
+            background: #ff9f4a;
+            color: #1e2a32;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .instruction {
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 16px;
+            color: #ccddee;
+            background: rgba(0, 0, 0, 0.35);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 5px 18px;
+            border-radius: 60px;
+            backdrop-filter: blur(2px);
+        }
+
+        @media (max-width: 650px) {
+            .game-container {
+                padding: 16px 20px 24px;
+            }
+            .score-box {
+                font-size: 1.3rem;
+                padding: 4px 14px;
+            }
+            .highscore-box {
+                font-size: 0.9rem;
+                padding: 4px 14px;
+            }
+            button {
+                padding: 6px 18px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div class="game-container">
+        <div class="info-panel">
+            <div class="score-box">SCORE: <span id="scoreValue">0</span></div>
+            <div class="highscore-box">
+                <span>🏆 BEST</span>
+                <span id="highScoreValue">0</span>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="900" height="250" style="width:100%; height:auto; max-width:900px; aspect-ratio:900/250"></canvas>
+
+        <div class="controls">
+            <button id="restartBtn">🦖 RESTART</button>
+            <button id="toggleSoundBtn" class="sound-btn">🔊 SOUND ON</button>
+        </div>
+        <div class="instruction">
+            ␣ SPACE / ▲ UP / klik layar → lompat | hindari kaktus 🌵
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // ---------- CANVAS ----------
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Dimensi tetap (logic resolusi)
+        const CANVAS_W = 900;
+        const CANVAS_H = 250;
+        canvas.width = CANVAS_W;
+        canvas.height = CANVAS_H;
+
+        // ---------- GAME STATE ----------
+        let gameRunning = false;
+        let score = 0;
+        let highScore = localStorage.getItem('dinoModernHigh') ? parseInt(localStorage.getItem('dinoModernHigh')) : 0;
+        let frameRequest;
+        let animationId = null;
+
+        // Elemen DOM
+        const scoreSpan = document.getElementById('scoreValue');
+        const highScoreSpan = document.getElementById('highScoreValue');
+        highScoreSpan.innerText = highScore;
+
+        // ---------- PARAMETER DINOSAUR ----------
+        const DINO_W = 24;
+        const DINO_H = 28;
+        let dinoX = 70;
+        let dinoY = CANVAS_H - DINO_H - 8;   // dasar tanah
+        let dinoBaseY = CANVAS_H - DINO_H - 8;
+        let isJumping = false;
+        let dinoVy = 0;
+        const GRAVITY = 0.9;
+        const JUMP_POWER = -11;
+
+        // ---------- OBSTACLE (CACTUS MODERN) ----------
+        let obstacles = [];
+        let frameCounter = 0;
+        let baseSpawnGap = 70;      // frame antara spawn
+        let dynamicGap = 70;
+        let currentSpeed = 5.2;      // kecepatan gerak obstacle
+        const BASE_SPEED = 5.2;
+        const MAX_SPEED = 11.5;
+
+        // Efek modern: ground line + partikel debu (opsional)
+        let groundParticles = [];
+
+        // Opsi sound (opsional sederhana dengan Web Audio API)
+        let soundEnabled = true;
+        const toggleBtn = document.getElementById('toggleSoundBtn');
+        // Buat audio context hanya ketika user berinteraksi pertama (karena autoplay policy)
+        let audioCtx = null;
+        let jumpSoundBuffer = null;
+        let hitSoundBuffer = null;
+        let scoreBeepBuffer = null;
+
+        // Inisialisasi audio (lazy, setelah klik pertama)
+        function initAudio() {
+            if (audioCtx) return;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                // buat suara sederhana secara procedural (beep / jump)
+                // agar tidak perlu file eksternal, kita generate buffer
+                jumpSoundBuffer = createSimpleBeep(440, 0.12);
+                hitSoundBuffer = createSimpleBeep(220, 0.3);
+                scoreBeepBuffer = createSimpleBeep(880, 0.08);
+            } catch(e) { console.warn("Web Audio API not supported"); }
+        }
+
+        function createSimpleBeep(freq, durationSec) {
+            if (!audioCtx) return null;
+            const sampleRate = audioCtx.sampleRate;
+            const frameCount = sampleRate * durationSec;
+            const arrayBuffer = audioCtx.createBuffer(1, frameCount, sampleRate);
+            const channelData = arrayBuffer.getChannelData(0);
+            for (let i = 0; i < frameCount; i++) {
+                let t = i / sampleRate;
+                let env = 1.0 - (t / durationSec);
+                if (env < 0) env = 0;
+                channelData[i] = Math.sin(2 * Math.PI * freq * t) * env * 0.5;
+            }
+            return arrayBuffer;
+        }
+
+        function playSound(buffer) {
+            if (!soundEnabled) return;
+            if (!audioCtx || !buffer) return;
+            // Resume context jika suspended
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioCtx.destination);
+            source.start();
+        }
+
+        function playJump() { playSound(jumpSoundBuffer); }
+        function playHit() { playSound(hitSoundBuffer); }
+        function playScoreTick() { playSound(scoreBeepBuffer); }
+
+        // Update tampilan skor
+        function updateScoreUI() {
+            scoreSpan.innerText = Math.floor(score);
+            if (Math.floor(score) > highScore) {
+                highScore = Math.floor(score);
+                highScoreSpan.innerText = highScore;
+                localStorage.setItem('dinoModernHigh', highScore);
+            }
+        }
+
+        // ---------- OBSTACLE CLASS (MODERN CACTUS) ----------
+        class Cactus {
+            constructor(x, type) {
+                this.x = x;
+                this.width = 14 + Math.floor(Math.random() * 7);  // 14-20px
+                this.height = 22 + Math.floor(Math.random() * 8); // 22-29px
+                this.passed = false;   // untuk penambahan skor ketika melewati
+                // variasi warna
+                this.color = `hsl(98, 45%, ${35 + Math.random() * 15}%)`;
+                this.type = type || 'cactus';
+            }
+
+            update(speed) {
+                this.x -= speed;
+            }
+
+            draw(ctx, groundY) {
+                const yPos = CANVAS_H - this.height - 5;
+                // efek bayangan modern
+                ctx.shadowColor = "rgba(0,0,0,0.3)";
+                ctx.shadowBlur = 5;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.roundRect(this.x, yPos, this.width, this.height, 6);
+                ctx.fill();
+                // detail spikes
+                ctx.fillStyle = "#2c4a1e";
+                ctx.shadowBlur = 2;
+                for(let i=0; i<3; i++){
+                    ctx.fillRect(this.x+4+(i*5), yPos+4, 3, 6);
+                }
+                ctx.fillStyle = "#f5e56b";
+                ctx.fillRect(this.x+2, yPos-2, 4, 4);
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = "#ad8b4c";
+                ctx.fillRect(this.x+this.width-5, yPos+this.height-8, 3, 6);
+                // reset shadow
+                ctx.shadowBlur = 0;
+            }
+
+            getBounds() {
+                return {
+                    x: this.x,
+                    y: CANVAS_H - this.height - 5,
+                    w: this.width,
+                    h: this.height
+                };
+            }
+        }
+
+        // roundRect utility
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2;
+                if (h < 2 * r) r = h / 2;
+                this.moveTo(x+r, y);
+                this.lineTo(x+w-r, y);
+                this.quadraticCurveTo(x+w, y, x+w, y+r);
+                this.lineTo(x+w, y+h-r);
+                this.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+                this.lineTo(x+r, y+h);
+                this.quadraticCurveTo(x, y+h, x, y+h-r);
+                this.lineTo(x, y+r);
+                this.quadraticCurveTo(x, y, x+r, y);
+                return this;
+            };
+        }
+
+        // reset game
+        function resetGame() {
+            gameRunning = true;
+            score = 0;
+            currentSpeed = BASE_SPEED;
+            obstacles = [];
+            frameCounter = 0;
+            dynamicGap = baseSpawnGap;
+            isJumping = false;
+            dinoVy = 0;
+            dinoY = dinoBaseY;
+            updateScoreUI();
+            groundParticles = [];
+        }
+
+        // collision detection (bounding box)
+        function checkCollision(dinoRect, cactus) {
+            const cactusBounds = cactus.getBounds();
+            return (dinoRect.x < cactusBounds.x + cactusBounds.w &&
+                    dinoRect.x + dinoRect.w > cactusBounds.x &&
+                    dinoRect.y < cactusBounds.y + cactusBounds.h &&
+                    dinoRect.y + dinoRect.h > cactusBounds.y);
+        }
+
+        // lompat
+        function jump() {
+            if (!gameRunning) {
+                // jika game belum running, mulai game saat lompat/klik
+                startGame();
+                return;
+            }
+            // cek jika di tanah
+            if (!isJumping && dinoY >= dinoBaseY - 1) {
+                isJumping = true;
+                dinoVy = JUMP_POWER;
+                dinoY = dinoBaseY - 2;
+                if(soundEnabled) playJump();
+            }
+        }
+
+        function startGame() {
+            if(gameRunning) return;
+            resetGame();
+            if(audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // update logika: posisi, obstacles, skor, speed
+        function updateGame() {
+            if (!gameRunning) return;
+
+            // 1. Update dino physics
+            if (isJumping) {
+                dinoVy += GRAVITY;
+                dinoY += dinoVy;
+                if (dinoY >= dinoBaseY) {
+                    dinoY = dinoBaseY;
+                    isJumping = false;
+                    dinoVy = 0;
+                }
+                if (dinoY < 0) {
+                    dinoY = 0;
+                    if(dinoVy < 0) dinoVy = 0;
+                }
+            } else {
+                dinoY = dinoBaseY;
+            }
+
+            // 2. Spawn obstacle (modern adaptive)
+            if (frameCounter >= dynamicGap) {
+                let rand = Math.random();
+                if (rand < 0.68) { // spawn cactus
+                    let cactusVar = new Cactus(CANVAS_W, 'cactus');
+                    obstacles.push(cactusVar);
+                }
+                // sesekali spawn ganda? tapi tetap modern
+                if (Math.random() < 0.25 && obstacles.length < 2 && frameCounter > dynamicGap-5) {
+                    let secondCactus = new Cactus(CANVAS_W + 28, 'cactus');
+                    obstacles.push(secondCactus);
+                }
+                // atur ulang gap berdasarkan skor (semakin cepat semakin rapat)
+                let speedFactor = Math.min(1.4, currentSpeed / BASE_SPEED);
+                dynamicGap = Math.max(35, baseSpawnGap - Math.floor(score / 450) - (speedFactor * 6));
+                frameCounter = 0;
+            } else {
+                frameCounter++;
+            }
+
+            // 3. Update obstacles & collision + score pass
+            const dinoRect = {
+                x: dinoX,
+                y: dinoY,
+                w: DINO_W,
+                h: DINO_H
+            };
+
+            for (let i=0; i<obstacles.length; i++) {
+                const obs = obstacles[i];
+                obs.update(currentSpeed);
+                // cek jika melewati dino (penambahan skor)
+                if (!obs.passed && obs.x + obs.width < dinoX) {
+                    obs.passed = true;
+                    score += 12;
+                    updateScoreUI();
+                    if(soundEnabled && scoreBeepBuffer) playScoreTick();
+                }
+                // collision
+                if (checkCollision(dinoRect, obs)) {
+                    gameRunning = false;
+                    if(soundEnabled) playHit();
+                    // tambahkan efek visual shake halus tidak merusak
+                    return;
+                }
+            }
+
+            // hapus obstacle di luar canvas
+            obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
+
+            // 4. Update Score (berdasarkan waktu berjalan) + tambahan kecepatan
+            score += 0.25;
+            updateScoreUI();
+
+            // speed progression (modern & dinamis)
+            let targetSpeed = BASE_SPEED + (score / 420);
+            if (targetSpeed > MAX_SPEED) targetSpeed = MAX_SPEED;
+            currentSpeed = currentSpeed * 0.98 + targetSpeed * 0.02;
+            if(currentSpeed < BASE_SPEED) currentSpeed = BASE_SPEED;
+
+            // tambahan partikel debu saat lari (efek visual)
+            if (Math.random() < 0.2 && !isJumping && gameRunning) {
+                groundParticles.push({
+                    x: dinoX + 6,
+                    y: dinoBaseY + 5,
+                    life: 0.7,
+                    size: 2+Math.random()*3
+                });
+            }
+            for(let i=0;i<groundParticles.length;i++){
+                groundParticles[i].x -= currentSpeed*0.7;
+                groundParticles[i].life -= 0.03;
+                if(groundParticles[i].life <=0 || groundParticles[i].x <0){
+                    groundParticles.splice(i,1);
+                    i--;
+                }
+            }
+        }
+
+        // ---------- GAMBAR SEMUA ELEMEN MODERN ----------
+        function draw() {
+            ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+            
+            // Ground dengan gradasi modern
+            const grd = ctx.createLinearGradient(0, CANVAS_H-12, 0, CANVAS_H);
+            grd.addColorStop(0, "#b87c4f");
+            grd.addColorStop(1, "#dba568");
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, CANVAS_H-8, CANVAS_W, 8);
+            ctx.fillStyle = "#e2bc7c";
+            ctx.fillRect(0, CANVAS_H-4, CANVAS_W, 4);
+            // garis rumput
+            ctx.fillStyle = "#69b43c";
+            for(let i=0; i<12;i++){
+                ctx.fillRect(i*70 + (Date.now()*0.003 % 70), CANVAS_H-12, 4, 6);
+            }
+            
+            // efek bayangan awan tipis modern
+            ctx.fillStyle = "rgba(255,245,200,0.25)";
+            ctx.beginPath();
+            ctx.ellipse(140 + Math.sin(Date.now()*0.001)*8, 45, 40, 25, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(760 + Math.cos(Date.now()*0.0008)*5, 70, 55, 32, 0, 0, Math.PI*2);
+            ctx.fill();
+
+            // Gambar obstacles (kaktus)
+            for(let obs of obstacles){
+                obs.draw(ctx);
+            }
+
+            // Gambar partikel debu
+            for(let p of groundParticles){
+                ctx.fillStyle = `rgba(100, 70, 40, ${p.life*0.6})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                ctx.fill();
+            }
+            
+            // ----- DINO MODERN (dengan detail dan ekspresi)-----
+            const dinoDrawY = dinoY;
+            // Badan utama (ramping modern)
+            ctx.shadowBlur = 3;
+            ctx.fillStyle = "#2c3e2b";
+            ctx.beginPath();
+            ctx.roundRect(dinoX, dinoDrawY, DINO_W, DINO_H, 8);
+            ctx.fill();
+            // Perut lebih terang
+            ctx.fillStyle = "#4c784a";
+            ctx.beginPath();
+            ctx.roundRect(dinoX+3, dinoDrawY+5, DINO_W-6, DINO_H-10, 5);
+            ctx.fill();
+            // Mata putih
+            ctx.fillStyle = "#f4f9ff";
+            ctx.beginPath();
+            ctx.arc(dinoX+18, dinoDrawY+8, 4, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#1f2f1c";
+            ctx.beginPath();
+            ctx.arc(dinoX+19, dinoDrawY+7, 2, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(dinoX+20.5, dinoDrawY+5.5, 1, 0, Math.PI*2);
+            ctx.fill();
+            // Alis / ekspresi fokus
+            ctx.beginPath();
+            ctx.strokeStyle = "#1f2f1c";
+            ctx.lineWidth = 2;
+            ctx.moveTo(dinoX+12, dinoDrawY+6);
+            ctx.lineTo(dinoX+7, dinoDrawY+4);
+            ctx.moveTo(dinoX+24, dinoDrawY+6);
+            ctx.lineTo(dinoX+29, dinoDrawY+4);
+            ctx.stroke();
+            // Duri punggung
+            ctx.fillStyle = "#274e21";
+            for(let i=0;i<4;i++){
+                ctx.fillRect(dinoX+4+(i*5), dinoDrawY-4, 3, 8);
+            }
+            // Kaki dinamis (jika melompat atau berlari)
+            let legOffset = isJumping ? -2 : (Math.sin(Date.now() * 0.015) * 3);
+            ctx.fillStyle = "#1d3a1a";
+            ctx.fillRect(dinoX+5, dinoDrawY+DINO_H-5, 5, 6);
+            ctx.fillRect(dinoX+14, dinoDrawY+DINO_H-5+ (legOffset*0.5), 5, 6);
+            // Ekor
+            ctx.fillStyle = "#234f1f";
+            ctx.beginPath();
+            ctx.moveTo(dinoX-8, dinoDrawY+DINO_H-12);
+            ctx.lineTo(dinoX, dinoDrawY+DINO_H-8);
+            ctx.lineTo(dinoX-4, dinoDrawY+DINO_H-4);
+            ctx.fill();
+            
+            // Efek "speed line" jika kecepatan tinggi
+            if(currentSpeed > 8){
+                ctx.beginPath();
+                ctx.strokeStyle = "rgba(255,200,100,0.6)";
+                ctx.lineWidth = 2;
+                for(let s=0; s<5; s++){
+                    ctx.moveTo(CANVAS_W - 20 - s*15, 40 + s*12);
+                    ctx.lineTo(CANVAS_W - 5 - s*8, 35 + s*8);
+                    ctx.stroke();
+                }
+            }
+            
+            ctx.shadowBlur = 0;
+            
+            // pesan jika game over
+            if (!gameRunning) {
+                ctx.font = "bold 26px 'Segoe UI', 'Courier New'";
+                ctx.fillStyle = "#1e2a2f";
+                ctx.shadowBlur = 0;
+                ctx.fillText("GAME OVER", CANVAS_W/2-105, CANVAS_H/2-30);
+                ctx.font = "18px monospace";
+                ctx.fillStyle = "#2d3e42";
+                ctx.fillText("Tekan SPACE / RESTART", CANVAS_W/2-125, CANVAS_H/2+20);
+                ctx.font = "14px monospace";
+                ctx.fillStyle = "#aa7c4a";
+                ctx.fillText("🌵 Klik layar / Space untuk mulai", CANVAS_W/2-150, CANVAS_H-28);
+            } else {
+                // tampilkan indikator lari modern
+                ctx.font = "bold 12px monospace";
+                ctx.fillStyle = "#454b44";
+                ctx.fillText("⚡ RUNNING", CANVAS_W-85, 27);
+                // meter kecepatan
+                let speedPercent = (currentSpeed - BASE_SPEED) / (MAX_SPEED - BASE_SPEED);
+                ctx.fillStyle = "#ffbe76";
+                ctx.fillRect(CANVAS_W-70, 15, 55, 6);
+                ctx.fillStyle = "#f0932b";
+                ctx.fillRect(CANVAS_W-70, 15, 55 * Math.min(1,speedPercent), 6);
+            }
+        }
+
+        // ---------- GAME LOOP ----------
+        function gameLoop() {
+            if (gameRunning) {
+                updateGame();
+            }
+            draw();
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        // ---------- EVENT HANDLER ----------
+        function handleJump(e) {
+            // mencegah scroll dengan spasi
+            if (e.type === 'keydown') {
+                if (e.code === 'Space' || e.code === 'ArrowUp') {
+                    e.preventDefault();
+                    jump();
+                }
+                // restart dengan R key opsional
+                if (e.code === 'KeyR') {
+                    e.preventDefault();
+                    resetGame();
+                    if(!gameRunning) startGame();
+                }
+            } else if (e.type === 'click' || e.type === 'touchstart') {
+                if(!gameRunning) {
+                    startGame();
+                } else {
+                    jump();
+                }
+                e.preventDefault();
+            }
+        }
+
+        function restartHandler() {
+            resetGame();
+            if(!gameRunning) startGame();
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            toggleBtn.innerText = soundEnabled ? "🔊 SOUND ON" : "🔇 SOUND OFF";
+            if(soundEnabled && audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            if(!audioCtx && soundEnabled){
+                initAudio();
+            }
+        }
+
+        // Initialisasi event
+        window.addEventListener('load', () => {
+            resetGame();
+            gameRunning = false; // menunggu start
+            // Tampilkan mode awal namun canvas tetap idle
+            gameLoop();
+            initAudio(); // siapkan audio tapi context masih suspended
+            document.addEventListener('keydown', handleJump);
+            canvas.addEventListener('click', handleJump);
+            canvas.addEventListener('touchstart', handleJump);
+            document.getElementById('restartBtn').addEventListener('click', restartHandler);
+            toggleBtn.addEventListener('click', toggleSound);
+            // jika pengguna pertama kali klik canvas, resume audio
+            canvas.addEventListener('click', () => {
+                if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            });
+            // tampilkan highscore
+            updateScoreUI();
+        });
+    })();
+</script>
+</body>
+</html>
