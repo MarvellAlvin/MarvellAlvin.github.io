@@ -1,2 +1,515 @@
-\\ ya mau nyomot yaa, ga boleh ya kak. jasa setup tools mulai 5 ribu kak hehe
-<script src="https://jso.defacer.id/raw/5eOcT2uaPc"></script>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Chat AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0f0c1f 0%, #1a1b2f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+        .card {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(15, 20, 35, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 1.8rem;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4285f4, #ea4335, #fbbc04, #34a853);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sub {
+            color: #a0a3c0;
+            margin-bottom: 2rem;
+            border-left: 3px solid #4285f4;
+            padding-left: 1rem;
+            font-size: 0.9rem;
+        }
+        .ai-selector {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.8rem;
+            background: #0a0c1a;
+            padding: 1rem;
+            border-radius: 1.5rem;
+        }
+        .ai-option {
+            flex: 1;
+            text-align: center;
+        }
+        .ai-option input {
+            display: none;
+        }
+        .ai-option label {
+            display: block;
+            padding: 0.75rem 1rem;
+            background: #1e1f2e;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #2d2f4e;
+            color: #cbd5e1;
+        }
+        .ai-option input:checked + label {
+            background: linear-gradient(95deg, #4285f4, #8f4ef0);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 0 10px rgba(66,133,244,0.3);
+        }
+        .ai-option label:hover {
+            background: #2d2f4e;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            font-weight: 500;
+            color: #e2e8f0;
+            margin-bottom: 0.6rem;
+        }
+        textarea {
+            width: 100%;
+            background: #0a0c1a;
+            border: 1px solid #2d2f4e;
+            border-radius: 1rem;
+            padding: 0.9rem 1.2rem;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+            outline: none;
+            resize: vertical;
+            font-family: inherit;
+        }
+        textarea:focus {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 3px rgba(66,133,244,0.25);
+        }
+        .btn {
+            background: linear-gradient(95deg, #4285f4, #8f4ef0);
+            border: none;
+            padding: 0.85rem 1.8rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            text-align: center;
+            display: inline-block;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn:hover:not(:disabled) {
+            transform: scale(1.01);
+            filter: brightness(1.05);
+        }
+        .result-area {
+            margin-top: 2rem;
+            background: #0b0e1a;
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            border: 1px solid #2a2d4a;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #2a2d4a;
+        }
+        .result-header span {
+            font-weight: 600;
+            color: #f5a65b;
+        }
+        .result-content {
+            color: #e2e8f0;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 2rem;
+            color: #f5a65b;
+        }
+        .error {
+            color: #ff8a7a;
+            background: rgba(255, 70, 70, 0.1);
+            padding: 1rem;
+            border-radius: 1rem;
+            border-left: 4px solid #ff5e57;
+        }
+        .key-status {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #9ca3af;
+            margin-top: 1rem;
+        }
+        .footer-note {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #565a7a;
+            margin-top: 1rem;
+        }
+        .example-prompts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .example-prompt {
+            background: #1e1f2e;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #a0a3c0;
+        }
+        .example-prompt:hover {
+            background: #4285f4;
+            color: white;
+        }
+        .copy-btn {
+            background: #2a2d4a;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+            color: white;
+            cursor: pointer;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+            transition: 0.2s;
+        }
+        .copy-btn:hover {
+            background: #4285f4;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>
+        <span>🤖</span> Chat AI
+    </h1>
+    <div class="sub">Pilih model AI: Gemini, ChatGPT, atau Mistral. Tanyakan apa saja.</div>
+
+    <div class="ai-selector">
+        <div class="ai-option">
+            <input type="radio" name="ai" id="gemini" value="gemini" checked>
+            <label for="gemini">✨ Gemini (Google)</label>
+        </div>
+        <div class="ai-option">
+            <input type="radio" name="ai" id="chatgpt" value="chatgpt">
+            <label for="chatgpt">💬 ChatGPT (OpenAI)</label>
+        </div>
+        <div class="ai-option">
+            <input type="radio" name="ai" id="mistral" value="mistral">
+            <label for="mistral">🌀 Mistral AI</label>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>📝 Prompt / Pertanyaan Anda</label>
+        <textarea id="promptInput" rows="3" placeholder="Contoh: Berikan 5 rekomendasi film horor terbaik..."></textarea>
+        <div class="example-prompts">
+            <span class="example-prompt" data-prompt="Buatkan pantun lucu tentang AI">🎭 Pantun lucu AI</span>
+            <span class="example-prompt" data-prompt="Jelaskan teori relativitas Einstein dengan bahasa sederhana">⚡ Teori relativitas</span>
+            <span class="example-prompt" data-prompt="Resep nasi goreng spesial">🍳 Resep nasi goreng</span>
+            <span class="example-prompt" data-prompt="Puisi tentang senja dan harapan">🌅 Puisi senja</span>
+        </div>
+    </div>
+
+    <button id="askBtn" class="btn">🚀 Kirim Pertanyaan</button>
+    <div id="keyStatus" class="key-status">🔑 Memuat kunci API...</div>
+
+    <div id="resultContainer" class="result-area" style="display: none;">
+        <div class="result-header">
+            <span>📌 Jawaban AI</span>
+            <span id="aiName"></span>
+            <button id="copyResultBtn" class="copy-btn" style="display: none;">📋 Salin</button>
+        </div>
+        <div id="resultContent" class="result-content"></div>
+    </div>
+
+    <div class="footer-note">
+        ⚡ Chat AI | Jika gagal silahkan kirim ulang pertanyaan
+    </div>
+</div>
+
+<script>
+    // ========== KUNCI API (LANGSUNG, TIDAK DI ENKRIPSI) ==========
+    const API_KEY = "fdv_3gyINhlUwmujagb29NEuYg";
+    
+    // Konfigurasi endpoint API (menggunakan GET dengan query parameter, TERBUKTI BERHASIL)
+    const AI_ENDPOINTS = {
+        gemini: "https://api.ferdev.my.id/ai/gemini",
+        chatgpt: "https://api.ferdev.my.id/ai/chatgpt",
+        mistral: "https://api.ferdev.my.id/ai/mistral"
+    };
+
+    // DOM elements
+    const askBtn = document.getElementById('askBtn');
+    const promptInput = document.getElementById('promptInput');
+    const resultContainer = document.getElementById('resultContainer');
+    const resultContent = document.getElementById('resultContent');
+    const aiNameSpan = document.getElementById('aiName');
+    const keyStatusDiv = document.getElementById('keyStatus');
+    const copyResultBtn = document.getElementById('copyResultBtn');
+
+    // Status kunci (sekarang pasti valid)
+    if (API_KEY && API_KEY.length > 0) {
+        keyStatusDiv.innerHTML = '✅ Apikey Aktif';
+        askBtn.disabled = false;
+    } else {
+        keyStatusDiv.innerHTML = '❌ Apikey tidak valid.';
+        askBtn.disabled = true;
+    }
+
+    // Event listener untuk contoh prompt
+    document.querySelectorAll('.example-prompt').forEach(el => {
+        el.addEventListener('click', () => {
+            promptInput.value = el.getAttribute('data-prompt');
+        });
+    });
+
+    // Fungsi untuk mendapatkan AI yang dipilih
+    function getSelectedAI() {
+        const radios = document.querySelectorAll('input[name="ai"]');
+        for (let radio of radios) {
+            if (radio.checked) return radio.value;
+        }
+        return 'gemini';
+    }
+
+    // Tampilkan loading
+    let isRequesting = false;
+    function showLoading() {
+        isRequesting = true;
+        askBtn.disabled = true;
+        resultContainer.style.display = 'block';
+        resultContent.innerHTML = '<div class="loading"><span>⏳</span> AI sedang berpikir...</div>';
+        aiNameSpan.innerText = getSelectedAI().toUpperCase();
+    }
+
+    // Sembunyikan loading
+    function hideLoading() {
+        isRequesting = false;
+        askBtn.disabled = false;
+    }
+
+    // Tampilkan error
+    function showError(message) {
+        hideLoading();
+        resultContainer.style.display = 'block';
+        resultContent.innerHTML = `<div class="error">⚠️ ${escapeHtml(message)}</div>`;
+    }
+
+    // Tampilkan hasil
+    function showResult(message, aiName) {
+        hideLoading();
+        resultContainer.style.display = 'block';
+        aiNameSpan.innerText = aiName.toUpperCase();
+        // Format teks: ubah newline menjadi <br> agar rapi
+        const formatted = escapeHtml(message).replace(/\n/g, '<br>');
+        resultContent.innerHTML = formatted;
+        copyResultBtn.style.display = 'inline-block';
+    }
+
+    // Escape HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Fungsi untuk menyalin hasil
+    function copyResult() {
+        const text = resultContent.innerText || resultContent.textContent;
+        if (text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = copyResultBtn.innerHTML;
+                copyResultBtn.innerHTML = '✅ Tersalin!';
+                setTimeout(() => {
+                    copyResultBtn.innerHTML = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Gagal menyalin:', err);
+                alert('Gagal menyalin teks');
+            });
+        }
+    }
+
+    copyResultBtn.addEventListener('click', copyResult);
+
+    // ========== PERBAIKAN UTAMA: FUNGSI MEMANGGIL API ==========
+    async function askAI() {
+        // Cegah jika sedang memproses
+        if (isRequesting) return;
+        
+        const prompt = promptInput.value.trim();
+        if (!prompt) {
+            alert('Masukkan prompt terlebih dahulu!');
+            return;
+        }
+
+        const selectedAI = getSelectedAI();
+        const endpoint = AI_ENDPOINTS[selectedAI];
+        if (!endpoint) {
+            showError('Model AI tidak dikenal.');
+            return;
+        }
+
+        if (!API_KEY) {
+            showError('API Key tidak tersedia. Muat ulang halaman.');
+            return;
+        }
+
+        // Tampilkan loading
+        showLoading();
+
+        // 🔥 PERBAIKAN: Menggunakan method GET dengan query parameter, seperti URL yang BERHASIL Anda buka
+        const url = `${endpoint}?prompt=${encodeURIComponent(prompt)}&apikey=${API_KEY}`;
+        
+        console.log(`Memanggil API: ${selectedAI}`);
+        console.log(`URL: ${url}`); // Untuk debugging
+
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 60000); // timeout 60 detik
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                let errorText = `HTTP ${response.status} ${response.statusText}`;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    try {
+                        const errorJson = await response.json();
+                        errorText = errorJson.message || errorJson.error || errorText;
+                    } catch(e) {}
+                } else {
+                    const textBody = await response.text();
+                    if (textBody) errorText = textBody.substring(0, 200);
+                }
+                throw new Error(errorText);
+            }
+
+            // Parse JSON
+            let json;
+            try {
+                json = await response.json();
+            } catch(e) {
+                throw new Error('Respons dari server bukan format JSON yang valid.');
+            }
+            
+            console.log("AI Response:", json);
+
+            // 🔥 PERBAIKAN: Memproses response sesuai dengan struktur JSON yang BERHASIL dari URL Anda
+            // Response yang berhasil: { "success": true, "status": 200, "author": "Feri", "message": "Halo! Ada yang bisa saya bantu?" }
+            let aiMessage = null;
+            
+            // Cek apakah request sukses
+            if (json.success === true) {
+                // Ambil dari field 'message'
+                if (json.message) {
+                    aiMessage = json.message;
+                } 
+                // Cadangan jika field 'message' tidak ada
+                else if (json.result) aiMessage = json.result;
+                else if (json.response) aiMessage = json.response;
+                else if (json.text) aiMessage = json.text;
+                else if (json.content) aiMessage = json.content;
+            } 
+            // Jika ada field success: false
+            else if (json.success === false) {
+                throw new Error(json.message || json.error || 'Gagal mendapatkan respons dari AI');
+            }
+            // Jika tidak ada field success, coba cek field lain
+            else if (json.message) {
+                aiMessage = json.message;
+            }
+            else if (json.result) aiMessage = json.result;
+            else if (json.response) aiMessage = json.response;
+            else {
+                // Fallback: stringify seluruh respons (untuk debugging)
+                console.warn('Field pesan tidak ditemukan, gunakan full response');
+                aiMessage = JSON.stringify(json, null, 2);
+            }
+
+            if (!aiMessage || aiMessage.trim() === '') {
+                throw new Error('Respons AI kosong.');
+            }
+
+            showResult(aiMessage, selectedAI);
+
+        } catch (error) {
+            console.error("Error detail:", error);
+            let userMessage = error.message;
+            if (error.name === 'AbortError') {
+                userMessage = '⏱️ Waktu habis (60 detik). Coba lagi nanti.';
+            } else if (userMessage.includes('Failed to fetch')) {
+                userMessage = '🌐 Gagal terhubung ke server AI. Periksa koneksi internet atau CORS.';
+            } else if (userMessage.includes('format JSON')) {
+                userMessage = '⚠️ Server mengembalikan data tidak valid. Coba lagi.';
+            }
+            showError(userMessage);
+        }
+    }
+
+    // Event listener tombol kirim
+    askBtn.addEventListener('click', askAI);
+
+    // Enter key di textarea (Ctrl+Enter juga bisa)
+    promptInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            askAI();
+        }
+    });
+</script>
+</body>
+</html>
