@@ -135,7 +135,7 @@
             color: #9ca3af;
             margin-top: 0.5rem;
         }
-        .file-picker, .manual-key-form {
+        .manual-key-form {
             background: #0f1222;
             border-radius: 1rem;
             padding: 1rem;
@@ -143,21 +143,19 @@
             text-align: center;
             border: 1px dashed #e1306c;
         }
-        .file-picker label, .manual-key-form button {
-            display: inline-block;
-            background: #2d2f4e;
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            cursor: pointer;
-            font-size: 0.8rem;
-            border: none;
-            color: white;
-            margin: 0.3rem;
-        }
-        .file-picker input { display: none; }
         .manual-key-form input {
             background: #0a0c1a;
             margin-bottom: 0.5rem;
+            width: 100%;
+        }
+        .manual-key-form button {
+            background: #2d2f4e;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin: 0.2rem;
         }
     </style>
 </head>
@@ -171,84 +169,113 @@
         <input type="text" id="urlInput" placeholder="https://www.instagram.com/reel/...">
     </div>
 
-    <button id="downloadBtn" class="btn" disabled>✨ Download Media</button>
-    <div id="keyStatus" class="key-status">⏳ Memuat kunci API...</div>
+    <button id="downloadBtn" class="btn">✨ Download Media</button>
+    <div id="keyStatus" class="key-status">🔑 Memuat kunci...</div>
     <div id="result" class="result-area" style="display: none;"></div>
-    <div class="footer-note">🚀 Instagram Downloader | Jika ada kesalahan Maaf masih dalam pengembangan</div>
+    <div class="footer-note">🚀 Instagram Downloader | Jika ada kesalahan ambil data silahkan ulangi lagi</div>
 </div>
 
 <script>
-    const BASE_URL = "https://api.ferdev.my.id/downloader/instagram";
-    const STORAGE_KEY = "ig_api_key";
-    let apiKey = localStorage.getItem(STORAGE_KEY);
+    // ========== KUNCI DEFAULT (BASE64) ==========
+    const DEFAULT_BASE64 = "ZmR2XzNneUlOaGxVd21qYWdiMjlORXVZZw==";
+    let apiKey = localStorage.getItem('ig_api_key'); // cek kunci tersimpan
 
+    const BASE_URL = "https://api.ferdev.my.id/downloader/instagram";
     const urlInput = document.getElementById('urlInput');
     const downloadBtn = document.getElementById('downloadBtn');
     const keyStatus = document.getElementById('keyStatus');
     const resultDiv = document.getElementById('result');
 
-    const decodeBase64 = str => { try { return atob(str); } catch(e) { return null; } };
-    const encodeBase64 = str => { try { return btoa(str); } catch(e) { return null; } };
-
-    function setApiKey(key, source) {
-        apiKey = key;
-        localStorage.setItem(STORAGE_KEY, key);
-        keyStatus.innerHTML = `✅ Kunci API siap (${source})`;
-        downloadBtn.disabled = false;
-        document.querySelectorAll('.file-picker, .manual-key-form').forEach(el => el?.remove());
+    // Fungsi decode base64
+    function decodeBase64(str) {
+        try { return atob(str); } catch(e) { return null; }
     }
 
-    async function loadApiKey() {
-        if (apiKey) {
-            keyStatus.innerHTML = '🔑 Kunci API siap (dari cache)';
-            downloadBtn.disabled = false;
-            return true;
+    // Inisialisasi kunci: jika belum ada di localStorage, gunakan default
+    if (!apiKey) {
+        const defaultKey = decodeBase64(DEFAULT_BASE64);
+        if (defaultKey) {
+            apiKey = defaultKey;
+            localStorage.setItem('ig_api_key', apiKey);
+            keyStatus.innerHTML = '🔑 Kunci API siap (default)';
+        } else {
+            keyStatus.innerHTML = '❌ Kunci default rusak. Masukkan manual.';
+            showManualInput();
         }
-
-        // Coba baca dari file apikey.txt
-        try {
-            keyStatus.innerHTML = '📡 Mengambil apikey.txt...';
-            const res = await fetch('apikey.txt');
-            if (res.ok) {
-                const base64 = (await res.text()).trim();
-                const key = decodeBase64(base64);
-                if (key) {
-                    setApiKey(key, 'dari file');
-                    return true;
-                }
-            }
-        } catch (e) {}
-
-        // Jika gagal, tampilkan opsi pilih file manual
-        keyStatus.innerHTML = '⚠️ Tidak dapat mengakses file otomatis. Pilih apikey.txt:';
-        const picker = document.createElement('div');
-        picker.className = 'file-picker';
-        picker.innerHTML = `<label for="apiFile">📁 Pilih apikey.txt</label><input type="file" id="apiFile" accept=".txt">`;
-        document.querySelector('.card').appendChild(picker);
-        document.getElementById('apiFile').addEventListener('change', e => {
-            if (!e.target.files[0]) return;
-            const reader = new FileReader();
-            reader.onload = ev => {
-                const key = decodeBase64(ev.target.result.trim());
-                if (key) setApiKey(key, 'dari file manual');
-                else keyStatus.innerHTML = '❌ Format base64 tidak valid.';
-            };
-            reader.readAsText(e.target.files[0]);
-        });
-        downloadBtn.disabled = true;
-        return false;
+    } else {
+        keyStatus.innerHTML = '✅ Apikey Aktif';
     }
 
+    // Tampilkan form input manual
+    function showManualInput(message = '') {
+        const existing = document.querySelector('.manual-key-form');
+        if (existing) existing.remove();
+        const formDiv = document.createElement('div');
+        formDiv.className = 'manual-key-form';
+        formDiv.innerHTML = `
+            <p>${message || '🔑 API Key tidak valid atau belum tersedia. Masukkan kunci baru:'}</p>
+            <input type="text" id="newKeyInput" placeholder="Kunci plain atau base64...">
+            <button id="saveKeyBtn">💾 Simpan & Gunakan</button>
+            <button id="cancelKeyBtn">✖ Batal</button>
+        `;
+        document.querySelector('.card').appendChild(formDiv);
+        document.getElementById('saveKeyBtn').onclick = () => {
+            let val = document.getElementById('newKeyInput').value.trim();
+            if (!val) return;
+            let decoded = decodeBase64(val);
+            if (!decoded) decoded = val; // anggap plain
+            if (decoded) {
+                apiKey = decoded;
+                localStorage.setItem('ig_api_key', apiKey);
+                keyStatus.innerHTML = '✅ Kunci API diperbarui (manual)';
+                formDiv.remove();
+                downloadBtn.disabled = false;
+                // Opsional: coba ulang request jika ada URL
+                if (urlInput.value.trim()) fetchInstagram();
+            } else {
+                alert('Format kunci tidak valid');
+            }
+        };
+        document.getElementById('cancelKeyBtn').onclick = () => formDiv.remove();
+        downloadBtn.disabled = true;
+    }
+
+    // Tampilkan hasil (loading/error/preview)
     function showResult(html, isError = false) {
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = html;
+    }
+
+    // Fungsi untuk mengunduh media dengan blob (agar download atribut berfungsi lintas origin)
+    async function downloadMedia(url, filename) {
+        try {
+            const response = await fetch(url, { mode: 'cors' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(blobUrl);
+        } catch (err) {
+            console.error('Download gagal:', err);
+            alert('Gagal mengunduh media. Coba klik kanan dan "Save link as" pada preview.');
+            // fallback: buka di tab baru
+            window.open(url, '_blank');
+        }
     }
 
     async function fetchInstagram() {
         const url = urlInput.value.trim();
         if (!url) return alert('Masukkan link Instagram!');
         if (!url.includes('instagram.com')) return showResult('<div class="error">⚠️ Link harus dari instagram.com</div>', true);
-        if (!apiKey) return showResult('<div class="error">⚠️ API key belum dimuat.</div>', true);
+        if (!apiKey) {
+            showManualInput('Kunci API belum ada. Silakan masukkan:');
+            return;
+        }
 
         showResult('<div class="loading">⏳ Mengambil data...</div>');
         try {
@@ -256,39 +283,19 @@
             const timeout = setTimeout(() => controller.abort(), 30000);
             const res = await fetch(`${BASE_URL}?link=${encodeURIComponent(url)}&apikey=${apiKey}`, {
                 signal: controller.signal,
-                referrerPolicy: 'no-referrer' // mencegah pengiriman referer jika API memeriksa
+                referrerPolicy: 'no-referrer'
             });
             clearTimeout(timeout);
             const json = await res.json();
 
-            // Tangani API key tidak valid
+            // Tangani error dari API
             if (!res.ok || !json.success) {
                 const errMsg = json.message || json.error || 'Gagal mengambil data';
                 if (errMsg.toLowerCase().includes('api key tidak valid')) {
-                    // Tampilkan form input manual
-                    const manualDiv = document.createElement('div');
-                    manualDiv.className = 'manual-key-form';
-                    manualDiv.innerHTML = `
-                        <p>🔑 API Key dari file tidak valid. Masukkan kunci baru:</p>
-                        <input type="text" id="newKeyInput" placeholder="fdv_xxxx atau base64...">
-                        <button id="saveKeyBtn">💾 Simpan & Gunakan</button>
-                        <button id="cancelKeyBtn">✖ Batal</button>
-                    `;
-                    document.querySelector('.card').appendChild(manualDiv);
-                    document.getElementById('saveKeyBtn').onclick = () => {
-                        let newKey = document.getElementById('newKeyInput').value.trim();
-                        if (!newKey) return;
-                        let decoded = decodeBase64(newKey);
-                        if (!decoded) decoded = newKey; // anggap plain
-                        if (decoded) {
-                            setApiKey(decoded, 'manual');
-                            manualDiv.remove();
-                            fetchInstagram(); // coba ulang otomatis
-                        } else {
-                            alert('Format kunci tidak valid');
-                        }
-                    };
-                    document.getElementById('cancelKeyBtn').onclick = () => manualDiv.remove();
+                    // Hapus kunci yang tidak valid dari localStorage
+                    localStorage.removeItem('ig_api_key');
+                    apiKey = null;
+                    showManualInput('⚠️ Kunci API tidak valid. Masukkan kunci baru:');
                     showResult(`<div class="error">⚠️ ${errMsg}</div>`, true);
                     return;
                 }
@@ -299,20 +306,32 @@
 
             const data = json.data;
             const isVideo = data.type === 'mp4';
+            const mediaUrl = data.dlink;
             const mediaHtml = isVideo ? 
-                `<video controls autoplay muted playsinline><source src="${data.dlink}" type="video/mp4"></video>` :
-                `<img src="${data.dlink}" alt="preview">`;
+                `<video controls autoplay muted playsinline><source src="${mediaUrl}" type="video/mp4"></video>` :
+                `<img src="${mediaUrl}" alt="preview">`;
             const meta = data.metadata || {};
+            const username = meta.username || 'instagram';
+            const extension = isVideo ? 'mp4' : 'jpg';
+            const filename = `${username}_${Date.now()}.${extension}`;
+
+            // Tampilkan hasil dengan tombol download yang memanggil fungsi downloadMedia
             showResult(`
                 <div class="preview-container">${mediaHtml}</div>
                 <div class="meta-info">
-                    <p><strong>👤 Username:</strong> ${escapeHtml(meta.username || '?')}</p>
+                    <p><strong>👤 Username:</strong> ${escapeHtml(username)}</p>
                     <p><strong>📝 Caption:</strong> ${escapeHtml(meta.title || 'Tidak ada')}</p>
                     <p><strong>❤️ Like:</strong> ${meta.likeCount || 0} &nbsp;|&nbsp; 💬 Komentar: ${meta.commentCount || 0}</p>
                     <p><strong>📁 Tipe:</strong> ${isVideo ? 'Video' : 'Foto'}</p>
                 </div>
-                <a href="${data.dlink}" download="${meta.username || 'instagram'}_${Date.now()}.${isVideo ? 'mp4' : 'jpg'}" class="btn download-btn" target="_blank">⬇️ Download Media</a>
+                <button id="downloadMediaBtn" class="btn download-btn">⬇️ Download Media</button>
             `);
+
+            // Pasang event listener untuk tombol download yang baru dibuat
+            document.getElementById('downloadMediaBtn').addEventListener('click', () => {
+                downloadMedia(mediaUrl, filename);
+            });
+
         } catch (err) {
             console.error(err);
             let msg = err.message;
@@ -327,9 +346,11 @@
         return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
 
-    loadApiKey();
     downloadBtn.addEventListener('click', fetchInstagram);
     urlInput.addEventListener('keypress', e => e.key === 'Enter' && fetchInstagram());
+
+    // Jika kunci default sudah benar, tombol aktif. Jika belum, tombol dinonaktifkan oleh showManualInput.
+    if (apiKey) downloadBtn.disabled = false;
 </script>
 </body>
 </html>
