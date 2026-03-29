@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Instagram Downloader v1</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, 'Segoe UI', sans-serif; }
+        body {
+            background: linear-gradient(145deg, #0f0c1f 0%, #1a1b2f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+        .card {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(15, 20, 35, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 1.8rem;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #feda77, #d62976, #962fbf);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .sub {
+            color: #a0a3c0;
+            margin-bottom: 2rem;
+            border-left: 3px solid #f56040;
+            padding-left: 1rem;
+            font-size: 0.9rem;
+        }
+        .input-group {
+            margin-bottom: 1.8rem;
+        }
+        label {
+            display: block;
+            font-weight: 500;
+            color: #e2e8f0;
+            margin-bottom: 0.6rem;
+        }
+        input {
+            width: 100%;
+            background: #0a0c1a;
+            border: 1px solid #2d2f4e;
+            border-radius: 1rem;
+            padding: 0.9rem 1.2rem;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        input:focus {
+            border-color: #e1306c;
+            box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.25);
+        }
+        .btn {
+            background: linear-gradient(95deg, #f56040, #e1306c);
+            border: none;
+            padding: 0.85rem 1.8rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            text-align: center;
+            display: inline-block;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .result-area {
+            margin-top: 2rem;
+            background: #0b0e1a;
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            border: 1px solid #2a2d4a;
+        }
+        .preview-container {
+            margin-bottom: 1.2rem;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: #000;
+            text-align: center;
+        }
+        video, img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 0.8rem;
+        }
+        .meta-info {
+            background: #0f1222;
+            padding: 1rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            color: #cbd5e1;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        .meta-info p {
+            margin: 0.4rem 0;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .meta-info strong {
+            color: #f5a65b;
+            min-width: 80px;
+        }
+        .download-btn {
+            background: linear-gradient(95deg, #2b9348, #55a630);
+            margin-top: 0.5rem;
+        }
+        .loading, .error {
+            text-align: center;
+            padding: 1rem;
+        }
+        .loading { color: #f5a65b; }
+        .error { color: #ff8a7a; background: rgba(255, 70, 70, 0.1); border-radius: 1rem; }
+        .key-status, .footer-note {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #9ca3af;
+            margin-top: 0.5rem;
+        }
+        .file-picker {
+            background: #0f1222;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+            border: 1px dashed #e1306c;
+        }
+        .file-picker label {
+            display: inline-block;
+            background: #2d2f4e;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .file-picker input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>🖇️ Instagram Downloader v1</h1>
+    <div class="sub">Download video, foto, reel — cukup tempel link Instagram</div>
+
+    <div class="input-group">
+        <label>🔗 Link Instagram (post/reel/story)</label>
+        <input type="text" id="urlInput" placeholder="https://www.instagram.com/reel/...">
+    </div>
+
+    <button id="downloadBtn" class="btn" disabled>✨ Download Media</button>
+    <div id="keyStatus" class="key-status">⏳ Memuat kunci API...</div>
+    <div id="result" class="result-area" style="display: none;"></div>
+    <div class="footer-note">🚀 Instagram Downloader v1 | Jika ada kesalahan Maaf masih dalam pengembangan</div>
+</div>
+
+<script>
+    const BASE_URL = "https://api.ferdev.my.id/downloader/instagram";
+    const STORAGE_KEY = "ig_api_key";
+    let apiKey = localStorage.getItem(STORAGE_KEY);
+
+    const urlInput = document.getElementById('urlInput');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const keyStatus = document.getElementById('keyStatus');
+    const resultDiv = document.getElementById('result');
+
+    // Helper: decode base64
+    const decodeBase64 = str => { try { return atob(str); } catch(e) { return null; } };
+
+    // Simpan kunci & aktifkan tombol
+    function setApiKey(key, source = 'auto') {
+        apiKey = key;
+        localStorage.setItem(STORAGE_KEY, key);
+        keyStatus.innerHTML = `✅ Kunci API siap (${source === 'file' ? 'dari file' : 'manual'})`;
+        downloadBtn.disabled = false;
+        // Hapus file picker jika ada
+        const picker = document.querySelector('.file-picker');
+        if (picker) picker.remove();
+    }
+
+    // Baca file yang dipilih manual
+    function handleFileSelect(file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const content = e.target.result.trim();
+            const decoded = decodeBase64(content);
+            if (!decoded) return keyStatus.innerHTML = '❌ Format base64 tidak valid.';
+            setApiKey(decoded, 'manual');
+        };
+        reader.onerror = () => keyStatus.innerHTML = '❌ Gagal membaca file.';
+        reader.readAsText(file);
+    }
+
+    // Coba fetch apikey.txt, jika gagal tampilkan input file
+    async function loadApiKey() {
+        if (apiKey) {
+            keyStatus.innerHTML = '🔑 Apikey Aktif';
+            downloadBtn.disabled = false;
+            return;
+        }
+
+        try {
+            keyStatus.innerHTML = '📡 Mengambil apikey.txt...';
+            const res = await fetch('apikey.txt');
+            if (!res.ok) throw new Error();
+            const base64 = await res.text();
+            const key = decodeBase64(base64.trim());
+            if (key) return setApiKey(key, 'file');
+            throw new Error();
+        } catch (err) {
+            // Gagal fetch (CORS atau file tidak ada) -> tampilkan opsi manual
+            keyStatus.innerHTML = '⚠️ Tidak dapat mengakses file otomatis. Pilih file apikey.txt:';
+            const picker = document.createElement('div');
+            picker.className = 'file-picker';
+            picker.innerHTML = `
+                <label for="apiFile">📁 Pilih apikey.txt</label>
+                <input type="file" id="apiFile" accept=".txt">
+            `;
+            document.querySelector('.card').appendChild(picker);
+            document.getElementById('apiFile').addEventListener('change', e => {
+                if (e.target.files[0]) handleFileSelect(e.target.files[0]);
+            });
+            downloadBtn.disabled = true;
+        }
+    }
+
+    // Tampilkan loading/error
+    function showResult(html, isError = false) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = html;
+        if (isError) resultDiv.querySelector('.error')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Ambil data dari API
+    async function fetchInstagram() {
+        const url = urlInput.value.trim();
+        if (!url) return alert('Masukkan link Instagram!');
+        if (!url.includes('instagram.com')) return showResult('<div class="error">⚠️ Link harus dari instagram.com</div>', true);
+        if (!apiKey) return showResult('<div class="error">⚠️ API key belum dimuat.</div>', true);
+
+        showResult('<div class="loading">⏳ Mengambil data...</div>');
+        try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 30000);
+            const res = await fetch(`${BASE_URL}?link=${encodeURIComponent(url)}&apikey=${apiKey}`, { signal: controller.signal });
+            clearTimeout(timeout);
+            const json = await res.json();
+            if (!res.ok || !json.success) throw new Error(json.message || 'Gagal mengambil data');
+            if (!json.data?.dlink) throw new Error('Tidak ada tautan download.');
+
+            const data = json.data;
+            const isVideo = data.type === 'mp4';
+            const mediaHtml = isVideo ? 
+                `<video controls autoplay muted playsinline><source src="${data.dlink}" type="video/mp4"></video>` :
+                `<img src="${data.dlink}" alt="preview">`;
+            const meta = data.metadata || {};
+            showResult(`
+                <div class="preview-container">${mediaHtml}</div>
+                <div class="meta-info">
+                    <p><strong>👤 Username:</strong> ${escapeHtml(meta.username || '?')}</p>
+                    <p><strong>📝 Caption:</strong> ${escapeHtml(meta.title || 'Tidak ada')}</p>
+                    <p><strong>❤️ Like:</strong> ${meta.likeCount || 0} &nbsp;|&nbsp; 💬 Komentar: ${meta.commentCount || 0}</p>
+                    <p><strong>📁 Tipe:</strong> ${isVideo ? 'Video' : 'Foto'}</p>
+                </div>
+                <a href="${data.dlink}" download="${meta.username || 'instagram'}_${Date.now()}.${isVideo ? 'mp4' : 'jpg'}" class="btn download-btn" target="_blank">⬇️ Download Media</a>
+            `);
+        } catch (err) {
+            console.error(err);
+            let msg = err.message;
+            if (err.name === 'AbortError') msg = '⏱️ Timeout. Coba lagi.';
+            if (msg.includes('Failed to fetch')) msg = '🌐 Gagal koneksi ke server.';
+            showResult(`<div class="error">⚠️ ${escapeHtml(msg)}</div>`, true);
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+
+    // Inisialisasi
+    loadApiKey();
+    downloadBtn.addEventListener('click', fetchInstagram);
+    urlInput.addEventListener('keypress', e => e.key === 'Enter' && fetchInstagram());
+</script>
+</body>
+</html>
