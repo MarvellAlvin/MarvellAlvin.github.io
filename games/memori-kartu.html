@@ -2,137 +2,484 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Memory Card Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Game</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: sans-serif;
-      text-align: center;
-      background: #f0f0f0;
+      font-family: 'Segoe UI', 'Poppins', 'Quicksand', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
       padding: 20px;
+      position: relative;
     }
+
+    /* Decorative elements */
+    body::before {
+      content: '🍎 🍊 🍇 🍒 🥝 🍓';
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 40px;
+      opacity: 0.1;
+      pointer-events: none;
+      letter-spacing: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .game-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 48px;
+      padding: 30px 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      max-width: 700px;
+      width: 100%;
+      transition: transform 0.3s ease;
+    }
+
+    .game-container:hover {
+      transform: translateY(-5px);
+    }
+
     h1 {
-      color: #333;
+      font-size: 2.5em;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 10px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 15px;
+      justify-content: center;
     }
-    #score, #tries {
-      margin-top: 10px;
-      font-size: 18px;
+
+    h1::before {
+      content: '🍎';
+      font-size: 0.8em;
+      background: none;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      color: #e74c3c;
     }
+
+    h1::after {
+      content: '🍇';
+      font-size: 0.8em;
+      background: none;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      color: #9b59b6;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin: 20px 0 30px 0;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      padding: 12px 25px;
+      border-radius: 60px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2em;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .stat-card span:first-child {
+      font-size: 1.5em;
+    }
+
+    .stat-card span:last-child {
+      background: white;
+      padding: 4px 12px;
+      border-radius: 40px;
+      min-width: 50px;
+    }
+
     #game-board {
       display: grid;
-      grid-template-columns: repeat(4, 100px);
-      gap: 10px;
-      justify-content: center;
-      margin-top: 20px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin: 30px 0;
     }
+
     .card {
-      width: 100px;
-      height: 100px;
-      background: gray;
-      border-radius: 10px;
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3em;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      position: relative;
+      transform-style: preserve-3d;
     }
+
+    .card::before {
+      content: '?';
+      position: absolute;
+      font-size: 2.5em;
+      font-weight: bold;
+      color: white;
+      opacity: 0.5;
+      transition: opacity 0.3s ease;
+    }
+
+    .card.revealed::before {
+      opacity: 0;
+    }
+
+    .card:hover:not(.revealed) {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+    }
+
     .card.revealed {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
       cursor: default;
+      transform: scale(0.98);
+      animation: cardPop 0.4s ease-out;
     }
+
+    @keyframes cardPop {
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      80% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(0.98);
+      }
+    }
+
+    .card.matched {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      cursor: default;
+      animation: matchGlow 0.6s ease-out;
+    }
+
+    @keyframes matchGlow {
+      0%, 100% {
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      }
+      50% {
+        box-shadow: 0 0 20px 10px rgba(46, 204, 113, 0.8);
+      }
+    }
+
     #restart-btn {
-      display: none;
-      margin-top: 20px;
-      padding: 10px 20px;
-      background: #00b894;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
-      border-radius: 5px;
-      font-size: 16px;
+      padding: 14px 35px;
+      border-radius: 60px;
+      font-size: 1.1em;
+      font-weight: 600;
       cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #restart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    #restart-btn:active {
+      transform: translateY(0);
+    }
+
+    .victory-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .victory-card {
+      background: white;
+      border-radius: 48px;
+      padding: 40px;
+      text-align: center;
+      max-width: 400px;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .victory-card h2 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .victory-card p {
+      font-size: 1.2em;
+      color: #666;
+      margin: 20px 0;
+    }
+
+    .victory-card button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 40px;
+      font-size: 1em;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .game-container {
+        padding: 20px;
+      }
+      
+      #game-board {
+        gap: 10px;
+      }
+      
+      .card {
+        font-size: 2em;
+      }
+      
+      .stat-card {
+        padding: 8px 18px;
+        font-size: 1em;
+      }
+      
+      h1 {
+        font-size: 1.8em;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h1>Game Memory Card</h1>
-  <div id="score">Skor: 0</div>
-  <div id="tries">Percobaan: 0</div>
+<div class="game-container">
+  <h1>Memory Game</h1>
+  
+  <div class="stats">
+    <div class="stat-card">
+      <span>🎯</span>
+      <span id="score">0</span>
+    </div>
+    <div class="stat-card">
+      <span>🔄</span>
+      <span id="tries">0</span>
+    </div>
+  </div>
+  
   <div id="game-board"></div>
-  <button id="restart-btn" onclick="restartGame()">Main Lagi</button>
+  
+  <button id="restart-btn" onclick="restartGame()">
+    <span>🔄</span> Main Lagi
+  </button>
+</div>
 
-  <script>
-    const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
-    let cardColors, revealedCards, tries, score;
+<script>
+  // Fruit emoji pairs for elegant game
+  const fruitEmojis = ['🍎', '🍊', '🍇', '🍒', '🥝', '🍓'];
+  const fruitNames = ['Apel', 'Jeruk', 'Anggur', 'Ceri', 'Kiwi', 'Stroberi'];
+  
+  let cardValues, revealedCards, tries, score, lockBoard;
 
-    const board = document.getElementById('game-board');
-    const triesDisplay = document.getElementById('tries');
-    const scoreDisplay = document.getElementById('score');
-    const restartBtn = document.getElementById('restart-btn');
+  const board = document.getElementById('game-board');
+  const triesDisplay = document.getElementById('tries');
+  const scoreDisplay = document.getElementById('score');
+  const restartBtn = document.getElementById('restart-btn');
 
-    function shuffle(array) {
-      return array.sort(() => Math.random() - 0.5);
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
     }
+    return array;
+  }
 
-    function createBoard() {
-      board.innerHTML = '';
-      revealedCards = [];
-      tries = 0;
-      score = 0;
-      cardColors = shuffle([...colors, ...colors]);
+  function createBoard() {
+    board.innerHTML = '';
+    revealedCards = [];
+    tries = 0;
+    score = 0;
+    lockBoard = false;
+    
+    // Create pairs of fruits
+    const initialCards = [];
+    fruitEmojis.forEach((emoji, index) => {
+      initialCards.push({ emoji, name: fruitNames[index], matched: false });
+      initialCards.push({ emoji, name: fruitNames[index], matched: false });
+    });
+    
+    cardValues = shuffle(initialCards);
 
-      cardColors.forEach(color => {
-        const card = document.createElement('div');
-        card.classList.add('card');
-        card.dataset.color = color;
-        card.onclick = () => revealCard(card);
-        board.appendChild(card);
-      });
+    cardValues.forEach((card, idx) => {
+      const cardElement = document.createElement('div');
+      cardElement.classList.add('card');
+      cardElement.dataset.index = idx;
+      cardElement.dataset.emoji = card.emoji;
+      cardElement.dataset.name = card.name;
+      cardElement.dataset.matched = 'false';
+      cardElement.onclick = () => revealCard(cardElement);
+      board.appendChild(cardElement);
+    });
 
+    updateDisplay();
+    restartBtn.style.display = 'inline-flex';
+  }
+
+  function revealCard(card) {
+    // Prevent clicks if board is locked, card already revealed, or already matched
+    if (lockBoard) return;
+    if (card.classList.contains('revealed')) return;
+    if (card.dataset.matched === 'true') return;
+    if (revealedCards.length >= 2) return;
+
+    // Reveal the card
+    card.classList.add('revealed');
+    card.textContent = card.dataset.emoji;
+    revealedCards.push(card);
+
+    // If two cards are revealed
+    if (revealedCards.length === 2) {
+      tries++;
       updateDisplay();
-      restartBtn.style.display = 'none';
-    }
-
-    function revealCard(card) {
-      if (card.classList.contains('revealed') || revealedCards.length >= 2) return;
-
-      card.style.backgroundColor = card.dataset.color;
-      card.classList.add('revealed');
-      revealedCards.push(card);
-
-      if (revealedCards.length === 2) {
-        tries++;
-        updateDisplay();
-
-        const [card1, card2] = revealedCards;
-        if (card1.dataset.color === card2.dataset.color) {
-          revealedCards = [];
+      lockBoard = true;
+      
+      const card1 = revealedCards[0];
+      const card2 = revealedCards[1];
+      
+      // Check if they match
+      if (card1.dataset.emoji === card2.dataset.emoji) {
+        // Match found
+        setTimeout(() => {
+          card1.classList.add('matched');
+          card2.classList.add('matched');
+          card1.dataset.matched = 'true';
+          card2.dataset.matched = 'true';
+          card1.style.cursor = 'default';
+          card2.style.cursor = 'default';
+          
           score++;
           updateDisplay();
-          if (score === 6) {
+          
+          revealedCards = [];
+          lockBoard = false;
+          
+          // Check for victory
+          if (score === fruitEmojis.length) {
             setTimeout(() => {
-              alert("Selamat! Anda telah menemukan semua pasangan.");
-              restartBtn.style.display = 'inline-block';
-            }, 500);
+              showVictory();
+            }, 300);
           }
-        } else {
-          setTimeout(() => {
-            card1.style.backgroundColor = 'gray';
-            card2.style.backgroundColor = 'gray';
-            card1.classList.remove('revealed');
-            card2.classList.remove('revealed');
-            revealedCards = [];
-          }, 1000);
-        }
+        }, 300);
+      } else {
+        // No match - flip back
+        setTimeout(() => {
+          card1.classList.remove('revealed');
+          card2.classList.remove('revealed');
+          card1.textContent = '';
+          card2.textContent = '';
+          revealedCards = [];
+          lockBoard = false;
+        }, 800);
       }
+    } else {
+      // Single card revealed - just update text
+      card.textContent = card.dataset.emoji;
     }
+  }
 
-    function updateDisplay() {
-      triesDisplay.textContent = 'Percobaan: ' + tries;
-      scoreDisplay.textContent = 'Skor: ' + score;
-    }
+  function updateDisplay() {
+    triesDisplay.textContent = tries;
+    scoreDisplay.textContent = score;
+  }
 
-    function restartGame() {
-      createBoard();
-    }
+  function showVictory() {
+    const overlay = document.createElement('div');
+    overlay.className = 'victory-overlay';
+    overlay.innerHTML = `
+      <div class="victory-card">
+        <h2>🎉 Selamat! 🎉</h2>
+        <div style="font-size: 4em; margin: 20px 0;">🏆</div>
+        <p>Kamu berhasil menemukan semua pasangan buah!</p>
+        <p><strong>Total Percobaan:</strong> ${tries}</p>
+        <p><strong>Skor Akhir:</strong> ${score} dari ${fruitEmojis.length}</p>
+        <button onclick="closeVictoryAndRestart()">Main Lagi 🎮</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  }
 
+  function closeVictoryAndRestart() {
+    const overlay = document.querySelector('.victory-overlay');
+    if (overlay) overlay.remove();
+    restartGame();
+  }
+
+  function restartGame() {
+    const overlay = document.querySelector('.victory-overlay');
+    if (overlay) overlay.remove();
     createBoard();
-  </script>
+  }
+
+  // Initialize the game
+  createBoard();
+</script>
 
 </body>
 </html>
