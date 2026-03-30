@@ -153,8 +153,69 @@
         .result-content {
             color: #e2e8f0;
             line-height: 1.6;
-            white-space: pre-wrap;
             word-break: break-word;
+        }
+        /* Style untuk elemen hasil konversi markdown */
+        .result-content h1, .result-content h2, .result-content h3 {
+            margin-top: 1.2em;
+            margin-bottom: 0.6em;
+            font-weight: 600;
+            color: #f5a65b;
+        }
+        .result-content h1 { font-size: 1.8rem; border-left: 4px solid #f5a65b; padding-left: 0.8rem; }
+        .result-content h2 { font-size: 1.5rem; border-left: 3px solid #f5a65b; padding-left: 0.8rem; }
+        .result-content h3 { font-size: 1.2rem; }
+        .result-content p {
+            margin: 0.8em 0;
+        }
+        .result-content ul, .result-content ol {
+            margin: 0.5em 0 0.5em 1.8em;
+        }
+        .result-content li {
+            margin: 0.3em 0;
+        }
+        .result-content strong {
+            color: #ffd966;
+            font-weight: 600;
+        }
+        .result-content em {
+            font-style: italic;
+            color: #b0b3d0;
+        }
+        .result-content hr {
+            margin: 1.2em 0;
+            border: 0;
+            height: 1px;
+            background: #2a2d4a;
+        }
+        .result-content a {
+            color: #6c9eff;
+            text-decoration: none;
+            border-bottom: 1px dotted #6c9eff;
+        }
+        .result-content a:hover {
+            text-decoration: underline;
+        }
+        .result-content blockquote {
+            border-left: 3px solid #4285f4;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #b0b3d0;
+            font-style: italic;
+        }
+        .result-content code {
+            background: #1e1f2e;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .result-content pre {
+            background: #1e1f2e;
+            padding: 1rem;
+            border-radius: 0.8rem;
+            overflow-x: auto;
+            margin: 1rem 0;
         }
         .loading {
             display: flex;
@@ -238,6 +299,14 @@
             <input type="radio" name="ai" id="mistral" value="mistral">
             <label for="mistral">🌀 Mistral AI</label>
         </div>
+        <div class="ai-option">
+            <input type="radio" name="ai" id="felo" value="felo">
+            <label for="felo">🔍 Felo AI</label>
+        </div>
+        <div class="ai-option">
+            <input type="radio" name="ai" id="venice" value="venice">
+            <label for="venice">🎨 Venice AI</label>
+        </div>
     </div>
 
     <div class="input-group">
@@ -264,19 +333,21 @@
     </div>
 
     <div class="footer-note">
-        ⚡ Chat AI | Jika gagal silahkan kirim ulang pertanyaan
+        ⚡ Chat AI | Jika gagal silahkan kirim pertanyaan ulang
     </div>
 </div>
 
 <script>
-    // ========== KUNCI API (LANGSUNG, TIDAK DI ENKRIPSI) ==========
+    // ========== KUNCI API ==========
     const API_KEY = "fdv_3gyINhlUwmujagb29NEuYg";
     
-    // Konfigurasi endpoint API (menggunakan GET dengan query parameter, TERBUKTI BERHASIL)
+    // Konfigurasi endpoint API (GET dengan query parameter)
     const AI_ENDPOINTS = {
         gemini: "https://api.ferdev.my.id/ai/gemini",
         chatgpt: "https://api.ferdev.my.id/ai/chatgpt",
-        mistral: "https://api.ferdev.my.id/ai/mistral"
+        mistral: "https://api.ferdev.my.id/ai/mistral",
+        felo: "https://api.ferdev.my.id/ai/felo",
+        venice: "https://api.ferdev.my.id/ai/venice"
     };
 
     // DOM elements
@@ -288,12 +359,12 @@
     const keyStatusDiv = document.getElementById('keyStatus');
     const copyResultBtn = document.getElementById('copyResultBtn');
 
-    // Status kunci (sekarang pasti valid)
+    // Status kunci
     if (API_KEY && API_KEY.length > 0) {
         keyStatusDiv.innerHTML = '✅ Apikey Aktif';
         askBtn.disabled = false;
     } else {
-        keyStatusDiv.innerHTML = '❌ Apikey tidak valid.';
+        keyStatusDiv.innerHTML = '❌ Apikey Non Aktif. Silahlan hubungi author marvellalvin.github.io';
         askBtn.disabled = true;
     }
 
@@ -334,20 +405,10 @@
         hideLoading();
         resultContainer.style.display = 'block';
         resultContent.innerHTML = `<div class="error">⚠️ ${escapeHtml(message)}</div>`;
+        copyResultBtn.style.display = 'none';
     }
 
-    // Tampilkan hasil
-    function showResult(message, aiName) {
-        hideLoading();
-        resultContainer.style.display = 'block';
-        aiNameSpan.innerText = aiName.toUpperCase();
-        // Format teks: ubah newline menjadi <br> agar rapi
-        const formatted = escapeHtml(message).replace(/\n/g, '<br>');
-        resultContent.innerHTML = formatted;
-        copyResultBtn.style.display = 'inline-block';
-    }
-
-    // Escape HTML
+    // Escape HTML (untuk keamanan)
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, m => {
@@ -358,8 +419,131 @@
         });
     }
 
-    // Fungsi untuk menyalin hasil
+    // ========== FUNGSI KONVERSI MARKDOWN KE HTML ==========
+    function convertMarkdownToHtml(md) {
+        if (!md) return '';
+
+        // Escape HTML terlebih dahulu agar tag HTML tidak dieksekusi
+        let html = escapeHtml(md);
+
+        // 1. Heading level 1-3 (harus di awal baris)
+        html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+        html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+        html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+
+        // 2. Bold (dengan ** atau __)
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+
+        // 3. Italic (dengan * atau _)
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+
+        // 4. Strikethrough (opsional)
+        html = html.replace(/~~(.*?)~~/g, '<del>$1</del>');
+
+        // 5. Link [text](url)
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+        // 6. Gambar (opsional) ![alt](url)
+        html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%; border-radius:0.5rem;">');
+
+        // 7. Horizontal rule ---
+        html = html.replace(/^---$/gm, '<hr>');
+
+        // 8. Blockquote (> )
+        html = html.replace(/^> (.*?)$/gm, '<blockquote>$1</blockquote>');
+        // Gabungkan blockquote berurutan (opsional, sederhana)
+        html = html.replace(/<\/blockquote>\n<blockquote>/g, '<br>');
+
+        // 9. List unordered (baris yang dimulai dengan * atau -)
+        // Kita akan proses baris per baris untuk list
+        let lines = html.split('\n');
+        let inUl = false;
+        let inOl = false;
+        let processedLines = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            // Unordered list
+            if (line.match(/^\s*[\*\-]\s+(.*)/)) {
+                let content = line.replace(/^\s*[\*\-]\s+(.*)/, '$1');
+                if (!inUl) {
+                    processedLines.push('<ul>');
+                    inUl = true;
+                }
+                processedLines.push(`<li>${content}</li>`);
+                continue;
+            }
+            // Ordered list (angka diikuti titik)
+            else if (line.match(/^\s*\d+\.\s+(.*)/)) {
+                let content = line.replace(/^\s*\d+\.\s+(.*)/, '$1');
+                if (!inOl) {
+                    processedLines.push('<ol>');
+                    inOl = true;
+                }
+                processedLines.push(`<li>${content}</li>`);
+                continue;
+            }
+            else {
+                // Jika sebelumnya dalam list, tutup
+                if (inUl) {
+                    processedLines.push('</ul>');
+                    inUl = false;
+                }
+                if (inOl) {
+                    processedLines.push('</ol>');
+                    inOl = false;
+                }
+                processedLines.push(line);
+            }
+        }
+        // Tutup list jika masih terbuka di akhir
+        if (inUl) processedLines.push('</ul>');
+        if (inOl) processedLines.push('</ol>');
+
+        html = processedLines.join('\n');
+
+        // 10. Paragraph: gabungkan baris kosong menjadi paragraf
+        // Caranya: pisahkan dengan double newline, lalu bungkus dengan <p>
+        let blocks = html.split(/\n\s*\n/);
+        let resultBlocks = [];
+        for (let block of blocks) {
+            block = block.trim();
+            if (block === '') continue;
+            // Jika block sudah dimulai dengan tag HTML, biarkan apa adanya (tidak bungkus <p>)
+            if (block.startsWith('<') && !block.startsWith('<p>')) {
+                resultBlocks.push(block);
+            } else {
+                // Ganti single newline dengan <br> di dalam paragraf
+                block = block.replace(/\n/g, '<br>');
+                resultBlocks.push(`<p>${block}</p>`);
+            }
+        }
+        html = resultBlocks.join('\n');
+
+        // 11. Penanganan code block (backtick) - sederhana
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        // Multiline code block (```)
+        html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+
+        return html;
+    }
+
+    // Tampilkan hasil dengan konversi markdown
+    function showResult(message, aiName) {
+        hideLoading();
+        resultContainer.style.display = 'block';
+        aiNameSpan.innerText = aiName.toUpperCase();
+        // Konversi markdown ke HTML
+        const formattedHtml = convertMarkdownToHtml(message);
+        resultContent.innerHTML = formattedHtml;
+        copyResultBtn.style.display = 'inline-block';
+    }
+
+    // Fungsi untuk menyalin hasil (teks asli, bukan HTML)
     function copyResult() {
+        // Ambil teks asli dari resultContent (tanpa tag HTML)
         const text = resultContent.innerText || resultContent.textContent;
         if (text) {
             navigator.clipboard.writeText(text).then(() => {
@@ -377,9 +561,8 @@
 
     copyResultBtn.addEventListener('click', copyResult);
 
-    // ========== PERBAIKAN UTAMA: FUNGSI MEMANGGIL API ==========
+    // ========== FUNGSI MEMANGGIL API ==========
     async function askAI() {
-        // Cegah jika sedang memproses
         if (isRequesting) return;
         
         const prompt = promptInput.value.trim();
@@ -400,24 +583,20 @@
             return;
         }
 
-        // Tampilkan loading
         showLoading();
 
-        // 🔥 PERBAIKAN: Menggunakan method GET dengan query parameter, seperti URL yang BERHASIL Anda buka
         const url = `${endpoint}?prompt=${encodeURIComponent(prompt)}&apikey=${API_KEY}`;
         
         console.log(`Memanggil API: ${selectedAI}`);
-        console.log(`URL: ${url}`); // Untuk debugging
+        console.log(`URL: ${url}`);
 
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 60000); // timeout 60 detik
+            const timeoutId = setTimeout(() => controller.abort(), 60000);
 
             const response = await fetch(url, {
                 method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                },
+                headers: { 'Accept': 'application/json' },
                 signal: controller.signal
             });
 
@@ -438,7 +617,6 @@
                 throw new Error(errorText);
             }
 
-            // Parse JSON
             let json;
             try {
                 json = await response.json();
@@ -448,36 +626,14 @@
             
             console.log("AI Response:", json);
 
-            // 🔥 PERBAIKAN: Memproses response sesuai dengan struktur JSON yang BERHASIL dari URL Anda
-            // Response yang berhasil: { "success": true, "status": 200, "author": "Feri", "message": "Halo! Ada yang bisa saya bantu?" }
             let aiMessage = null;
             
-            // Cek apakah request sukses
             if (json.success === true) {
-                // Ambil dari field 'message'
-                if (json.message) {
-                    aiMessage = json.message;
-                } 
-                // Cadangan jika field 'message' tidak ada
-                else if (json.result) aiMessage = json.result;
-                else if (json.response) aiMessage = json.response;
-                else if (json.text) aiMessage = json.text;
-                else if (json.content) aiMessage = json.content;
-            } 
-            // Jika ada field success: false
-            else if (json.success === false) {
+                aiMessage = json.message || json.result || json.response || json.text || json.content;
+            } else if (json.success === false) {
                 throw new Error(json.message || json.error || 'Gagal mendapatkan respons dari AI');
-            }
-            // Jika tidak ada field success, coba cek field lain
-            else if (json.message) {
-                aiMessage = json.message;
-            }
-            else if (json.result) aiMessage = json.result;
-            else if (json.response) aiMessage = json.response;
-            else {
-                // Fallback: stringify seluruh respons (untuk debugging)
-                console.warn('Field pesan tidak ditemukan, gunakan full response');
-                aiMessage = JSON.stringify(json, null, 2);
+            } else {
+                aiMessage = json.message || json.result || json.response || json.text || json.content;
             }
 
             if (!aiMessage || aiMessage.trim() === '') {
@@ -503,7 +659,7 @@
     // Event listener tombol kirim
     askBtn.addEventListener('click', askAI);
 
-    // Enter key di textarea (Ctrl+Enter juga bisa)
+    // Keyboard shortcut
     promptInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             e.preventDefault();
