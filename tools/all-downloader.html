@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>All Downloader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0b0918 0%, #14172b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.8rem;
+        }
+
+        .card {
+            max-width: 960px;
+            width: 100%;
+            background: rgba(12, 15, 28, 0.75);
+            backdrop-filter: blur(14px);
+            border-radius: 2rem;
+            padding: 2rem;
+            box-shadow: 0 30px 50px -15px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.2s;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(130deg, #FFD166, #FF6B6B, #9B5DE5);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            margin-bottom: 0.4rem;
+        }
+
+        .sub {
+            color: #a5b0e0;
+            border-left: 3px solid #FF8C42;
+            padding-left: 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            font-weight: 450;
+        }
+
+        .input-group {
+            margin-bottom: 1.8rem;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #eef2ff;
+            margin-bottom: 0.7rem;
+            font-size: 0.95rem;
+        }
+
+        input {
+            width: 100%;
+            background: #070a14;
+            border: 1.5px solid #2a2f4b;
+            border-radius: 1.2rem;
+            padding: 0.9rem 1.3rem;
+            color: #f0f3ff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: #FF8C42;
+            box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(105deg, #FF6B4A, #E4456C);
+            border: none;
+            padding: 0.85rem 1.8rem;
+            border-radius: 3rem;
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            text-align: center;
+            display: inline-block;
+            box-shadow: 0 8px 18px rgba(228, 69, 108, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: scale(0.98);
+            background: linear-gradient(105deg, #E4456C, #FF6B4A);
+        }
+
+        .result-area {
+            margin-top: 2rem;
+            background: #0a0d1c;
+            border-radius: 1.5rem;
+            padding: 1.4rem;
+            border: 1px solid #2c2f50;
+        }
+
+        .preview-card {
+            background: #00000030;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        video, audio, .preview-img {
+            max-width: 100%;
+            max-height: 420px;
+            border-radius: 1rem;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+        }
+
+        .meta-panel {
+            background: #0f1225;
+            border-radius: 1.2rem;
+            padding: 1rem 1.3rem;
+            margin: 1rem 0;
+            color: #cbd5ff;
+            word-break: break-word;
+        }
+
+        .meta-panel p {
+            margin: 0.5rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            align-items: baseline;
+        }
+
+        .meta-panel strong {
+            color: #FFB347;
+            min-width: 85px;
+            font-weight: 600;
+        }
+
+        .badge-source {
+            background: #232742;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+            color: #b9c3ff;
+        }
+
+        .downloads-list {
+            margin-top: 1rem;
+        }
+
+        .download-item {
+            background: #0b0e1f;
+            border-radius: 1rem;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem;
+            border: 1px solid #2a2d4e;
+            transition: 0.1s;
+        }
+
+        .media-info {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+
+        .quality-badge {
+            background: #e4456c20;
+            color: #ffa48e;
+            padding: 4px 12px;
+            border-radius: 24px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border: 0.5px solid #ff8a6e50;
+        }
+
+        .extension-badge {
+            background: #2f354e;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #b1c2ff;
+        }
+
+        .btn-download {
+            background: #2b9348;
+            border: none;
+            padding: 0.45rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-download:hover {
+            background: #218838;
+            transform: scale(0.96);
+        }
+
+        .loading, .error {
+            text-align: center;
+            padding: 1.8rem;
+            font-weight: 500;
+        }
+
+        .loading {
+            color: #FFB347;
+            background: #141a2c;
+            border-radius: 1rem;
+        }
+
+        .error {
+            color: #ff9f8f;
+            background: #2a1922;
+            border-radius: 1rem;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #7e84b0;
+            margin-top: 1rem;
+            border-top: 1px solid #23284a;
+            padding-top: 1rem;
+        }
+        hr {
+            border-color: #262b4a;
+            margin: 1rem 0;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .thumb-small {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 12px;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>⚡ All‑in‑One Downloader</h1>
+    <div class="sub">Download video, audio, foto dari TikTok, Instagram, YouTube, Facebook, Twitter/X & banyak lagi — cukup satu tools</div>
+
+    <div class="input-group">
+        <label>🔗 Tempel link media (post, reel, video, story)</label>
+        <input type="text" id="mediaUrl" placeholder="https://www.instagram.com/reel/...">
+    </div>
+
+    <button id="fetchBtn" class="btn-primary">✨ Proses & Ambil Media</button>
+    <div id="resultContainer" class="result-area" style="display: none;"></div>
+    <div class="footer-note">
+        🚀 Menggunakan API publik | Support: TikTok, IG, YT, FB, Twitter, Pinterest, dll
+    </div>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    //  API ENDPOINT (PUBLIK - https://api.ryzumi.net)
+    // --------------------------------------------------------------
+    const API_BASE = "https://api.ryzumi.net/api/downloader/all-in-one";
+
+    const urlInput = document.getElementById('mediaUrl');
+    const fetchBtn = document.getElementById('fetchBtn');
+    const resultDiv = document.getElementById('resultContainer');
+
+    // Helper: download file via blob (agar lebih kompatibel, dengan fallback)
+    async function downloadMediaAsBlob(mediaUrl, suggestedFilename) {
+        try {
+            // Coba fetch dengan mode cors
+            const response = await fetch(mediaUrl, { 
+                mode: 'cors',
+                referrerPolicy: 'no-referrer'
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = blobUrl;
+            anchor.download = suggestedFilename;
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+            URL.revokeObjectURL(blobUrl);
+        } catch (err) {
+            console.warn("Blob download gagal, fallback buka tab baru:", err);
+            // Fallback: buka di tab baru (pengguna bisa klik kanan -> simpan)
+            const newWin = window.open(mediaUrl, '_blank');
+            if (!newWin) {
+                alert("Gagal mengunduh otomatis. Coba klik kanan pada tautan media dan pilih 'Save link as'.");
+            } else {
+                alert("Unduhan tidak bisa dimulai otomatis. Tab baru terbuka, Anda bisa menyimpan manual.");
+            }
+        }
+    }
+
+    // Sanitasi nama file: hilangkan karakter berbahaya
+    function sanitizeFilename(str) {
+        if (!str) return "media";
+        return str.replace(/[\\/*?:"<>|\s]+/g, "_").substring(0, 60);
+    }
+
+    // Escape HTML
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Menentukan ekstensi & tipe media untuk filename
+    function getExtensionFromUrl(url, fallbackExt) {
+        if (!url) return fallbackExt;
+        const match = url.match(/\.([a-z0-9]+)(?:\?|$)/i);
+        if (match && match[1]) return match[1].toLowerCase();
+        return fallbackExt;
+    }
+
+    // Membangun nama file berdasarkan author, judul, kualitas
+    function buildFileName(mediaItem, authorObj, titleRaw) {
+        const authorName = authorObj?.username || authorObj?.name || "unknown";
+        const titlePart = titleRaw ? sanitizeFilename(titleRaw.substring(0, 35)) : "media";
+        const qualityRaw = mediaItem.quality || mediaItem.type || "download";
+        const ext = mediaItem.extension || getExtensionFromUrl(mediaItem.url, "mp4");
+        return `${sanitizeFilename(authorName)}_${titlePart}_${qualityRaw}.${ext}`.replace(/__+/g, "_");
+    }
+
+    // Menampilkan data utama dan daftar download
+    function renderResult(apiData) {
+        if (!apiData || !apiData.medias || apiData.medias.length === 0) {
+            throw new Error("Tidak ada media yang ditemukan dalam respons API.");
+        }
+
+        const source = apiData.source || "platform";
+        const title = apiData.title || "Tanpa judul";
+        const thumbnail = apiData.thumbnail || "";
+        const author = apiData.author || { name: "Creator", username: "creator" };
+        const medias = apiData.medias;
+
+        // 1. Cari media preview terbaik (video prioritas: hd_no_watermark > no_watermark > watermark)
+        let previewMedia = null;
+        const videoMedias = medias.filter(m => m.type === "video");
+        if (videoMedias.length > 0) {
+            const priority = ["hd_no_watermark", "no_watermark", "watermark"];
+            for (let qual of priority) {
+                const found = videoMedias.find(m => m.quality === qual);
+                if (found) {
+                    previewMedia = found;
+                    break;
+                }
+            }
+            if (!previewMedia) previewMedia = videoMedias[0]; // fallback
+        } else {
+            // jika tidak ada video, cari gambar atau audio?
+            const imageMedias = medias.find(m => m.type === "image" || (m.extension && /jpe?g|png|webp/i.test(m.extension)));
+            if (imageMedias) previewMedia = imageMedias;
+            else if (medias[0]) previewMedia = medias[0]; // fallback
+        }
+
+        // 2. Buat HTML untuk preview (video / audio / image)
+        let previewHtml = '';
+        if (previewMedia && previewMedia.url) {
+            const previewUrl = previewMedia.url;
+            const mediaType = previewMedia.type;
+            if (mediaType === "video") {
+                previewHtml = `
+                    <div class="preview-card">
+                        <video controls autoplay muted playsinline loop>
+                            <source src="${escapeHtml(previewUrl)}" type="video/mp4">
+                            Browser tidak support video.
+                        </video>
+                    </div>
+                `;
+            } else if (mediaType === "audio") {
+                previewHtml = `
+                    <div class="preview-card">
+                        <audio controls style="width:100%">
+                            <source src="${escapeHtml(previewUrl)}" type="audio/mpeg">
+                        </audio>
+                        <div style="font-size:0.75rem; margin-top:6px;">🎵 Preview audio</div>
+                    </div>
+                `;
+            } else {
+                // image atau lainnya
+                previewHtml = `
+                    <div class="preview-card">
+                        <img class="preview-img" src="${escapeHtml(previewUrl)}" alt="preview" onerror="this.style.display='none'">
+                    </div>
+                `;
+            }
+        } else {
+            // fallback thumbnail utama
+            if (thumbnail) {
+                previewHtml = `<div class="preview-card"><img class="preview-img" src="${escapeHtml(thumbnail)}" alt="thumbnail"></div>`;
+            } else {
+                previewHtml = `<div class="preview-card" style="background:#14182b; padding:1rem; text-align:center;">📷 Preview tidak tersedia</div>`;
+            }
+        }
+
+        // 3. Metadata info (author, title, source)
+        const authorName = author.name || author.username || "Unknown";
+        const authorUsername = author.username ? `@${author.username}` : '';
+        const metaHtml = `
+            <div class="meta-panel">
+                <p><strong>📱 Platform:</strong> <span class="badge-source">${escapeHtml(source.toUpperCase())}</span></p>
+                <p><strong>📌 Judul:</strong> ${escapeHtml(title)}</p>
+                <p><strong>👤 Author:</strong> ${escapeHtml(authorName)} ${authorUsername ? `(${escapeHtml(authorUsername)})` : ''}</p>
+                ${thumbnail ? `<p><strong>🖼️ Thumbnail:</strong> <a href="${escapeHtml(thumbnail)}" target="_blank" style="color:#FFB347">Lihat thumbnail</a></p>` : ''}
+            </div>
+        `;
+
+        // 4. Daftar semua opsi download (setiap media)
+        let downloadsHtml = `<div class="downloads-list"><strong style="display:block; margin-bottom:12px;">📥 Semua kualitas & format:</strong>`;
+        medias.forEach((media, idx) => {
+            const mediaUrl = media.url;
+            if (!mediaUrl) return;
+            const qualityLabel = media.quality ? media.quality.replace(/_/g, ' ').toUpperCase() : (media.type === 'audio' ? 'AUDIO' : 'MEDIA');
+            const ext = media.extension || getExtensionFromUrl(mediaUrl, (media.type === 'audio' ? 'mp3' : 'mp4'));
+            const fileExt = ext.startsWith('.') ? ext.slice(1) : ext;
+            const displayExt = fileExt.toUpperCase();
+            // Tampilkan jenis media (video/audio/image)
+            let typeIcon = media.type === 'video' ? '🎬' : (media.type === 'audio' ? '🎵' : '🖼️');
+            const filename = buildFileName(media, author, title);
+            
+            downloadsHtml += `
+                <div class="download-item">
+                    <div class="media-info">
+                        <span class="quality-badge">${typeIcon} ${escapeHtml(qualityLabel)}</span>
+                        <span class="extension-badge">${displayExt}</span>
+                        <span style="font-size:0.7rem; color:#b5beff;">${media.type === 'audio' ? 'Audio track' : (media.type === 'video' ? 'Video' : 'File')}</span>
+                    </div>
+                    <button class="btn-download" data-url="${escapeHtml(mediaUrl)}" data-filename="${escapeHtml(filename)}">
+                        ⬇️ Download (${displayExt})
+                    </button>
+                </div>
+            `;
+        });
+        downloadsHtml += `</div>`;
+
+        // Gabungkan semua ke result area
+        const fullResult = `
+            ${previewHtml}
+            ${metaHtml}
+            ${downloadsHtml}
+            <hr>
+            <div style="font-size:0.75rem; text-align:center; color:#7c84b0;">
+                💡 Tips: Jika download gagal, klik kanan tombol atau coba refresh.
+            </div>
+        `;
+
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = fullResult;
+
+        // Pasang event listener untuk semua tombol download
+        const downloadBtns = document.querySelectorAll('.btn-download');
+        downloadBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const fileUrl = btn.getAttribute('data-url');
+                const fileName = btn.getAttribute('data-filename') || `download_${Date.now()}`;
+                if (fileUrl) {
+                    downloadMediaAsBlob(fileUrl, fileName);
+                } else {
+                    alert("URL media tidak valid.");
+                }
+            });
+        });
+    }
+
+    // Fungsi utama fetch ke API
+    async function fetchAllDownloader() {
+        const rawUrl = urlInput.value.trim();
+        if (!rawUrl) {
+            alert("Harap masukkan link media (TikTok, Instagram, YouTube, dll)");
+            return;
+        }
+
+        // Validasi sederhana apakah mengandung http
+        if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+            alert("Masukkan URL lengkap dengan http:// atau https://");
+            return;
+        }
+
+        // Tampilkan loading
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = `<div class="loading">⏳ Sedang mencari data...<br>Mohon tunggu sebentar</div>`;
+        fetchBtn.disabled = true;
+
+        try {
+            const encodedUrl = encodeURIComponent(rawUrl);
+            const fullApiUrl = `${API_BASE}?url=${encodedUrl}`;
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 35000); // timeout 35 detik
+            
+            const response = await fetch(fullApiUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                },
+                signal: controller.signal,
+                referrerPolicy: 'no-referrer'
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                let errText = `HTTP ${response.status}`;
+                try {
+                    const errorJson = await response.json();
+                    errText = errorJson.message || errorJson.error || errText;
+                } catch (_) {}
+                throw new Error(`Gagal mengambil data: ${errText}`);
+            }
+            
+            const jsonData = await response.json();
+            
+            // Cek apakah respons mengandung error
+            if (jsonData.error || jsonData.status === false) {
+                const errMsg = jsonData.message || jsonData.error || "API mengembalikan error, mungkin link tidak didukung.";
+                throw new Error(errMsg);
+            }
+            
+            // Validasi struktur dasar: harus ada medias
+            if (!jsonData.medias || jsonData.medias.length === 0) {
+                throw new Error("API tidak mengembalikan media apapun. Pastikan link mendukung downloader ini.");
+            }
+            
+            // Render hasil
+            renderResult(jsonData);
+            
+        } catch (err) {
+            console.error("Fetch error:", err);
+            let errorMessage = err.message;
+            if (err.name === 'AbortError') {
+                errorMessage = "⏱️ Waktu habis (timeout). Server terlalu lama merespon. Coba lagi nanti.";
+            } else if (errorMessage.includes('Failed to fetch')) {
+                errorMessage = "🌐 Gagal terhubung ke API. Periksa koneksi internet atau CORS. API mungkin tidak mendukung akses langsung dari browser? Coba jalankan di localhost/extension.";
+            } else if (errorMessage.toLowerCase().includes('cors')) {
+                errorMessage = "❌ Blokir CORS: API publik tidak mengizinkan akses dari browser langsung. Gunakan mode ekstensi / proxy. Namun coba refresh atau gunakan VPN.";
+            }
+            resultDiv.innerHTML = `<div class="error">⚠️ ${escapeHtml(errorMessage)}<br><br>📌 Pastikan link valid & platform didukung (TikTok, Instagram, YouTube, dll).</div>`;
+        } finally {
+            fetchBtn.disabled = false;
+        }
+    }
+
+    // Event listeners
+    fetchBtn.addEventListener('click', fetchAllDownloader);
+    urlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            fetchAllDownloader();
+        }
+    });
+
+    // Optional: informasi awal (result area hidden)
+    resultDiv.style.display = "none";
+</script>
+</body>
+</html>
