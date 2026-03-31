@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Cek Cuaca</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #d4e0f0 0%, #b7c9e2 100%);
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+
+        .weather-container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e3c5c, #0b2a44);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            color: #2c3e50;
+            font-weight: 500;
+            margin-top: 0.3rem;
+            opacity: 0.8;
+        }
+
+        .search-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 1.2rem 1.8rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+        .search-group {
+            flex: 2;
+            min-width: 200px;
+        }
+        .search-group label {
+            display: block;
+            font-weight: 600;
+            color: #1e4663;
+            margin-bottom: 0.4rem;
+            font-size: 0.8rem;
+        }
+        .search-group input {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 2rem;
+            border: 1px solid #cbd5e1;
+            background: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        .search-group input:focus {
+            border-color: #2c7da0;
+            box-shadow: 0 0 0 3px rgba(44,125,160,0.2);
+        }
+        .btn-primary, .btn-location {
+            background: #1e4663;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.6rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        .btn-primary:hover, .btn-location:hover {
+            background: #0f3552;
+            transform: translateY(-2px);
+        }
+        .btn-location {
+            background: #2c7da0;
+        }
+        .btn-location:hover {
+            background: #1f5e7a;
+        }
+
+        .coord-info {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 2rem;
+            padding: 0.6rem 1.2rem;
+            display: inline-block;
+            margin: 0 auto 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1e4663;
+            text-align: center;
+        }
+
+        .loading, .error {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255,255,240,0.8);
+            border-radius: 2rem;
+            margin: 1rem 0;
+        }
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #1e4663;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .current-weather {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 30px -12px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        .current-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .temp-now {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: #0f2c44;
+        }
+        .weather-condition {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d4a6e;
+        }
+        .precip-badge {
+            background: #cbd5e180;
+            border-radius: 2rem;
+            padding: 0.4rem 1rem;
+            font-weight: 500;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 1.5rem 0 1rem;
+            color: #1e3c5c;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .hourly-grid, .daily-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .hour-card, .day-card {
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem;
+            padding: 1rem;
+            transition: all 0.2s;
+            border: 1px solid #ffffffaa;
+            text-align: center;
+        }
+        .hour-card:hover, .day-card:hover {
+            background: rgba(255,255,255,0.95);
+            transform: translateY(-4px);
+        }
+        .hour-time {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1e4663;
+        }
+        .hour-temp {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        .hour-precip {
+            font-size: 0.8rem;
+            color: #2c7da0;
+        }
+        .day-date {
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+        }
+        .sun-times {
+            font-size: 0.8rem;
+            color: #2c3e50;
+        }
+        footer {
+            text-align: center;
+            margin-top: 2.5rem;
+            font-size: 0.75rem;
+            color: #2c3e50;
+            background: rgba(255,255,240,0.5);
+            padding: 0.8rem;
+            border-radius: 2rem;
+        }
+        @media (max-width: 640px) {
+            body { padding: 1rem; }
+            .search-panel { flex-direction: column; align-items: stretch; }
+            .btn-primary, .btn-location { justify-content: center; }
+            .hourly-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+<div class="weather-container">
+    <div class="header">
+        <h1><i class="fas fa-cloud-rain"></i> Cek Cuaca Terkini</h1>
+        <p>Presipitasi total & peluang hujan</p>
+    </div>
+
+    <div class="search-panel">
+        <div class="search-group">
+            <label><i class="fas fa-city"></i> Nama Kota / Tempat</label>
+            <input type="text" id="cityInput" placeholder="Contoh: Jakarta, Surabaya, Papua" autocomplete="off">
+        </div>
+        <button id="searchCityBtn" class="btn-primary"><i class="fas fa-search"></i> Cari Kota</button>
+        <button id="getLocationBtn" class="btn-location"><i class="fas fa-location-dot"></i> Lokasi Saya</button>
+    </div>
+
+    <div id="coordDisplay" class="coord-info" style="display: none; text-align: center;"></div>
+
+    <div id="weatherContent">
+        <div class="loading" id="loadingIndicator" style="display: none;">
+            <div class="spinner"></div>
+            <p>Mengambil data cuaca...</p>
+        </div>
+        <div id="errorMessage" class="error" style="display: none; background: #ffe0e0;">
+            <i class="fas fa-exclamation-triangle"></i> <span id="errorText"></span>
+        </div>
+        <div id="weatherData"></div>
+    </div>
+    <footer>
+        <i class="fas fa-chart-line"></i> Data: Open-Meteo • Presipitasi (mm) = total hujan + gerimis • Peluang hujan (%)
+    </footer>
+</div>
+
+<script>
+    // ======================== API Open-Meteo dengan presipitasi akurat ========================
+    async function fetchWeather(latitude, longitude) {
+        // Menggunakan precipitation (total liquid) dan precipitation_probability
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,precipitation,precipitation_probability&daily=sunrise,sunset&timezone=auto&forecast_days=3`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status} - Gagal mengambil data cuaca`);
+        const data = await response.json();
+        if (!data.hourly || !data.hourly.time || !data.daily) throw new Error("Data cuaca tidak lengkap");
+        return data;
+    }
+
+    function formatHour(timeString) {
+        if (!timeString) return '--:--';
+        const dateObj = new Date(timeString);
+        if (isNaN(dateObj)) return timeString.substring(11, 16);
+        return dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatDateShort(timeString) {
+        const dateObj = new Date(timeString);
+        if (isNaN(dateObj)) return timeString.split('T')[0];
+        return dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+    }
+
+    function renderWeather(data, lat, lon, cityName = null) {
+        const weatherDiv = document.getElementById("weatherData");
+        const coordDisplay = document.getElementById("coordDisplay");
+        
+        let locationText = cityName ? `${cityName} (${lat.toFixed(4)}, ${lon.toFixed(4)})` : `Koordinat: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+        coordDisplay.style.display = "block";
+        coordDisplay.innerHTML = `<i class="fas fa-map-pin"></i> ${locationText} | Zona waktu: ${data.timezone || 'auto'}`;
+        
+        const now = new Date();
+        const hourlyTimes = data.hourly.time;
+        const temperatures = data.hourly.temperature_2m;
+        const precipitations = data.hourly.precipitation;
+        const precipProbs = data.hourly.precipitation_probability;
+        
+        // Cari indeks waktu terdekat dengan sekarang
+        let closestIndex = 0;
+        let minDiff = Infinity;
+        for (let i = 0; i < hourlyTimes.length; i++) {
+            const timeObj = new Date(hourlyTimes[i]);
+            const diff = Math.abs(timeObj - now);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closestIndex = i;
+            }
+        }
+        
+        const currentTemp = temperatures[closestIndex] !== undefined ? temperatures[closestIndex] : '--';
+        const currentPrecip = precipitations[closestIndex] !== undefined ? precipitations[closestIndex] : 0;
+        const currentProb = precipProbs[closestIndex] !== undefined ? precipProbs[closestIndex] : 0;
+        const currentTimeFormatted = formatHour(hourlyTimes[closestIndex]);
+        
+        const precipStatus = currentPrecip > 0 ? 
+            `<i class="fas fa-cloud-rain"></i> Presipitasi: ${currentPrecip.toFixed(1)} mm (peluang ${currentProb}%)` : 
+            `<i class="fas fa-sun"></i> Tidak ada hujan (peluang ${currentProb}%)`;
+        
+        // --- Data per jam untuk 12 jam ke depan ---
+        let hourlyHtml = '';
+        const maxHourly = Math.min(hourlyTimes.length, closestIndex + 12);
+        for (let i = closestIndex; i < maxHourly; i++) {
+            const timeLabel = formatHour(hourlyTimes[i]);
+            const temp = temperatures[i] !== undefined ? temperatures[i].toFixed(1) : '--';
+            const precip = precipitations[i] !== undefined ? precipitations[i].toFixed(1) : '0';
+            const prob = precipProbs[i] !== undefined ? precipProbs[i] : 0;
+            const rainIcon = precip > 0 ? '<i class="fas fa-cloud-rain"></i>' : '<i class="fas fa-cloud-sun"></i>';
+            hourlyHtml += `
+                <div class="hour-card">
+                    <div class="hour-time">${timeLabel}</div>
+                    <div class="hour-temp">${temp}°C</div>
+                    <div class="hour-precip">${rainIcon} ${precip} mm (${prob}%)</div>
+                </div>
+            `;
+        }
+        
+        // --- Data harian (sunrise, sunset) ---
+        let dailyHtml = '';
+        const dailyTimes = data.daily.time;
+        const sunrises = data.daily.sunrise;
+        const sunsets = data.daily.sunset;
+        
+        for (let i = 0; i < dailyTimes.length; i++) {
+            const dateLabel = formatDateShort(dailyTimes[i]);
+            const sunriseTime = sunrises[i] ? new Date(sunrises[i]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
+            const sunsetTime = sunsets[i] ? new Date(sunsets[i]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
+            dailyHtml += `
+                <div class="day-card">
+                    <div class="day-date"><i class="far fa-calendar-alt"></i> ${dateLabel}</div>
+                    <div class="sun-times"><i class="fas fa-sunrise"></i> ${sunriseTime}</div>
+                    <div class="sun-times"><i class="fas fa-sunset"></i> ${sunsetTime}</div>
+                </div>
+            `;
+        }
+        
+        const completeHtml = `
+            <div class="current-weather">
+                <div class="current-header">
+                    <div>
+                        <div class="temp-now">${currentTemp}°C</div>
+                        <div class="weather-condition">Sekitar jam ${currentTimeFormatted}</div>
+                    </div>
+                    <div class="precip-badge">${precipStatus}</div>
+                </div>
+                <div style="margin-top: 0.8rem; font-size: 0.85rem; color:#2d4a6e;">
+                    <i class="fas fa-chart-line"></i> Prakiraan per jam & harian berdasarkan lokasi. Presipitasi (mm) = total hujan cair + gerimis.
+                </div>
+            </div>
+            <div class="section-title"><i class="fas fa-clock"></i> Prakiraan Per Jam (12 jam ke depan)</div>
+            <div class="hourly-grid">${hourlyHtml || '<div class="error">Tidak ada data per jam tersedia</div>'}</div>
+            <div class="section-title"><i class="fas fa-calendar-week"></i> Matahari Terbit & Terbenam</div>
+            <div class="daily-grid">${dailyHtml || '<div class="error">Data harian tidak tersedia</div>'}</div>
+        `;
+        
+        weatherDiv.innerHTML = completeHtml;
+    }
+
+    async function getWeatherByCoords(latitude, longitude, cityName = null) {
+        const loading = document.getElementById("loadingIndicator");
+        const errorDiv = document.getElementById("errorMessage");
+        const weatherDiv = document.getElementById("weatherData");
+        const coordDisplay = document.getElementById("coordDisplay");
+        
+        weatherDiv.innerHTML = '';
+        errorDiv.style.display = 'none';
+        coordDisplay.style.display = 'none';
+        loading.style.display = 'block';
+        
+        try {
+            const weatherData = await fetchWeather(latitude, longitude);
+            renderWeather(weatherData, latitude, longitude, cityName);
+        } catch (err) {
+            console.error(err);
+            errorDiv.style.display = 'block';
+            document.getElementById("errorText").innerHTML = `<i class="fas fa-cloud-moon"></i> ${err.message || "Gagal memuat data cuaca."}`;
+            weatherDiv.innerHTML = '';
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    // ======================== GEOCODING ========================
+    async function geocodeCity(cityName) {
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1&addressdetails=0`;
+        const response = await fetch(url, {
+            headers: { 'User-Agent': 'WeatherApp/1.0 (weather@example.com)' }
+        });
+        if (!response.ok) throw new Error("Gagal menghubungi layanan geocoding");
+        const data = await response.json();
+        if (!data || data.length === 0) throw new Error(`Kota "${cityName}" tidak ditemukan.`);
+        const result = data[0];
+        const lat = parseFloat(result.lat);
+        const lon = parseFloat(result.lon);
+        if (isNaN(lat) || isNaN(lon)) throw new Error("Koordinat tidak valid");
+        const displayName = result.display_name.split(',')[0];
+        return { lat, lon, displayName };
+    }
+
+    async function handleCitySearch() {
+        const cityInput = document.getElementById("cityInput").value.trim();
+        if (!cityInput) {
+            showError("Masukkan nama kota terlebih dahulu.");
+            return;
+        }
+        const loading = document.getElementById("loadingIndicator");
+        const errorDiv = document.getElementById("errorMessage");
+        const weatherDiv = document.getElementById("weatherData");
+        errorDiv.style.display = 'none';
+        weatherDiv.innerHTML = '';
+        loading.style.display = 'block';
+        
+        try {
+            const { lat, lon, displayName } = await geocodeCity(cityInput);
+            await getWeatherByCoords(lat, lon, displayName);
+        } catch (err) {
+            loading.style.display = 'none';
+            showError(err.message || "Gagal mendapatkan koordinat kota.");
+        }
+    }
+
+    function handleUserLocation() {
+        if (!navigator.geolocation) {
+            showError("Browser Anda tidak mendukung Geolocation.");
+            return;
+        }
+        const loading = document.getElementById("loadingIndicator");
+        const errorDiv = document.getElementById("errorMessage");
+        errorDiv.style.display = 'none';
+        document.getElementById("weatherData").innerHTML = '';
+        loading.style.display = 'block';
+        
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                await getWeatherByCoords(lat, lon, "Lokasi Anda");
+            },
+            (error) => {
+                loading.style.display = 'none';
+                let msg = "Gagal mengakses lokasi. ";
+                switch(error.code) {
+                    case error.PERMISSION_DENIED: msg += "Izin lokasi ditolak."; break;
+                    case error.POSITION_UNAVAILABLE: msg += "Lokasi tidak tersedia."; break;
+                    case error.TIMEOUT: msg += "Waktu permintaan habis."; break;
+                    default: msg += error.message;
+                }
+                showError(msg);
+            }
+        );
+    }
+
+    function showError(msg) {
+        const errorDiv = document.getElementById("errorMessage");
+        errorDiv.style.display = 'block';
+        document.getElementById("errorText").innerHTML = `<i class="fas fa-exclamation-circle"></i> ${msg}`;
+    }
+
+    // Event listeners
+    document.getElementById("searchCityBtn").addEventListener("click", handleCitySearch);
+    document.getElementById("getLocationBtn").addEventListener("click", handleUserLocation);
+    document.getElementById("cityInput").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") handleCitySearch();
+    });
+    
+    window.addEventListener("DOMContentLoaded", () => {
+        const weatherDiv = document.getElementById("weatherData");
+        weatherDiv.innerHTML = `
+            <div style="text-align: center; background: rgba(255,255,245,0.7); border-radius: 2rem; padding: 2rem; margin-top: 1rem;">
+                <i class="fas fa-cloud-rain" style="font-size: 3rem; color: #1e4663; margin-bottom: 1rem; display: block;"></i>
+                <p style="font-weight: 500;">Cek cuaca dengan data Open-Meteo:</p>
+                <ul style="list-style: none; margin-top: 1rem;">
+                    <li>📍 <strong>Gunakan Lokasi Saya</strong> → deteksi otomatis GPS</li>
+                    <li>🔍 <strong>Masukkan Nama Kota</strong> → cari kota di seluruh dunia</li>
+                </ul>
+                <p style="font-size: 0.8rem; margin-top: 1.5rem;">Menampilkan total presipitasi (mm) dan peluang hujan (%) untuk setiap periode.</p>
+            </div>
+        `;
+    });
+</script>
+</body>
+</html>
