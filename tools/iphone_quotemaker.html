@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>iPhone QuoteMaker</title>
+    <!-- Google Fonts & Simple Icons via Font Awesome CDN (optional for modern icons) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #e0e7ff 0%, #f0f4fe 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        /* Main Card */
+        .generator-card {
+            max-width: 860px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(0px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* Header section */
+        .header {
+            background: #ffffff;
+            padding: 1.8rem 2rem 1.2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .badge i {
+            color: #3b82f6;
+            font-size: 0.85rem;
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a, #2d3a6e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            margin-bottom: 0.4rem;
+        }
+
+        .sub {
+            color: #475569;
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Input area */
+        .input-area {
+            padding: 1.8rem 2rem 1.2rem;
+            background: #fefefe;
+        }
+
+        .text-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.65rem;
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 0.9rem;
+        }
+
+        .char-count {
+            font-weight: 500;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+            font-family: 'Inter', monospace;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 1.5rem;
+            background: #ffffff;
+            transition: all 0.2s;
+            resize: vertical;
+            font-weight: 500;
+            color: #0f172a;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.6rem;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0.75rem 1.6rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 2.2rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #0f172a;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary:hover {
+            background: #1e293b;
+            transform: scale(0.97);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #e6edf5;
+        }
+
+        .btn-outline {
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: #334155;
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+
+        /* Preview Area (iPhone vibe) */
+        .preview-area {
+            padding: 0.5rem 2rem 2rem 2rem;
+            background: #fbfdff;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 1.4rem;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .preview-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1rem;
+            background: #eef2ff;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+        }
+
+        .preview-container {
+            background: #f8fafc;
+            border-radius: 2rem;
+            padding: 1.8rem;
+            text-align: center;
+            transition: all 0.2s;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.8), 0 8px 20px rgba(0,0,0,0.02);
+        }
+
+        .image-preview {
+            max-width: 100%;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .image-preview:hover {
+            transform: scale(1.01);
+        }
+
+        .loading-spinner {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem 1rem;
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 1rem 1.2rem;
+            border-radius: 1.2rem;
+            font-size: 0.9rem;
+            text-align: left;
+            border-left: 4px solid #ef4444;
+        }
+
+        .info-note {
+            background: #fef9e3;
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            color: #b45309;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-area {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        hr {
+            margin: 0.5rem 0 1rem;
+            border: none;
+            height: 1px;
+            background: #eef2ff;
+        }
+
+        footer {
+            padding: 1rem 2rem 1.5rem;
+            font-size: 0.7rem;
+            text-align: center;
+            color: #62748c;
+            border-top: 1px solid #eef2ff;
+            background: white;
+        }
+
+        @media (max-width: 640px) {
+            .generator-card {
+                border-radius: 1.8rem;
+            }
+            .header, .input-area, .preview-area {
+                padding-left: 1.2rem;
+                padding-right: 1.2rem;
+            }
+            .btn-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .btn {
+                justify-content: center;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="generator-card">
+    <div class="header">
+        <div class="badge">
+            <i class="fab fa-apple"></i> iMessage style
+            <i class="fas fa-comment-dots" style="margin-left: 4px;"></i>
+        </div>
+        <h1><i class="fas fa-iphone" style="margin-right: 10px; color: #0f172a;"></i> iPhone QuoteMaker</h1>
+        <div class="sub">Buat screenshot chat ala iPhone dengan teks kustom</div>
+    </div>
+
+    <div class="input-area">
+        <div class="text-label">
+            <span><i class="fas fa-pen-fancy"></i> Pesan / kutipan</span>
+            <span class="char-count" id="charCounter">0 / 180</span>
+        </div>
+        <textarea class="message-input" id="messageInput" rows="3" placeholder="Contoh: Hidup Jokowi.. &#10;Atau tulis sesuatu yang keren..."></textarea>
+        
+        <div class="btn-group">
+            <button class="btn btn-primary" id="generateBtn">
+                <i class="fas fa-magic"></i> Generate Chat
+            </button>
+            <button class="btn btn-secondary" id="exampleBtn">
+                <i class="fas fa-lightbulb"></i> Contoh Teks
+            </button>
+            <button class="btn btn-outline" id="clearBtn">
+                <i class="fas fa-eraser"></i> Bersihkan
+            </button>
+        </div>
+    </div>
+
+    <div class="preview-area">
+        <div class="preview-header">
+            <span class="preview-title"><i class="fas fa-image"></i> Pratinjau Hasil</span>
+            <small style="color:#5b6e8c;"><i class="fas fa-download"></i> Klik gambar untuk zoom tab</small>
+        </div>
+        <div class="preview-container" id="previewContainer">
+            <!-- dynamic content: loading, image, error -->
+            <div id="previewContent">
+                <div style="padding: 2rem 1rem; text-align: center; color: #6c7e9e;">
+                    <i class="fas fa-comment" style="font-size: 2.5rem; opacity: 0.5; margin-bottom: 12px; display: block;"></i>
+                    <span>Belum ada pratinjau. <br> Tulis pesan dan klik "Generate Chat"</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="download-area" id="downloadArea" style="display: none;">
+            <button class="btn btn-primary" id="downloadBtn">
+                <i class="fas fa-download"></i> Unduh Gambar
+            </button>
+            <button class="btn btn-outline" id="openImageBtn">
+                <i class="fas fa-external-link-alt"></i> Buka di Tab Baru
+            </button>
+        </div>
+        <div id="infoMessage"></div>
+    </div>
+    <footer>
+        <i class="fas fa-code-branch"></i> Hasil berupa gambar gaya <strong>iPhone QuoteMaker </strong><br>Tools ini menggunakan API publik https://api.ryzumi.net<br>
+        ⚡ Jika pratinjau gagal (403/CORS), API mungkin membutuhkan proxy server. Gunakan opsi "Buka di Tab Baru" untuk melihat gambar.
+    </footer>
+</div>
+
+<script>
+    // DOM elements
+    const messageInput = document.getElementById('messageInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const exampleBtn = document.getElementById('exampleBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const previewContentDiv = document.getElementById('previewContent');
+    const downloadArea = document.getElementById('downloadArea');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const openImageBtn = document.getElementById('openImageBtn');
+    const charCounter = document.getElementById('charCounter');
+    const infoMessageDiv = document.getElementById('infoMessage');
+    
+    // Base API endpoint (publik)
+    const API_BASE = 'https://api.ryzumi.net/api/image/iqc';
+    
+    // Variabel untuk menyimpan URL gambar terakhir yang berhasil/gagal
+    let currentImageUrl = '';
+    let lastValidText = '';
+    let isLoading = false;
+    
+    // Max length sesuai kenyamanan (API mungkin punya batas, kita batasi 180 karakter)
+    const MAX_LENGTH = 180;
+    
+    // Update character counter
+    function updateCharCounter() {
+        const len = messageInput.value.length;
+        charCounter.innerText = `${len} / ${MAX_LENGTH}`;
+        if (len > MAX_LENGTH) {
+            charCounter.style.color = '#e53e3e';
+            charCounter.style.fontWeight = 'bold';
+        } else {
+            charCounter.style.color = '#64748b';
+            charCounter.style.fontWeight = 'normal';
+        }
+    }
+    
+    // Trim / batasi input jika terlalu panjang
+    function enforceMaxLength() {
+        if (messageInput.value.length > MAX_LENGTH) {
+            messageInput.value = messageInput.value.slice(0, MAX_LENGTH);
+            updateCharCounter();
+        }
+    }
+    
+    messageInput.addEventListener('input', () => {
+        updateCharCounter();
+        enforceMaxLength();
+    });
+    
+    // Membersihkan input
+    clearBtn.addEventListener('click', () => {
+        messageInput.value = '';
+        updateCharCounter();
+        // reset preview ke placeholder
+        showPlaceholder();
+        downloadArea.style.display = 'none';
+        currentImageUrl = '';
+        lastValidText = '';
+        if (infoMessageDiv) infoMessageDiv.innerHTML = '';
+    });
+    
+    // Contoh teks menarik
+    exampleBtn.addEventListener('click', () => {
+        const examples = [
+            "Halo! Ini tools generate chat ala iPhone ✨📱",
+            "Keren banget tools ini! Buka tools lainnya di https://marvellalvin.github.io/tools 🤩🔥"
+        ];
+        const randomExample = examples[Math.floor(Math.random() * examples.length)];
+        messageInput.value = randomExample;
+        updateCharCounter();
+        enforceMaxLength();
+        // optional langsung generate? tapi biar user klik generate
+    });
+    
+    // Fungsi menampilkan placeholder awal
+    function showPlaceholder() {
+        previewContentDiv.innerHTML = `
+            <div style="padding: 2rem 1rem; text-align: center; color: #6c7e9e;">
+                <i class="fas fa-comment" style="font-size: 2.5rem; opacity: 0.5; margin-bottom: 12px; display: block;"></i>
+                <span>Belum ada pratinjau. <br> Tulis pesan dan klik "Generate Chat"</span>
+            </div>
+        `;
+        downloadArea.style.display = 'none';
+    }
+    
+    // Menampilkan loading state
+    function showLoading() {
+        previewContentDiv.innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <div style="font-weight: 500; color: #3b82f6;">Mengenerate gambar iPhone QuoteMaker ...</div>
+                <small style="color:#6c7e9e;">Memproses API, mohon tunggu</small>
+            </div>
+        `;
+        downloadArea.style.display = 'none';
+        if (infoMessageDiv) infoMessageDiv.innerHTML = '';
+    }
+    
+    // Menampilkan gambar hasil
+    function showImage(imageUrl, textUsed) {
+        const imgElement = document.createElement('img');
+        imgElement.src = imageUrl;
+        imgElement.alt = `iPhone QuoteMaker: ${textUsed.substring(0, 50)}`;
+        imgElement.className = 'image-preview';
+        imgElement.style.maxWidth = '100%';
+        imgElement.style.cursor = 'pointer';
+        // klik gambar -> buka di tab baru
+        imgElement.addEventListener('click', () => {
+            window.open(imageUrl, '_blank');
+        });
+        
+        previewContentDiv.innerHTML = '';
+        previewContentDiv.appendChild(imgElement);
+        downloadArea.style.display = 'flex';
+        currentImageUrl = imageUrl;
+        lastValidText = textUsed;
+    }
+    
+    // Menampilkan error dengan pesan jelas
+    function showError(errorMsg, technicalHint = '') {
+        previewContentDiv.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                <strong>Gagal memuat gambar</strong><br>
+                ${errorMsg}
+                ${technicalHint ? `<div style="margin-top: 8px; font-size: 0.75rem;">${technicalHint}</div>` : ''}
+            </div>
+            <div class="info-note">
+                <i class="fas fa-shield-alt"></i> 
+                API mungkin membatasi akses langsung dari browser (CORS/403). <br>
+                Gunakan tombol "Buka di Tab Baru" untuk melihat gambar jika endpoint valid.
+            </div>
+        `;
+        downloadArea.style.display = 'none';
+        currentImageUrl = '';
+    }
+    
+    // Fungsi utama generate: membangun URL dan mencoba memuat gambar via Image object
+    function generateImage(text) {
+        if (!text || text.trim() === '') {
+            showError('Teks tidak boleh kosong!', 'Silakan tulis pesan terlebih dahulu.');
+            return Promise.reject(new Error('Empty text'));
+        }
+        
+        // Encode teks untuk URL
+        const encodedText = encodeURIComponent(text.trim());
+        const fullUrl = `${API_BASE}?text=${encodedText}`;
+        
+        showLoading();
+        
+        return new Promise((resolve, reject) => {
+            const testImg = new Image();
+            let loaded = false;
+            let timeoutId = setTimeout(() => {
+                if (!loaded) {
+                    testImg.onload = null;
+                    testImg.onerror = null;
+                    reject(new Error('Timeout: API tidak merespon dalam 15 detik. Mungkin terjadi blokir atau koneksi lambat.'));
+                }
+            }, 15000);
+            
+            testImg.onload = () => {
+                loaded = true;
+                clearTimeout(timeoutId);
+                // sukses, tampilkan gambar
+                showImage(fullUrl, text);
+                resolve(fullUrl);
+            };
+            
+            testImg.onerror = (err) => {
+                loaded = true;
+                clearTimeout(timeoutId);
+                // analisa error network / cors / 403
+                let friendlyMsg = 'API mengembalikan error (kemungkinan 403 Forbidden atau CORS).';
+                let techNote = 'Pastikan endpoint publik dapat diakses. Coba buka URL gambar secara langsung di browser baru untuk verifikasi.';
+                // jika kita bisa mendeteksi status tidak, tapi umumnya karena kebijakan origin atau api down
+                reject(new Error(friendlyMsg + ' ' + techNote));
+            };
+            
+            testImg.src = fullUrl;
+        }).catch(error => {
+            let errMsg = error.message || 'Gagal menghasilkan gambar.';
+            if (errMsg.includes('403') || errMsg.includes('Forbidden')) {
+                showError('Akses ditolak (403 Forbidden).', 'API tidak mengizinkan request dari browser. Coba gunakan "Buka di Tab Baru" atau jalankan melalui backend proxy.');
+            } else if (errMsg.includes('CORS')) {
+                showError('CORS policy memblokir akses.', 'Browser tidak diizinkan mengambil gambar dari domain tersebut. Solusi: gunakan mode "Buka di Tab Baru" atau proxy.');
+            } else {
+                showError(errMsg, 'Periksa koneksi internet atau status API. Alternatif: Buka gambar secara manual di tab baru.');
+            }
+            return Promise.reject(error);
+        });
+    }
+    
+    // Event Generate
+    generateBtn.addEventListener('click', async () => {
+        let rawText = messageInput.value;
+        if (!rawText.trim()) {
+            showError('Teks masih kosong!', 'Masukkan kata-kata atau kutipan untuk membuat chat iPhone.');
+            downloadArea.style.display = 'none';
+            return;
+        }
+        
+        // enforce max length sebelum generate
+        enforceMaxLength();
+        rawText = messageInput.value;
+        
+        // disable tombol sementara (UX)
+        generateBtn.disabled = true;
+        generateBtn.style.opacity = '0.7';
+        const originalBtnText = generateBtn.innerHTML;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Memproses...';
+        
+        try {
+            await generateImage(rawText);
+            // tampilkan pesan info sukses
+            if (infoMessageDiv) {
+                infoMessageDiv.innerHTML = `<div style="background:#e6f7e6; color:#2e7d32; padding:8px 12px; border-radius:20px; font-size:0.75rem; margin-top:8px;"><i class="fas fa-check-circle"></i> Pratinjau berhasil dimuat! Klik unduh untuk menyimpan.</div>`;
+                setTimeout(() => {
+                    if (infoMessageDiv) infoMessageDiv.innerHTML = '';
+                }, 4000);
+            }
+        } catch (err) {
+            console.warn("Generate error:", err);
+            // error sudah ditampilkan di showError, kita tambahkan info alternatif
+        } finally {
+            generateBtn.disabled = false;
+            generateBtn.style.opacity = '1';
+            generateBtn.innerHTML = originalBtnText;
+        }
+    });
+    
+    // Download image dengan metode blob (jika CORS memungkinkan) + fallback
+    async function downloadImage(url, filename = 'iphone_quotemaker.png') {
+        if (!url) {
+            alert('Tidak ada gambar untuk diunduh. Generate terlebih dahulu.');
+            return;
+        }
+        
+        // Tampilkan indikator loading download
+        const originalDownloadText = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Mengunduh...';
+        downloadBtn.disabled = true;
+        
+        try {
+            // Coba fetch dengan mode 'cors' untuk mengkonversi blob
+            const response = await fetch(url, {
+                mode: 'cors',
+                credentials: 'omit'
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status} - Gagal mengambil gambar`);
+            }
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+            // sukses
+            if (infoMessageDiv) {
+                infoMessageDiv.innerHTML = `<div style="background:#e3f2fd; color:#0b5e7e; padding:6px 12px; border-radius:20px; font-size:0.7rem; margin-top:8px;"><i class="fas fa-save"></i> Unduhan dimulai: ${filename}</div>`;
+                setTimeout(() => { if(infoMessageDiv) infoMessageDiv.innerHTML = ''; }, 3000);
+            }
+        } catch (err) {
+            console.warn('Fetch download gagal karena CORS/403, fallback ke buka tab baru', err);
+            // Fallback: Buka tab baru dan beri instruksi
+            const userConfirmed = confirm('Unduhan otomatis gagal (mungkin karena kebijakan CORS/API).\nIngin membuka gambar di tab baru? Anda bisa klik kanan -> Save Image As.');
+            if (userConfirmed) {
+                window.open(url, '_blank');
+            } else {
+                alert('Anda dapat mencoba tombol "Buka di Tab Baru" lalu simpan secara manual.');
+            }
+        } finally {
+            downloadBtn.innerHTML = originalDownloadText;
+            downloadBtn.disabled = false;
+        }
+    }
+    
+    // Event download
+    downloadBtn.addEventListener('click', () => {
+        if (currentImageUrl) {
+            downloadImage(currentImageUrl, `iphone_quotemaker_${Date.now()}.png`);
+        } else {
+            alert('Tidak ada URL gambar. Silakan generate terlebih dahulu.');
+        }
+    });
+    
+    // Buka gambar di tab baru (solusi untuk CORS / 403)
+    openImageBtn.addEventListener('click', () => {
+        if (currentImageUrl) {
+            window.open(currentImageUrl, '_blank');
+        } else if (messageInput.value.trim()) {
+            // coba langsung buka berdasarkan input saat ini tanpa loading preview?
+            const encoded = encodeURIComponent(messageInput.value.trim());
+            const directUrl = `${API_BASE}?text=${encoded}`;
+            window.open(directUrl, '_blank');
+        } else {
+            alert('Belum ada teks atau gambar yang di-generate. Tulis pesan lalu klik Generate atau langsung buka.');
+        }
+    });
+    
+    // Inisialisasi awal
+    updateCharCounter();
+    showPlaceholder();
+    
+    // jika pengguna menekan enter (Ctrl+Enter) untuk generate (opsional)
+    messageInput.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            generateBtn.click();
+        }
+    });
+    
+    // Info tambahan jika API gagal di awal (cuma pemberitahuan lembut)
+    window.addEventListener('load', () => {
+        // test kecil untuk memberi informasi, tidak mengganggu UX
+        console.log('iPhone QuoteMaker Tools siap menggunakan API');
+    });
+</script>
+</body>
+</html>
