@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Pencarian Mahasiswa | Data Akademik Real-time</title>
+    <!-- Google Fonts + Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #f9fafc 100%);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .hero {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .hero h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(125deg, #0b2b5c, #1e3a8a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .hero p {
+            color: #475569;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Search Card */
+        .search-card {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 1.8rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.02);
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        .search-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .input-group {
+            flex: 3;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #1e293b;
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            font-size: 1rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 1.5rem;
+            background: white;
+            transition: all 0.2s;
+            font-family: 'Inter', monospace;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.8rem 1.6rem;
+            font-weight: 600;
+            border-radius: 2rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: #0f172a;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .btn-primary:hover {
+            background: #1e293b;
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-secondary:hover {
+            background: #e6edf5;
+        }
+
+        .proxy-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .proxy-toggle input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Stats & Filter Bar */
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.2rem 0 1rem;
+        }
+
+        .result-badge {
+            background: #eef2ff;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .filter-wrapper {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            background: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-wrapper i {
+            color: #3b82f6;
+        }
+
+        .filter-input {
+            border: none;
+            padding: 0.5rem 0;
+            font-size: 0.85rem;
+            width: 200px;
+            outline: none;
+            background: transparent;
+        }
+
+        .filter-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .clear-filter {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .clear-filter:hover {
+            color: #ef4444;
+        }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .student-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.2rem 1.5rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.25s;
+            border: 1px solid #eef2ff;
+            backdrop-filter: blur(2px);
+        }
+
+        .student-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1);
+            border-color: #cbdffc;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 2px solid #eef2ff;
+            padding-bottom: 0.7rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(145deg, #1e3a8a, #2563eb);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .nama-mahasiswa {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #0f172a;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-top: 0.6rem;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .detail-item i {
+            width: 22px;
+            color: #3b82f6;
+        }
+
+        .nim {
+            font-family: monospace;
+            font-weight: 600;
+            background: #f1f5f9;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+
+        .empty-state, .loading-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: #ffffffcc;
+            border-radius: 2rem;
+            margin-top: 1rem;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 1rem 1.5rem;
+            border-radius: 1.2rem;
+            margin: 1rem 0;
+            border-left: 5px solid #ef4444;
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #5b6e8c;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1.5rem;
+        }
+
+        @media (max-width: 700px) {
+            .search-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .search-card {
+                padding: 1.2rem;
+            }
+            .info-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-wrapper {
+                justify-content: space-between;
+            }
+            .filter-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="hero">
+        <h1><i class="fas fa-graduation-cap" style="margin-right: 12px;"></i>Pencarian Data Mahasiswa</h1>
+        <p>Cari berdasarkan nama, nim, atau kata kunci • Sumber data akademik nasional</p>
+    </div>
+
+    <div class="search-card">
+        <div class="search-wrapper">
+            <div class="input-group">
+                <label><i class="fas fa-search"></i> Nama / NIM / Kata kunci</label>
+                <input type="text" id="searchQuery" class="search-input" placeholder="Contoh: joko widodo, 11122007, universitas trilogi" value="joko widodo">
+            </div>
+            <button class="btn btn-primary" id="searchBtn"><i class="fas fa-arrow-right-to-bracket"></i> Telusuri</button>
+            <div class="proxy-toggle">
+                <input type="checkbox" id="proxyCheckbox"> 
+                <label for="proxyCheckbox">Gunakan CORS Proxy (jika gagal akses langsung)</label>
+                <i class="fas fa-globe" style="opacity:0.6;"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.7rem; margin-top: 12px; color: #4b5563;">
+            <i class="fas fa-info-circle"></i> Jika terjadi error CORS, <strong>aktifkan proxy.</strong>
+        </div>
+    </div>
+
+    <!-- Info Bar: Total hasil + Filter Universitas -->
+    <div class="info-bar" id="infoBar" style="display: none;">
+        <div class="result-badge" id="resultCountBadge">0 Mahasiswa ditemukan</div>
+        <div class="filter-wrapper">
+            <i class="fas fa-university"></i>
+            <input type="text" id="universityFilter" class="filter-input" placeholder="Filter berdasarkan universitas..." autocomplete="off">
+            <button id="clearFilterBtn" class="clear-filter" title="Hapus filter"><i class="fas fa-times-circle"></i></button>
+        </div>
+    </div>
+
+    <!-- Area hasil pencarian (preview) -->
+    <div id="resultsContainer">
+        <div class="empty-state">
+            <i class="fas fa-user-graduate" style="font-size: 3rem; color: #9ca3af; margin-bottom: 12px; display: block;"></i>
+            <span>Masukkan kata kunci dan tekan telusuri untuk melihat data mahasiswa.</span>
+        </div>
+    </div>
+    <footer>
+        <i class="fas fa-database"></i> Data real-time dari API publik • Gunakan filter universitas untuk menyaring hasil.
+    </footer>
+</div>
+
+<script>
+    // DOM Elements
+    const searchBtn = document.getElementById('searchBtn');
+    const searchQueryInput = document.getElementById('searchQuery');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const infoBar = document.getElementById('infoBar');
+    const resultCountBadge = document.getElementById('resultCountBadge');
+    const universityFilterInput = document.getElementById('universityFilter');
+    const clearFilterBtn = document.getElementById('clearFilterBtn');
+    const proxyCheckbox = document.getElementById('proxyCheckbox');
+
+    // State
+    let currentResults = [];       // semua data dari API
+    let lastQuery = '';
+    let currentFilter = '';        // filter universitas (case-insensitive)
+
+    // Helper: Build URL API
+    function buildApiUrl(query, useProxy) {
+        const baseUrl = 'https://api.ryzumi.net/api/search/mahasiswa';
+        const encodedQuery = encodeURIComponent(query.trim());
+        const fullUrl = `${baseUrl}?query=${encodedQuery}`;
+        if (useProxy) {
+            return `https://corsproxy.io/?${encodeURIComponent(fullUrl)}`;
+        }
+        return fullUrl;
+    }
+
+    // Tampilkan loading state
+    function showLoading() {
+        resultsContainer.innerHTML = `
+            <div class="loading-state">
+                <div class="spinner" style="width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top: 4px solid #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem;"></div>
+                <p style="color:#2c3e66;">Mencari data mahasiswa...</p>
+            </div>
+            <style> @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } </style>
+        `;
+        infoBar.style.display = 'none';
+    }
+
+    // Tampilkan error
+    function showError(message, detail = '') {
+        resultsContainer.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i> <strong>${message}</strong>
+                ${detail ? `<div style="margin-top: 8px; font-size: 0.8rem;">${detail}</div>` : ''}
+                <div style="margin-top: 12px;"><small>💡 Tips: Aktifkan opsi "CORS Proxy" di atas lalu coba lagi, atau periksa koneksi internet.</small></div>
+            </div>
+        `;
+        infoBar.style.display = 'none';
+        currentResults = [];
+    }
+
+    // Fungsi untuk merender kartu berdasarkan data yang diberikan (sudah difilter)
+    function renderCards(dataToRender, totalDataCount, filterApplied = false) {
+        if (!dataToRender || dataToRender.length === 0) {
+            let message = filterApplied ? 
+                `Tidak ada mahasiswa dengan universitas yang mengandung "${escapeHtml(currentFilter)}".` : 
+                `Tidak ada mahasiswa yang cocok dengan kata kunci "${escapeHtml(lastQuery)}".`;
+            resultsContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-user-slash" style="font-size: 2.5rem; color: #9ca3af;"></i>
+                    <p style="margin-top: 12px;">${message}</p>
+                    <small>Coba kata kunci lain atau periksa ejaan.</small>
+                </div>
+            `;
+            // Tampilkan info bar dengan total count tapi hasil kosong
+            if (totalDataCount > 0) {
+                resultCountBadge.innerHTML = `<i class="fas fa-users"></i> ${totalDataCount} mahasiswa ditemukan • Menampilkan 0 (filter aktif)`;
+            } else {
+                resultCountBadge.innerHTML = `<i class="fas fa-users"></i> ${totalDataCount} mahasiswa ditemukan`;
+            }
+            infoBar.style.display = 'flex';
+            return;
+        }
+
+        // Build cards
+        let cardsHtml = `<div class="results-grid">`;
+        dataToRender.forEach(student => {
+            const nama = student.nama || 'Tidak tersedia';
+            const nim = student.nim || '-';
+            const pt = student.nama_pt || '-';
+            const prodi = student.nama_prodi || '-';
+            const initial = nama.charAt(0) || 'M';
+            cardsHtml += `
+                <div class="student-card">
+                    <div class="card-header">
+                        <div class="avatar">${escapeHtml(initial)}</div>
+                        <div class="nama-mahasiswa">${escapeHtml(nama)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-id-card"></i> <span class="nim">NIM: ${escapeHtml(nim)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-university"></i> ${escapeHtml(pt)}
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-book-open"></i> ${escapeHtml(prodi)}
+                    </div>
+                </div>
+            `;
+        });
+        cardsHtml += `</div>`;
+        resultsContainer.innerHTML = cardsHtml;
+
+        // Update badge info
+        if (totalDataCount !== dataToRender.length && filterApplied) {
+            resultCountBadge.innerHTML = `<i class="fas fa-users"></i> ${dataToRender.length} dari ${totalDataCount} mahasiswa (filter: "${escapeHtml(currentFilter)}")`;
+        } else {
+            resultCountBadge.innerHTML = `<i class="fas fa-users"></i> ${dataToRender.length} mahasiswa ditemukan`;
+        }
+        infoBar.style.display = 'flex';
+    }
+
+    // Fungsi untuk menerapkan filter universitas dan render ulang
+    function applyUniversityFilter() {
+        if (!currentResults.length) return;
+
+        const filterText = currentFilter.trim().toLowerCase();
+        if (filterText === '') {
+            // Tampilkan semua hasil tanpa filter
+            renderCards(currentResults, currentResults.length, false);
+            return;
+        }
+
+        const filtered = currentResults.filter(student => {
+            const uni = (student.nama_pt || '').toLowerCase();
+            return uni.includes(filterText);
+        });
+        renderCards(filtered, currentResults.length, true);
+    }
+
+    // Handler perubahan filter
+    function onFilterChange() {
+        currentFilter = universityFilterInput.value;
+        applyUniversityFilter();
+    }
+
+    // Reset filter
+    function resetFilter() {
+        universityFilterInput.value = '';
+        currentFilter = '';
+        if (currentResults.length) {
+            renderCards(currentResults, currentResults.length, false);
+        }
+    }
+
+    // Helper escape HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+
+    // Fungsi utama fetch data dengan opsi proxy
+    async function fetchMahasiswa(query, useProxy) {
+        if (!query.trim()) {
+            showError('Masukkan kata kunci pencarian terlebih dahulu.');
+            return false;
+        }
+
+        showLoading();
+        const apiUrl = buildApiUrl(query, useProxy);
+        
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const response = await fetch(apiUrl, {
+                signal: controller.signal,
+                headers: { 'Accept': 'application/json' }
+            });
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                let errorDetail = `HTTP ${response.status}`;
+                if (response.status === 403) errorDetail += ' - Forbidden: kemungkinan CORS atau akses ditolak. Aktifkan proxy atau gunakan mode proxy.';
+                else if (response.status === 404) errorDetail += ' - Endpoint tidak ditemukan.';
+                throw new Error(errorDetail);
+            }
+            
+            const data = await response.json();
+            if (!Array.isArray(data)) {
+                throw new Error('Format respons API tidak sesuai (bukan array)');
+            }
+            // Simpan data asli
+            currentResults = data;
+            lastQuery = query;
+            // Reset filter
+            resetFilter(); // ini akan merender ulang dengan filter kosong
+            return true;
+        } catch (err) {
+            console.error('Fetch error:', err);
+            let userMessage = 'Gagal mengambil data dari server.';
+            let detailMsg = err.message;
+            if (err.name === 'AbortError') userMessage = 'Timeout: Server terlalu lama merespon.';
+            else if (detailMsg.includes('Failed to fetch') || detailMsg.includes('NetworkError')) {
+                userMessage = 'Masalah koneksi atau CORS.';
+                detailMsg = 'Akses langsung mungkin diblokir oleh CORS. Coba aktifkan opsi "CORS Proxy" di atas lalu ulangi.';
+            } else if (detailMsg.includes('403')) {
+                userMessage = 'API mengembalikan 403 (Forbidden).';
+                detailMsg = 'Kemungkinan CORS atau API tidak mengizinkan permintaan dari browser. Aktifkan CORS Proxy.';
+            }
+            showError(userMessage, detailMsg);
+            currentResults = [];
+            infoBar.style.display = 'none';
+            return false;
+        }
+    }
+
+    // Event Search
+    searchBtn.addEventListener('click', async () => {
+        const query = searchQueryInput.value;
+        if (!query.trim()) {
+            showError('Kata kunci pencarian kosong', 'Masukkan nama, NIM, atau nama perguruan tinggi.');
+            return;
+        }
+        const useProxy = proxyCheckbox.checked;
+        await fetchMahasiswa(query, useProxy);
+    });
+
+    // Tekan Enter pada input utama
+    searchQueryInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            searchBtn.click();
+        }
+    });
+
+    // Event listener untuk filter universitas
+    universityFilterInput.addEventListener('input', onFilterChange);
+    clearFilterBtn.addEventListener('click', resetFilter);
+
+    // Inisialisasi: jalankan pencarian default "joko widodo"
+    window.addEventListener('load', async () => {
+        const defaultQuery = "joko widodo";
+        searchQueryInput.value = defaultQuery;
+        const useProxy = proxyCheckbox.checked;
+        await fetchMahasiswa(defaultQuery, useProxy);
+    });
+</script>
+</body>
+</html>
