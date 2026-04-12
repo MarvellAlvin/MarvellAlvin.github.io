@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Generator | .my.id</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 32px;
+            padding: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: normal;
+        }
+
+        .sub {
+            color: #666;
+            margin-bottom: 28px;
+            border-left: 3px solid #764ba2;
+            padding-left: 14px;
+            font-size: 0.85rem;
+        }
+
+        .control-panel {
+            background: #f8f9ff;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 28px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 60px;
+            font-size: 1rem;
+            transition: 0.2s;
+            text-align: center;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118,75,162,0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .result-header h3 {
+            color: #1a1a2e;
+            font-size: 1.1rem;
+        }
+
+        .counter {
+            background: #e9ecef;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #764ba2;
+        }
+
+        .domain-list {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 16px;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .domain-item {
+            background: #1e293b;
+            color: #a5f3c3;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            padding: 12px 18px;
+            margin-bottom: 10px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            word-break: break-all;
+            border-left: 4px solid #10b981;
+            transition: 0.1s;
+        }
+
+        .domain-item:hover {
+            background: #2d3a4e;
+            transform: translateX(5px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.7rem;
+        }
+
+        @media (max-width: 550px) {
+            .card {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .domain-item {
+                font-size: 0.75rem;
+                padding: 10px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1>
+            🌐 Domain Generator
+            <span class="badge">.my.id</span>
+        </h1>
+        <div class="sub">Buat nama domain random keren dengan ekstensi .my.id</div>
+
+        <div class="control-panel">
+            <div class="input-group">
+                <label>📦 Jumlah domain yang ingin dibuat</label>
+                <input type="number" id="jumlahDomain" value="10" min="1" max="200" step="1">
+                <div style="font-size: 0.7rem; color: #888; margin-top: 5px;">maksimal 200 domain sekali generate</div>
+            </div>
+            <div class="button-group">
+                <button class="btn-primary" id="generateBtn">✨ Generate Domain</button>
+                <button class="btn-secondary" id="copyBtn">📋 Salin Semua</button>
+            </div>
+        </div>
+
+        <div class="result-header">
+            <h3>🎲 Hasil Domain .my.id</h3>
+            <div class="counter" id="counterText">0 domain</div>
+        </div>
+        <div class="domain-list" id="domainList">
+            <div class="empty-state">✨ Klik "Generate Domain" untuk membuat nama domain random</div>
+        </div>
+    </div>
+    <footer>🎨 Nama domain random menggunakan kata-kata unik + angka opsional</footer>
+</div>
+<div id="toast" class="toast">✅ Tersalin!</div>
+
+<script>
+    (function() {
+        // --- KAMUS KATA UNTUK DOMAIN (bisa dikembangkan) ---
+        const adjectives = [
+            'kucing', 'anjing', 'beruang', 'kelinci', 'panda', 'koala', 'singa', 'harimau', 
+            'gajah', 'jerapah', 'kuda', 'domba', 'kambing', 'sapi', 'ayam', 'bebek',
+            'cerdas', 'gemoy', 'lucu', 'imut', 'kece', 'ganteng', 'cantik', 'manis',
+            'liar', 'jinak', 'cepat', 'lambat', 'tinggi', 'pendek', 'besar', 'kecil'
+        ];
+        
+        const nouns = [
+            'jaya', 'nusantara', 'tech', 'studio', 'media', 'digital', 'creative', 'labs',
+            'house', 'space', 'world', 'zone', 'land', 'city', 'village', 'garden',
+            'berry', 'bear', 'cat', 'dog', 'fox', 'wolf', 'bird', 'fish',
+            'coder', 'dev', 'web', 'cloud', 'data', 'net', 'soft', 'hard'
+        ];
+        
+        const prefixes = [
+            'my', 'the', 'go', 'super', 'mega', 'ultra', 'pro', 'plus', 
+            'king', 'queen', 'captain', 'doctor', 'mr', 'mrs', 'sir'
+        ];
+        
+        const suffixes = [
+            'id', 'ku', 'mu', 'nya', 'ers', 'ify', 'ly', 'ify', 'ize'
+        ];
+
+        // karakter random untuk angka (bisa ditambahkan atau tidak)
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        // menghasilkan kata random dari array
+        function randomFrom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+        
+        // kadang tambah angka di belakang (0-999)
+        function maybeAddNumber(baseName, probability = 0.4) {
+            if (Math.random() < probability) {
+                const num = getRandomInt(1, 999);
+                return baseName + num;
+            }
+            return baseName;
+        }
+        
+        // generate satu nama domain random (hanya huruf kecil, tanpa spasi, bisa mengandung angka)
+        function generateSingleDomain() {
+            // pilih pola pembuatan nama:
+            const pattern = Math.random();
+            let name = '';
+            
+            if (pattern < 0.4) {
+                // pola: adjective + noun (contoh: kucinggemoy)
+                name = randomFrom(adjectives) + randomFrom(nouns);
+            } 
+            else if (pattern < 0.65) {
+                // pola: adjective + suffix (contoh: lucuify, imutly)
+                name = randomFrom(adjectives) + randomFrom(suffixes);
+            }
+            else if (pattern < 0.85) {
+                // pola: prefix + noun (contoh: superpanda, goberuang)
+                name = randomFrom(prefixes) + randomFrom(nouns);
+            }
+            else {
+                // pola: adjective + noun + angka opsional? bisa juga double word
+                name = randomFrom(adjectives) + randomFrom(adjectives) + randomFrom(nouns);
+                // potong jika kepanjangan > 25 karakter (tapi tidak masalah)
+                if (name.length > 28) name = name.substring(0, 28);
+            }
+            
+            // tambahkan angka random (opsional) agar lebih variatif
+            name = maybeAddNumber(name, 0.45);
+            
+            // pastikan hanya huruf kecil dan angka
+            name = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            
+            // minimal panjang nama 3 karakter
+            if (name.length < 3) {
+                name = name + getRandomInt(10, 99);
+            }
+            
+            // batasi maksimal 30 karakter (agar tidak kegedean)
+            if (name.length > 30) name = name.substring(0, 30);
+            
+            return name + '.my.id';
+        }
+        
+        // generate banyak domain
+        function generateDomains(count) {
+            const domains = [];
+            const used = new Set(); // hindari duplikat dalam satu batch
+            
+            for (let i = 0; i < count; i++) {
+                let domain = generateSingleDomain();
+                let attempts = 0;
+                // cegah duplikat dalam 1 kali generate (optional)
+                while (used.has(domain) && attempts < 10) {
+                    domain = generateSingleDomain();
+                    attempts++;
+                }
+                used.add(domain);
+                domains.push(domain);
+            }
+            return domains;
+        }
+        
+        // ambil jumlah dari input
+        function getJumlah() {
+            let val = parseInt(document.getElementById('jumlahDomain').value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            if (val > 200) {
+                val = 200;
+                document.getElementById('jumlahDomain').value = 200;
+                showToast('⚠️ Maksimal 200 domain, diset ke 200', 1200);
+            }
+            return val;
+        }
+        
+        // tampilkan toast
+        let toastTimeout;
+        function showToast(msg, duration = 1800) {
+            const toastEl = document.getElementById('toast');
+            toastEl.textContent = msg;
+            toastEl.classList.add('show');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, duration);
+        }
+        
+        // render daftar domain
+        let lastDomains = [];
+        
+        function renderDomains(domains) {
+            const container = document.getElementById('domainList');
+            const counterSpan = document.getElementById('counterText');
+            
+            if (!domains || domains.length === 0) {
+                container.innerHTML = '<div class="empty-state">🌱 Belum ada domain, klik Generate</div>';
+                counterSpan.textContent = '0 domain';
+                return;
+            }
+            
+            let html = '';
+            for (let i = 0; i < domains.length; i++) {
+                const domain = escapeHtml(domains[i]);
+                html += `<div class="domain-item">${domain}</div>`;
+            }
+            container.innerHTML = html;
+            counterSpan.textContent = `${domains.length} domain`;
+        }
+        
+        function escapeHtml(str) {
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        // generate utama
+        function handleGenerate() {
+            const count = getJumlah();
+            const domains = generateDomains(count);
+            lastDomains = domains;
+            renderDomains(domains);
+            showToast(`✨ ${count} domain .my.id berhasil dibuat!`, 1500);
+        }
+        
+        // copy ke clipboard
+        async function handleCopy() {
+            if (!lastDomains.length) {
+                showToast('⚠️ Belum ada domain, generate dulu ya!', 1200);
+                return;
+            }
+            const textToCopy = lastDomains.join('\n');
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                showToast(`📋 ${lastDomains.length} domain disalin!`, 1500);
+            } catch (err) {
+                // fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast(`📋 ${lastDomains.length} domain disalin (fallback)`, 1500);
+            }
+        }
+        
+        // event listener
+        document.getElementById('generateBtn').addEventListener('click', handleGenerate);
+        document.getElementById('copyBtn').addEventListener('click', handleCopy);
+        
+        // inisialisasi contoh 10 domain seperti permintaan
+        function initDemo() {
+            const demoCount = 10;
+            const demoDomains = generateDomains(demoCount);
+            lastDomains = demoDomains;
+            renderDomains(demoDomains);
+            document.getElementById('jumlahDomain').value = 10;
+            showToast('🎉 10 contoh domain siap!', 1800);
+        }
+        
+        initDemo();
+    })();
+</script>
+</body>
+</html>
