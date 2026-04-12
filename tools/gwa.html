@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Nomor WA | +628 / 08</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #075e54, #128c7e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            max-width: 550px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            font-size: 1.6rem;
+            margin: 0 0 6px 0;
+            color: #075e54;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sub {
+            color: #5e6f8d;
+            font-size: 0.8rem;
+            margin-bottom: 24px;
+            border-left: 3px solid #25D366;
+            padding-left: 12px;
+        }
+        .option-group {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0f2f5;
+            padding: 8px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .option input {
+            width: 18px;
+            height: 18px;
+            accent-color: #25D366;
+            margin: 0;
+        }
+        .jumlah-area {
+            margin-bottom: 20px;
+        }
+        .jumlah-area label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            color: #1f2a44;
+        }
+        .jumlah-area input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ccc;
+            border-radius: 40px;
+            font-size: 1rem;
+            text-align: center;
+        }
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-gen {
+            background: #25D366;
+            color: white;
+        }
+        .btn-gen:hover {
+            background: #128c7e;
+            transform: scale(0.98);
+        }
+        .btn-copy {
+            background: #e9ecef;
+            color: #1f2a44;
+        }
+        .btn-copy:hover {
+            background: #dee2e6;
+        }
+        .result-box {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 16px;
+            max-height: 380px;
+            overflow-y: auto;
+        }
+        .result-title {
+            display: flex;
+            justify-content: space-between;
+            color: #94a3b8;
+            font-size: 0.7rem;
+            margin-bottom: 12px;
+        }
+        .number-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .number {
+            background: #1e293b;
+            color: #bbf0e8;
+            font-family: monospace;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            border-left: 4px solid #25D366;
+            word-break: break-all;
+        }
+        .empty {
+            text-align: center;
+            color: #64748b;
+            padding: 30px;
+            font-style: italic;
+        }
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 18px;
+            color: #8e9aaf;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+            z-index: 999;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>📱 WA Number Generator</h1>
+    <div class="sub">Nomor acak 10-13 digit • awalan selalu 8</div>
+
+    <div class="option-group">
+        <label class="option">
+            <input type="radio" name="format" value="+62" checked> <span>+62 8xxx</span>
+        </label>
+        <label class="option">
+            <input type="radio" name="format" value="08"> <span>08xxx</span>
+        </label>
+    </div>
+
+    <div class="jumlah-area">
+        <label>🔢 Jumlah nomor</label>
+        <input type="number" id="jumlah" value="2" min="1" max="300">
+    </div>
+
+    <div class="buttons">
+        <button class="btn-gen" id="generateBtn">✨ Generate</button>
+        <button class="btn-copy" id="copyBtn">📋 Salin Semua</button>
+    </div>
+
+    <div class="result-box">
+        <div class="result-title">
+            <span>📞 Hasil Generate</span>
+            <span>⬇️</span>
+        </div>
+        <div id="listContainer" class="number-list">
+            <div class="empty">Tekan Generate untuk mulai</div>
+        </div>
+    </div>
+    <footer>Setiap nomor diawali 8 + digit acak (total 10-13 digit setelah kode area)</footer>
+</div>
+<div id="toast" class="toast">✅ Tersalin!</div>
+
+<script>
+    // elemen
+    const formatRadios = document.querySelectorAll('input[name="format"]');
+    const jumlahInput = document.getElementById('jumlah');
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const listContainer = document.getElementById('listContainer');
+    const toast = document.getElementById('toast');
+
+    let lastNumbers = [];
+
+    function showMsg(text, duration = 1500) {
+        toast.textContent = text;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    // generate nomor acak dengan AWALAN 8, total panjang internal = 9-12 digit (agar total akhir 10-13)
+    // +62 + (8xxxx) => panjang setelah +62 adalah 10-13 digit, jadi bagian "8xxxx" harus 10-13 digit.
+    // Untuk format +62: nomor = '+62' + (8 diikuti 9-12 digit acak) => total panjang: 2 + (1 + 9-12) = 12-15? WAJAR: soal minta 10-13 digit TOTAL.
+    // Artinya total nomor (tanpa +) harus 10-13 digit, dengan awalan 8.
+    // Maka: untuk format +62, total digit setelah +62 = 10 sampai 13 digit, digit pertama = 8.
+    // untuk format 08, total digit setelah 0 = 10-13 digit (awalan 8)
+    // Jadi kita buat fungsi: buat angka acak sepanjang (totalLength-1) dengan digit pertama fixed 8, lalu sisanya random.
+    function generateRawNumber(totalDigits) {
+        // totalDigits = panjang nomor tanpa kode negara/+ (contoh: 10-13)
+        // digit pertama harus 8
+        if (totalDigits < 2) totalDigits = 10;
+        let result = '8';
+        for (let i = 1; i < totalDigits; i++) {
+            result += Math.floor(Math.random() * 10);
+        }
+        return result;
+    }
+
+    // panjang acak antara 10 sampai 13 digit (total panjang tanpa +62 atau tanpa 0)
+    function randomLength() {
+        return Math.floor(Math.random() * (13 - 10 + 1)) + 10; // 10,11,12,13
+    }
+
+    // generate satu nomor sesuai format
+    function generateOne(format) {
+        const panjang = randomLength();        // panjang total nomor (tanpa kode)
+        const rawNumber = generateRawNumber(panjang); // selalu diawali 8, total panjang = panjang
+        if (format === '+62') {
+            return '+62' + rawNumber;
+        } else {
+            return '0' + rawNumber;
+        }
+    }
+
+    // generate batch
+    function generateBatch(format, count) {
+        const result = [];
+        for (let i = 0; i < count; i++) {
+            result.push(generateOne(format));
+        }
+        return result;
+    }
+
+    // render ke UI
+    function render(numbers) {
+        if (!numbers.length) {
+            listContainer.innerHTML = '<div class="empty">✨ Belum ada nomor, klik Generate</div>';
+            return;
+        }
+        let html = '';
+        for (let num of numbers) {
+            html += `<div class="number">${escapeHtml(num)}</div>`;
+        }
+        listContainer.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function getFormat() {
+        for (let radio of formatRadios) {
+            if (radio.checked) return radio.value;
+        }
+        return '+62';
+    }
+
+    function getJumlah() {
+        let val = parseInt(jumlahInput.value, 10);
+        if (isNaN(val) || val < 1) val = 1;
+        if (val > 300) {
+            val = 300;
+            jumlahInput.value = 300;
+            showMsg('⚠️ Maks 300 nomor', 1000);
+        }
+        return val;
+    }
+
+    function handleGenerate() {
+        const format = getFormat();
+        const count = getJumlah();
+        const numbers = generateBatch(format, count);
+        lastNumbers = numbers;
+        render(numbers);
+        showMsg(`✅ ${count} nomor siap`, 1200);
+    }
+
+    async function handleCopy() {
+        if (!lastNumbers.length) {
+            showMsg('⚠️ Generate dulu ya!', 1000);
+            return;
+        }
+        const text = lastNumbers.join('\n');
+        try {
+            await navigator.clipboard.writeText(text);
+            showMsg(`📋 ${lastNumbers.length} nomor disalin`, 1500);
+        } catch (err) {
+            // fallback
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showMsg(`📋 ${lastNumbers.length} nomor disalin`, 1500);
+        }
+    }
+
+    generateBtn.addEventListener('click', handleGenerate);
+    copyBtn.addEventListener('click', handleCopy);
+
+    // inisialisasi contoh langsung 2 nomor seperti permintaan: +628xxx dan 08xxx (awalan 8)
+    (function initDemo() {
+        const demoFormat = '+62';
+        const demoCount = 2;
+        const demoNumbers = generateBatch(demoFormat, demoCount);
+        lastNumbers = demoNumbers;
+        render(demoNumbers);
+        // set radio +62 dan jumlah 2
+        document.querySelector('input[value="+62"]').checked = true;
+        jumlahInput.value = 2;
+    })();
+</script>
+</body>
+</html>
