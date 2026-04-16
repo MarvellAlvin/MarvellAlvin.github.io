@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Text to File Downloader | Ubah Teks Jadi File .txt</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Inter', 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #e9f0fc 0%, #d9e4f5 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      max-width: 800px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(2px);
+      border-radius: 2rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+
+    .header {
+      background: #0f2b3d;
+      color: white;
+      padding: 1.6rem 2rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .header p {
+      opacity: 0.85;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .content {
+      padding: 2rem;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 8px;
+      color: #0f2b3d;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 1.2rem;
+      border: 2px solid #cbd5e1;
+      font-size: 1rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      resize: vertical;
+      transition: 0.2s;
+      outline: none;
+      background: #fefefe;
+    }
+
+    textarea:focus {
+      border-color: #2c7da0;
+      box-shadow: 0 0 0 3px rgba(44, 125, 160, 0.2);
+    }
+
+    .filename-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.8rem;
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 1.2rem;
+    }
+
+    .filename-row label {
+      margin-bottom: 0;
+      min-width: 100px;
+    }
+
+    .filename-row input {
+      flex: 2;
+      min-width: 180px;
+      padding: 10px 14px;
+      border-radius: 60px;
+      border: 1px solid #cbd5e1;
+      font-family: monospace;
+      background: white;
+      outline: none;
+    }
+
+    .filename-row input:focus {
+      border-color: #2c7da0;
+    }
+
+    button {
+      background: #0f2b3d;
+      border: none;
+      color: white;
+      padding: 14px 28px;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    button:hover {
+      background: #1f4b66;
+      transform: scale(0.98);
+    }
+
+    .info {
+      margin-top: 1.5rem;
+      background: #eef2ff;
+      padding: 0.8rem;
+      border-radius: 1rem;
+      font-size: 0.8rem;
+      text-align: center;
+      color: #1e293b;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.7rem;
+      color: #475569;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    @media (max-width: 550px) {
+      .content { padding: 1.2rem; }
+      .filename-row { flex-direction: column; align-items: stretch; }
+      .filename-row label { margin-bottom: 4px; }
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <h1>
+      <i class="fas fa-file-alt"></i> Text to File
+    </h1>
+    <p>Ubah teks bebas menjadi file .txt dan unduh langsung</p>
+  </div>
+
+  <div class="content">
+    <div class="input-group">
+      <label><i class="fas fa-pen-alt"></i> Masukkan teks Anda:</label>
+      <textarea id="textInput" rows="8" placeholder="Tulis atau tempel teks di sini...&#10;Contoh:&#10;Nama: John Doe&#10;Email: john@example.com&#10;Pesan: Ini adalah file teks yang akan diunduh."></textarea>
+    </div>
+
+    <div class="filename-row">
+      <label><i class="fas fa-tag"></i> Nama file:</label>
+      <input type="text" id="filenameInput" value="teks" placeholder="tanpa ekstensi">
+      <span style="font-family: monospace; background:#e2e8f0; padding:6px 12px; border-radius:60px;">.txt</span>
+    </div>
+
+    <button id="downloadBtn">
+      <i class="fas fa-download"></i> Download File .txt
+    </button>
+
+    <div class="info">
+      <i class="fas fa-info-circle"></i> File akan otomatis terunduh dengan ekstensi .txt. Nama file bisa diubah sesuai keinginan.
+    </div>
+  </div>
+
+  <footer>
+    ⚡ Tools sederhana – Teks langsung menjadi file teks (UTF-8)
+  </footer>
+</div>
+
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<script>
+  (function() {
+    const textarea = document.getElementById('textInput');
+    const filenameInput = document.getElementById('filenameInput');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    function downloadTextAsFile() {
+      let content = textarea.value;
+      // Jika konten kosong, beri peringatan tapi tetap bisa download file kosong
+      if (content.trim() === '') {
+        if (confirm('Teks masih kosong. Tetap ingin mengunduh file kosong?')) {
+          content = ''; // tetap kosong
+        } else {
+          return;
+        }
+      }
+
+      // Ambil nama file, bersihkan dari karakter tidak valid untuk nama file (opsional)
+      let rawFilename = filenameInput.value.trim();
+      if (rawFilename === '') {
+        rawFilename = 'teks';
+      }
+      // Hapus karakter yang tidak aman untuk nama file (windows/unix)
+      const safeFilename = rawFilename.replace(/[\\/:*?"<>|]/g, '_');
+      const finalFilename = `${safeFilename}.txt`;
+
+      // Membuat blob dengan tipe teks/plain
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      
+      // Buat URL objek sementara
+      const downloadUrl = URL.createObjectURL(blob);
+      
+      // Buat elemen <a> sementara untuk trigger download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = finalFilename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Bebaskan memori dari object URL
+      URL.revokeObjectURL(downloadUrl);
+    }
+
+    downloadBtn.addEventListener('click', downloadTextAsFile);
+  })();
+</script>
+</body>
+</html>
