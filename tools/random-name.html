@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Name Generator - Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 32px;
+            padding: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: normal;
+        }
+
+        .sub {
+            color: #666;
+            margin-bottom: 28px;
+            border-left: 3px solid #764ba2;
+            padding-left: 14px;
+            font-size: 0.85rem;
+        }
+
+        .info-api {
+            background: #e8f4fd;
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            font-size: 0.75rem;
+            color: #0369a1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .info-api a {
+            color: #0284c7;
+            text-decoration: none;
+        }
+
+        .control-panel {
+            background: #f8f9ff;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 28px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 60px;
+            font-size: 1rem;
+            transition: 0.2s;
+            text-align: center;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118,75,162,0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .result-header h3 {
+            color: #1a1a2e;
+            font-size: 1.1rem;
+        }
+
+        .counter {
+            background: #e9ecef;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #764ba2;
+        }
+
+        .name-list {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 16px;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .name-item {
+            background: #1e293b;
+            color: #a5f3c3;
+            font-family: 'Courier New', monospace;
+            padding: 12px 18px;
+            margin-bottom: 10px;
+            border-radius: 14px;
+            font-size: 1rem;
+            word-break: break-all;
+            border-left: 4px solid #10b981;
+            transition: 0.1s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .name-item:hover {
+            background: #2d3a4e;
+            transform: translateX(5px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a5f3c3;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #64748b;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+        }
+
+        @media (max-width: 550px) {
+            .card {
+                padding: 20px;
+            }
+            .name-item {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1>
+            🌐 Random Name Generator
+            <span class="badge">TOOLS</span>
+        </h1>
+        <div class="sub">Generate nama orang acak dari database publik Random User API</div>
+
+        <div class="info-api">
+            📡 <strong>Sumber Data:</strong> Random User API
+            <a href="https://randomuser.me" target="_blank">randomuser.me</a>
+        </div>
+
+        <div class="control-panel">
+            <div class="input-group">
+                <label>📦 Jumlah nama yang ingin dibuat</label>
+                <input type="number" id="jumlahNama" value="10" min="1" max="50">
+                <div style="font-size: 0.7rem; color: #888; margin-top: 5px;">maksimal 50 nama sekali generate</div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" id="generateBtn">✨ Generate Nama</button>
+                <button class="btn-secondary" id="copyBtn">📋 Salin Semua</button>
+            </div>
+        </div>
+
+        <div class="result-header">
+            <h3>👤 Hasil Nama Random</h3>
+            <div class="counter" id="counterText">0 nama</div>
+        </div>
+        <div class="name-list" id="nameList">
+            <div class="empty-state">✨ Klik "Generate Nama"</div>
+        </div>
+    </div>
+    <footer>🎲 Random Name Generator - Velz Tools</footer>
+</div>
+<div id="toast" class="toast">✅ Tersalin!</div>
+
+<script>
+    // DOM Elements
+    const jumlahInput = document.getElementById('jumlahNama');
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const nameListDiv = document.getElementById('nameList');
+    const counterSpan = document.getElementById('counterText');
+    const toast = document.getElementById('toast');
+
+    // State
+    let lastNames = [];
+
+    function showToast(msg, duration = 1500) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    /**
+     * Fetch nama dari Random User API (randomuser.me)
+     * API ini support CORS, gratis, dan tidak perlu API key
+     * Dokumentasi: https://randomuser.me/documentation
+     */
+    async function fetchNamesFromAPI(count) {
+        // Bangun URL API randomuser.me
+        let apiUrl = `https://randomuser.me/api/?results=${count}`;
+        
+        // Tambahkan parameter untuk mendapatkan data yang lengkap
+        apiUrl += `&inc=name,gender&noinfo`;
+        
+        console.log('Fetching from:', apiUrl);
+        
+        try {
+            const response = await fetch(apiUrl);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Validasi response
+            if (data && data.results && Array.isArray(data.results)) {
+                return data.results.map(user => {
+                    // Format nama lengkap dengan benar
+                    let fullName = '';
+                    if (user.name.title && user.name.first && user.name.last) {
+                        fullName = `${user.name.title}. ${user.name.first} ${user.name.last}`;
+                    } else if (user.name.first && user.name.last) {
+                        fullName = `${user.name.first} ${user.name.last}`;
+                    } else {
+                        fullName = `${user.name.first || ''} ${user.name.last || ''}`.trim();
+                    }
+                    
+                    return {
+                        fullName: fullName,
+                        firstName: user.name.first || '',
+                        lastName: user.name.last || '',
+                        title: user.name.title || '',
+                        gender: user.gender || 'unknown'
+                    };
+                });
+            }
+            
+            throw new Error('Format response API tidak dikenali');
+            
+        } catch (error) {
+            console.error('Error fetching from API:', error);
+            throw error;
+        }
+    }
+
+    // Render nama ke dalam DOM
+    function renderNames(names) {
+        if (!names || names.length === 0) {
+            nameListDiv.innerHTML = '<div class="empty-state">🌱 Belum ada nama, klik Generate Nama</div>';
+            counterSpan.textContent = '0 nama';
+            return;
+        }
+        
+        let html = '';
+        for (let i = 0; i < names.length; i++) {
+            const name = names[i];
+            const genderText = name.gender === 'male' ? '♂ Laki-laki' : (name.gender === 'female' ? '♀ Perempuan' : '⚬');
+            
+            html += `
+                <div class="name-item">
+                    <span>${escapeHtml(name.fullName)}</span>
+                    <span class="name-gender">${genderText}</span>
+                </div>
+            `;
+        }
+        nameListDiv.innerHTML = html;
+        counterSpan.textContent = `${names.length} nama`;
+    }
+
+    // Tampilkan loading state
+    function showLoading() {
+        nameListDiv.innerHTML = '<div class="loading"><span class="spinner"></span> Mengambil data dari API randomuser.me...</div>';
+        generateBtn.disabled = true;
+        generateBtn.textContent = '⏳ Mengambil Data...';
+    }
+
+    function hideLoading() {
+        generateBtn.disabled = false;
+        generateBtn.textContent = '✨ Generate Nama';
+    }
+
+    // Handle generate nama
+    async function handleGenerate() {
+        let count = parseInt(jumlahInput.value, 10);
+        if (isNaN(count) || count < 1) count = 1;
+        if (count > 50) {
+            count = 50;
+            jumlahInput.value = 50;
+            showToast('⚠️ Maksimal 50 nama, diset ke 50', 1200);
+        }
+        
+        showLoading();
+        
+        try {
+            const names = await fetchNamesFromAPI(count);
+            if (names && names.length > 0) {
+                lastNames = names;
+                renderNames(names);
+                showToast(`✅ ${names.length} nama berhasil diambil dari API`, 1800);
+            } else {
+                throw new Error('Tidak ada data yang diterima dari API');
+            }
+        } catch (error) {
+            console.error('Error detail:', error);
+            let errorMsg = error.message;
+            if (error.message.includes('Failed to fetch')) {
+                errorMsg = 'Gagal terhubung ke API. Periksa koneksi internet Anda.';
+            } else if (error.message.includes('HTTP error')) {
+                errorMsg = 'Server API sedang sibuk. Coba lagi nanti.';
+            }
+            nameListDiv.innerHTML = `<div class="empty-state">❌ Gagal mengambil data dari API.<br><br>Error: ${errorMsg}<br><br>💡 Tips: Coba refresh halaman atau cek koneksi internet.</div>`;
+            showToast(`❌ ${errorMsg}`, 3000);
+            lastNames = [];
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Copy semua nama ke clipboard
+    async function handleCopy() {
+        if (!lastNames.length) {
+            showToast('⚠️ Belum ada nama, generate dulu ya!', 1200);
+            return;
+        }
+        
+        const textToCopy = lastNames.map(n => n.fullName).join('\n');
+        
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            showToast(`📋 ${lastNames.length} nama disalin!`, 1500);
+        } catch (err) {
+            // Fallback untuk browser yang tidak support clipboard API
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast(`📋 ${lastNames.length} nama disalin (fallback)`, 1500);
+        }
+    }
+
+    // Event listeners
+    generateBtn.addEventListener('click', handleGenerate);
+    copyBtn.addEventListener('click', handleCopy);
+
+    // Inisialisasi demo - ambil 5 nama pertama kali load
+    async function initDemo() {
+        showLoading();
+        try {
+            const demoNames = await fetchNamesFromAPI(5);
+            if (demoNames && demoNames.length > 0) {
+                lastNames = demoNames;
+                renderNames(demoNames);
+                jumlahInput.value = 10;
+                showToast('🎉 Demo: 5 nama contoh berhasil dimuat!', 2000);
+            } else {
+                throw new Error('Demo gagal');
+            }
+        } catch (error) {
+            console.error('Demo error:', error);
+            nameListDiv.innerHTML = '<div class="empty-state">✨ Klik "Generate Nama" untuk mulai mengambil data dari API publik<br><br>📡 API: randomuser.me (support CORS, gratis)</div>';
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    initDemo();
+</script>
+</body>
+</html>
