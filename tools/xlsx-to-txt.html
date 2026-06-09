@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Extract Nomor dari XLSX ke TXT | Tools Konverter</title>
+    <!-- SheetJS (XLSX) Core Library -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+        }
+
+        .card {
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f2c20 0%, #1f543e 100%);
+            padding: 1.75rem 2rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .header h1 span {
+            background: #ffd966;
+            color: #1e3a2f;
+            font-size: 0.9rem;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: 500;
+        }
+
+        .header p {
+            margin-top: 0.6rem;
+            opacity: 0.85;
+            font-size: 0.95rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .upload-area {
+            background: #f9fafc;
+            border: 2px dashed #b9c8d9;
+            border-radius: 1.5rem;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            margin-bottom: 2rem;
+        }
+
+        .upload-area:hover {
+            border-color: #2c7a5e;
+            background: #f0f6f3;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .file-label {
+            background: #2c7a5e;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.6rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .file-label:hover {
+            background: #1f5e48;
+            transform: scale(0.98);
+        }
+
+        .info-file {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #2c5a44;
+            background: #e9f3ef;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 30px;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0 1.2rem 0;
+        }
+
+        .btn-convert {
+            background: #1e4663;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 44px;
+            font-weight: 700;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-convert:hover:not(:disabled) {
+            background: #0f2f48;
+            transform: translateY(-2px);
+        }
+
+        .btn-convert:disabled {
+            background: #acbac7;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .btn-download {
+            background: #2b6e4f;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 44px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-download:disabled {
+            background: #9fbbae;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-download:hover:not(:disabled) {
+            background: #1d533b;
+        }
+
+        .reset-btn {
+            background: #e0e7ef;
+            color: #2d3e50;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 44px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #cbdae6;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin: 1rem 0 0.6rem 0;
+            border-bottom: 2px solid #dfe6ed;
+            padding-bottom: 0.5rem;
+        }
+
+        .preview-header h3 {
+            color: #1e3a2f;
+            font-weight: 600;
+        }
+
+        .count-info {
+            font-size: 0.75rem;
+            background: #ecf3f0;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            color: #2b5e46;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 340px;
+            padding: 1rem;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            background: #fefef7;
+            border: 1px solid #cfdfd6;
+            border-radius: 1rem;
+            resize: vertical;
+            color: #1f2c38;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #2c7a5e;
+            box-shadow: 0 0 0 2px rgba(44,122,94,0.2);
+        }
+
+        .alert {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 0.8rem 1rem;
+            border-radius: 1rem;
+            margin: 1rem 0 0 0;
+            font-size: 0.85rem;
+            border-left: 5px solid #b91c1c;
+        }
+
+        .success {
+            background: #e0f2e9;
+            color: #166534;
+            border-left-color: #15803d;
+        }
+
+        footer {
+            background: #f1f5f9;
+            padding: 1rem 2rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #557c6b;
+            border-top: 1px solid #e2edf2;
+        }
+
+        @media (max-width: 680px) {
+            .content {
+                padding: 1.5rem;
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .btn-convert, .btn-download, .reset-btn {
+                justify-content: center;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header">
+        <h1>
+            📱➡️📄 Extract Nomor dari XLSX 
+            <span>hanya nomor telepon</span>
+        </h1>
+        <p>Unggah file Excel (.xlsx / .xls) yang berisi kolom "Number". Tools akan mengekstrak semua nomor (contoh: 77751380004, 6288970820092) ke dalam file TXT — satu nomor per baris. Otomatis mendeteksi kolom "Number" di sheet pertama.</p>
+    </div>
+
+    <div class="content">
+        <div class="upload-area" id="dropZone">
+            <div class="upload-icon">📂📊</div>
+            <input type="file" id="fileInput" accept=".xlsx, .xls, .xlsm" />
+            <label for="fileInput" class="file-label" id="fileLabelBtn">
+                ✨ Pilih file Excel
+            </label>
+            <div id="fileInfo" class="info-file">Belum ada file dipilih</div>
+            <p style="font-size:12px; margin-top:12px; color:#5b7e6e;">✔️ Support .xlsx, .xls, .xlsm | Hanya kolom "Number" yang diekstrak</p>
+        </div>
+
+        <div class="toolbar">
+            <button id="convertBtn" class="btn-convert" disabled>
+                🔍 Ekstrak Nomor ke Teks
+            </button>
+            <button id="downloadBtn" class="btn-download" disabled>
+                ⬇️ Download sebagai .txt
+            </button>
+            <button id="resetBtn" class="reset-btn">
+                🗑️ Reset & Hapus
+            </button>
+        </div>
+
+        <div class="preview-header">
+            <h3>📋 Daftar Nomor yang Diekstrak</h3>
+            <div id="countInfo" class="count-info">0 nomor</div>
+        </div>
+        <textarea id="resultTextarea" readonly placeholder="Hasil ekstraksi nomor akan tampil di sini..."></textarea>
+        
+        <div id="messageArea"></div>
+    </div>
+    <footer>
+        ⚡ Tools ini bekerja 100% di browser Anda. Data tidak dikirim ke server. Hanya kolom dengan header "Number" (atau kolom kedua jika tidak ditemukan) yang diambil.
+    </footer>
+</div>
+
+<script>
+    // DOM Elements
+    const fileInput = document.getElementById('fileInput');
+    const fileInfoDiv = document.getElementById('fileInfo');
+    const convertBtn = document.getElementById('convertBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const resultTextarea = document.getElementById('resultTextarea');
+    const countInfo = document.getElementById('countInfo');
+    const messageArea = document.getElementById('messageArea');
+    const dropZone = document.getElementById('dropZone');
+
+    // State
+    let currentFile = null;
+    let extractedNumbers = [];     // array of strings (nomor)
+    let currentFileName = '';
+
+    // Helper message
+    function showMessage(msg, isError = false, isSuccess = false) {
+        messageArea.innerHTML = '';
+        const div = document.createElement('div');
+        div.className = 'alert';
+        if (isSuccess) div.classList.add('success');
+        div.innerText = msg;
+        messageArea.appendChild(div);
+        if (isSuccess) {
+            setTimeout(() => { if (messageArea.firstChild === div) div.remove(); }, 5000);
+        }
+    }
+
+    // Update UI setelah file dipilih
+    function updateFileSelection(file) {
+        if (!file) {
+            fileInfoDiv.innerText = 'Belum ada file dipilih';
+            convertBtn.disabled = true;
+            downloadBtn.disabled = true;
+            currentFile = null;
+            extractedNumbers = [];
+            return;
+        }
+        const ext = file.name.split('.').pop().toLowerCase();
+        const validExt = ['xlsx', 'xls', 'xlsm'];
+        if (!validExt.includes(ext)) {
+            fileInfoDiv.innerText = `⚠️ Format tidak didukung: ${file.name}`;
+            convertBtn.disabled = true;
+            currentFile = null;
+            showMessage(`File "${file.name}" bukan Excel (.xlsx/.xls)`, true);
+            return;
+        }
+        fileInfoDiv.innerText = `📁 File siap: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        currentFile = file;
+        currentFileName = file.name.replace(/\.[^/.]+$/, '');
+        convertBtn.disabled = false;
+        showMessage(`✅ File "${file.name}" berhasil dipilih. Klik "Ekstrak Nomor" untuk memproses.`, false, true);
+    }
+
+    // Reset semua
+    function resetAll() {
+        fileInput.value = '';
+        currentFile = null;
+        extractedNumbers = [];
+        currentFileName = '';
+        resultTextarea.value = '';
+        countInfo.innerText = '0 nomor';
+        fileInfoDiv.innerText = 'Belum ada file dipilih';
+        convertBtn.disabled = true;
+        downloadBtn.disabled = true;
+        showMessage('Semua data direset. Silakan pilih file Excel baru.', false, true);
+    }
+
+    // Fungsi utama: ekstrak nomor dari kolom "Number"
+    // Menerima array 2D dari sheet, mengembalikan array nomor (string)
+    function extractNumberColumn(rows) {
+        if (!rows || rows.length === 0) return [];
+
+        // Cari baris yang mengandung header "Number" (case-insensitive)
+        let headerRowIndex = -1;
+        let numberColIndex = -1;
+
+        // Pertama, cari baris yang memiliki kata "Number" di salah satu sel (biasanya header)
+        for (let i = 0; i < Math.min(rows.length, 20); i++) {
+            const row = rows[i];
+            if (!row || row.length === 0) continue;
+            for (let j = 0; j < row.length; j++) {
+                const cell = row[j];
+                if (cell && typeof cell === 'string' && cell.trim().toLowerCase() === 'number') {
+                    headerRowIndex = i;
+                    numberColIndex = j;
+                    break;
+                }
+            }
+            if (numberColIndex !== -1) break;
+        }
+
+        // Jika tidak ditemukan header "Number", coba gunakan kolom kedua (index 1) sebagai asumsi
+        if (numberColIndex === -1) {
+            console.warn("Header 'Number' tidak ditemukan, menggunakan kolom B (index 1) sebagai nomor.");
+            numberColIndex = 1;
+            // Cari baris pertama yang memiliki nilai di kolom index 1 dan bukan header (tidak mengandung huruf)
+            // Kita akan mulai dari baris 0, tapi biasanya baris 0-2 adalah judul. Kita akan mulai dari baris 3 (index 3) jika memungkinkan
+            headerRowIndex = -1; // tidak ada header spesifik, kita akan proses semua baris setelah beberapa baris awal
+        }
+
+        // Kumpulkan nomor dari baris setelah header (atau dari seluruh baris jika header tidak ditemukan)
+        const numbers = [];
+        const startRow = (headerRowIndex !== -1) ? headerRowIndex + 1 : 0;
+
+        for (let i = startRow; i < rows.length; i++) {
+            const row = rows[i];
+            if (!row || row.length === 0) continue;
+            // pastikan kolom nomor ada di row
+            if (numberColIndex >= row.length) continue;
+            let value = row[numberColIndex];
+            if (value === undefined || value === null) continue;
+            // Konversi ke string, trim
+            let strValue = String(value).trim();
+            if (strValue === "") continue;
+            // Hindari mengambil header yang terlewat (jika misal masih ada teks "Number" di baris lain)
+            if (strValue.toLowerCase() === 'number') continue;
+            // Terima semua nilai (kebanyakan nomor, bisa juga angka numerik)
+            numbers.push(strValue);
+        }
+
+        // Filter unik? Tidak perlu, biarkan sesuai urutan.
+        return numbers;
+    }
+
+    // Proses file Excel dan ekstrak nomor
+    async function processExtraction(file) {
+        if (!file) {
+            showMessage('Tidak ada file yang dipilih.', true);
+            return null;
+        }
+
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                try {
+                    const workbook = XLSX.read(data, { type: 'array', cellDates: false, defval: "" });
+                    if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+                        reject(new Error('Workbook tidak memiliki sheet.'));
+                        return;
+                    }
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    // Konversi ke array 2D (baris x kolom)
+                    const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: "" });
+                    if (!rows || rows.length === 0) {
+                        reject(new Error('Sheet kosong, tidak ada data.'));
+                        return;
+                    }
+                    const numbers = extractNumberColumn(rows);
+                    if (numbers.length === 0) {
+                        reject(new Error('Tidak ditemukan nomor di kolom "Number". Pastikan file memiliki kolom berisi nomor telepon.'));
+                        return;
+                    }
+                    resolve(numbers);
+                } catch (err) {
+                    reject(new Error(`Gagal parsing Excel: ${err.message}`));
+                }
+            };
+            reader.onerror = () => reject(new Error('Gagal membaca file.'));
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    // Event konversi (ekstraksi)
+    async function handleExtract() {
+        if (!currentFile) {
+            showMessage('Pilih file Excel terlebih dahulu.', true);
+            return;
+        }
+
+        convertBtn.disabled = true;
+        const originalText = convertBtn.innerHTML;
+        convertBtn.innerHTML = '⏳ Memproses...';
+        showMessage('Membaca file dan mengekstrak nomor...', false, false);
+
+        try {
+            const numbers = await processExtraction(currentFile);
+            extractedNumbers = numbers;
+            const textOutput = extractedNumbers.join('\n');
+            resultTextarea.value = textOutput;
+            countInfo.innerText = `${extractedNumbers.length} nomor`;
+            downloadBtn.disabled = false;
+            showMessage(`✅ Berhasil mengekstrak ${extractedNumbers.length} nomor. Download atau salin teks.`, false, true);
+        } catch (err) {
+            console.error(err);
+            showMessage(`❌ Gagal: ${err.message}`, true);
+            resultTextarea.value = '';
+            extractedNumbers = [];
+            countInfo.innerText = '0 nomor';
+            downloadBtn.disabled = true;
+        } finally {
+            convertBtn.disabled = false;
+            convertBtn.innerHTML = originalText;
+        }
+    }
+
+    // Download sebagai .txt
+    function downloadTxt() {
+        if (!extractedNumbers.length) {
+            showMessage('Tidak ada nomor untuk diunduh. Lakukan ekstraksi terlebih dahulu.', true);
+            return;
+        }
+        const textData = extractedNumbers.join('\n');
+        let baseName = currentFileName && currentFileName.trim() !== '' ? currentFileName : 'extracted_numbers';
+        baseName = baseName.replace(/[\\/:*?"<>|]/g, '_');
+        const fileName = `${baseName}_numbers.txt`;
+        const blob = new Blob([textData], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showMessage(`📥 File "${fileName}" berhasil diunduh (${blob.size} byte).`, false, true);
+    }
+
+    // Event listeners
+    fileInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            updateFileSelection(files[0]);
+            // Reset hasil sebelumnya
+            resultTextarea.value = '';
+            extractedNumbers = [];
+            countInfo.innerText = '0 nomor';
+            downloadBtn.disabled = true;
+        } else {
+            resetAll();
+        }
+    });
+
+    convertBtn.addEventListener('click', handleExtract);
+    downloadBtn.addEventListener('click', downloadTxt);
+    resetBtn.addEventListener('click', resetAll);
+
+    // Drag & drop
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#2c7a5e';
+        dropZone.style.backgroundColor = '#e6f4ef';
+    });
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#b9c8d9';
+        dropZone.style.backgroundColor = '#f9fafc';
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#b9c8d9';
+        dropZone.style.backgroundColor = '#f9fafc';
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            const droppedFile = files[0];
+            const ext = droppedFile.name.split('.').pop().toLowerCase();
+            if (['xlsx', 'xls', 'xlsm'].includes(ext)) {
+                fileInput.files = files;
+                const changeEvent = new Event('change', { bubbles: true });
+                fileInput.dispatchEvent(changeEvent);
+            } else {
+                showMessage(`Drop hanya mendukung file Excel (.xlsx/.xls). Anda drop: ${droppedFile.name}`, true);
+            }
+        }
+    });
+
+    // Tombol copy manual (opsional) - tambahkan di dekat preview
+    const copyBtn = document.createElement('button');
+    copyBtn.innerHTML = '📋 Salin Semua Nomor';
+    copyBtn.style.background = '#eef2f5';
+    copyBtn.style.border = 'none';
+    copyBtn.style.padding = '0.3rem 0.9rem';
+    copyBtn.style.borderRadius = '30px';
+    copyBtn.style.fontSize = '0.75rem';
+    copyBtn.style.fontWeight = '500';
+    copyBtn.style.cursor = 'pointer';
+    copyBtn.style.marginLeft = '12px';
+    copyBtn.addEventListener('click', () => {
+        if (!resultTextarea.value || resultTextarea.value.trim() === '') {
+            showMessage('Tidak ada nomor untuk disalin. Ekstrak terlebih dahulu.', true);
+            return;
+        }
+        navigator.clipboard.writeText(resultTextarea.value).then(() => {
+            showMessage('✅ Semua nomor telah disalin ke clipboard!', false, true);
+        }).catch(() => {
+            showMessage('Gagal menyalin otomatis, silakan salin manual.', true);
+        });
+    });
+    const previewHeader = document.querySelector('.preview-header');
+    if (previewHeader) {
+        const countSpan = previewHeader.querySelector('#countInfo');
+        if (countSpan) {
+            countSpan.parentNode.insertBefore(copyBtn, countSpan.nextSibling);
+        } else {
+            previewHeader.appendChild(copyBtn);
+        }
+    }
+    copyBtn.addEventListener('mouseenter', () => copyBtn.style.backgroundColor = '#dfe7ef');
+    copyBtn.addEventListener('mouseleave', () => copyBtn.style.backgroundColor = '#eef2f5');
+
+    // Inisialisasi
+    resetAll();
+</script>
+</body>
+</html>
