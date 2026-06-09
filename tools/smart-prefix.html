@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Smart Number Splitter by Prefix | Dynamic Country Grouping</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e9eff5 0%, #dce3ec 100%);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 2rem;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a4d 0%, #2c6e6e 100%);
+            padding: 1.8rem 2rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .header p {
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        /* Panel Prefix */
+        .prefix-panel {
+            background: #f2f6fb;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #d4e2ed;
+        }
+
+        .prefix-panel h3 {
+            margin-bottom: 1rem;
+            color: #1e3a4d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prefix-input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: flex-end;
+        }
+
+        .prefix-field {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .prefix-field label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #2c6e6e;
+            margin-bottom: 4px;
+        }
+
+        .prefix-field input {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            border-radius: 40px;
+            border: 1px solid #cbdde9;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        .btn-add {
+            background: #2c6e6e;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.4rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-add:hover {
+            background: #1e4f4f;
+        }
+
+        .prefix-list {
+            margin-top: 1rem;
+            background: white;
+            border-radius: 1rem;
+            overflow: auto;
+        }
+
+        .prefix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .prefix-table th, .prefix-table td {
+            padding: 0.7rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2edf2;
+        }
+
+        .prefix-table th {
+            background: #e5f0f5;
+            color: #1e4f5e;
+        }
+
+        .delete-prefix {
+            background: #e9746b;
+            color: white;
+            border: none;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .upload-area {
+            background: #fafdff;
+            border: 2px dashed #b9d0df;
+            border-radius: 1.5rem;
+            padding: 1.8rem;
+            text-align: center;
+            margin: 1.5rem 0 1.2rem 0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #2c7a6e;
+            background: #eef7f2;
+        }
+
+        .file-label {
+            background: #2c7a6e;
+            color: white;
+            padding: 0.6rem 1.6rem;
+            border-radius: 40px;
+            display: inline-block;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .info-file {
+            margin-top: 0.8rem;
+            font-size: 0.8rem;
+            color: #2c6e6e;
+        }
+
+        .stats {
+            background: #eef3fa;
+            padding: 0.8rem 1.2rem;
+            border-radius: 1rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 1.8rem;
+        }
+
+        .groups-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .group-card {
+            background: white;
+            border-radius: 1.2rem;
+            border: 1px solid #e2edf2;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .group-header {
+            background: #f4f9fe;
+            padding: 0.9rem 1.3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            cursor: pointer;
+        }
+
+        .group-header h4 {
+            font-weight: 700;
+            color: #1e4f5e;
+        }
+
+        .badge {
+            background: #2c6e6e20;
+            color: #1e5a5a;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .download-group-btn {
+            background: #1e6f5c;
+            border: none;
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .group-preview {
+            padding: 1rem;
+            max-height: 180px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 11px;
+            background: #fefefc;
+            border-top: 1px solid #eef2f5;
+        }
+
+        .preview-line {
+            padding: 0.15rem 0;
+            border-bottom: 1px dotted #e9edf2;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 2rem;
+            color: #6f8f9c;
+        }
+
+        footer {
+            background: #e3ecf2;
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #3c6e6e;
+        }
+
+        @media (max-width: 680px) {
+            .content {
+                padding: 1rem;
+            }
+            .group-header {
+                flex-direction: column;
+                align-items: start;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <h1>
+                📱 Dynamic Number Splitter
+                <span>custom prefix → per negara</span>
+            </h1>
+            <p>Atur sendiri prefix & nama negara (misal 62 = Indonesia). Upload file .txt (satu nomor tiap baris). Tools akan memisahkan berdasarkan prefix terpanjang yang cocok.</p>
+        </div>
+        <div class="content">
+            <!-- Panel manajemen prefix -->
+            <div class="prefix-panel">
+                <h3>✏️ Kelola Prefix & Negara</h3>
+                <div class="prefix-input-group">
+                    <div class="prefix-field">
+                        <label>Kode prefix (contoh: 62)</label>
+                        <input type="text" id="newPrefix" placeholder="62" maxlength="6">
+                    </div>
+                    <div class="prefix-field">
+                        <label>Nama Negara / Grup</label>
+                        <input type="text" id="newCountry" placeholder="Indonesia">
+                    </div>
+                    <button id="addPrefixBtn" class="btn-add">+ Tambah</button>
+                </div>
+                <div class="prefix-list">
+                    <table class="prefix-table" id="prefixTable">
+                        <thead>
+                            <tr><th>Prefix</th><th>Negara / Grup</th><th>Aksi</th></tr>
+                        </thead>
+                        <tbody id="prefixTbody">
+                            <!-- Data default akan diisi js -->
+                        </tbody>
+                    </table>
+                </div>
+                <p style="font-size:12px; margin-top:8px;">⚠️ Urutan prioritas: prefix panjang didahulukan (3 digit > 2 digit).</p>
+            </div>
+
+            <!-- Upload area -->
+            <div class="upload-area" id="dropZone">
+                <div>📂 📄</div>
+                <input type="file" id="fileInput" accept=".txt">
+                <label for="fileInput" class="file-label">Pilih file .txt (daftar nomor)</label>
+                <div id="fileInfo" class="info-file">Belum ada file dipilih</div>
+            </div>
+
+            <div class="stats" id="statsPanel" style="display: none;">
+                <div id="totalNumbers"></div>
+                <button id="resetDataBtn" class="btn-add" style="background:#6c757d;">Reset semua</button>
+            </div>
+
+            <div id="groupsContainer" class="groups-container">
+                <div class="empty-message">⬆️ Upload file .txt untuk memulai grouping berdasarkan prefix Anda.</div>
+            </div>
+        </div>
+        <footer>
+            ⚡ Prefix dinamis & prioritas terpanjang. Nomor yang tidak cocok dengan prefix apapun masuk grup "Lainnya". Bisa download per grup.
+        </footer>
+    </div>
+</div>
+
+<script>
+    // ======================== Data dan Helper ========================
+    let prefixRules = [];  // [{ prefix, name }]
+    let currentNumbers = []; // array of phone strings
+    let currentGroups = {};   // { countryName: [numbers] }
+    let totalNumbers = 0;
+    
+    // Default rules (bisa diubah user)
+    const defaultRules = [
+        { prefix: "216", name: "Tunisia" },
+        { prefix: "228", name: "Togo" },
+        { prefix: "998", name: "Uzbekistan" },
+        { prefix: "63", name: "Philippines" },
+        { prefix: "62", name: "Indonesia" }
+    ];
+    
+    // Simpan ke localStorage agar tidak hilang refresh? opsional
+    function loadPrefixRules() {
+        const saved = localStorage.getItem("dynamicPrefixRules");
+        if (saved) {
+            try {
+                prefixRules = JSON.parse(saved);
+                return;
+            } catch(e) {}
+        }
+        prefixRules = [...defaultRules];
+        savePrefixRules();
+    }
+    
+    function savePrefixRules() {
+        localStorage.setItem("dynamicPrefixRules", JSON.stringify(prefixRules));
+    }
+    
+    // Urutkan berdasarkan panjang prefix desc (prioritas panjang)
+    function sortRulesByLength() {
+        prefixRules.sort((a, b) => b.prefix.length - a.prefix.length);
+        savePrefixRules();
+    }
+    
+    // Render tabel prefix
+    function renderPrefixTable() {
+        const tbody = document.getElementById("prefixTbody");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+        prefixRules.forEach((rule, idx) => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = rule.prefix;
+            row.insertCell(1).innerText = rule.name;
+            const delCell = row.insertCell(2);
+            const delBtn = document.createElement("button");
+            delBtn.innerText = "Hapus";
+            delBtn.className = "delete-prefix";
+            delBtn.onclick = () => {
+                prefixRules.splice(idx, 1);
+                sortRulesByLength();
+                renderPrefixTable();
+                // Jika sudah ada data nomor, reprocess
+                if (currentNumbers.length > 0) {
+                    processNumbersWithRules(currentNumbers);
+                }
+                savePrefixRules();
+            };
+            delCell.appendChild(delBtn);
+        });
+        // jika kosong tampilkan catatan
+        if (prefixRules.length === 0) {
+            const row = tbody.insertRow();
+            const cell = row.insertCell(0);
+            cell.colSpan = 3;
+            cell.innerText = "Belum ada prefix. Tambahkan prefix untuk mengelompokkan nomor.";
+            cell.style.textAlign = "center";
+        }
+    }
+    
+    // Fungsi menentukan negara berdasarkan prefix (cocokkan terpanjang)
+    function getCountryByPhone(phoneStr) {
+        const number = phoneStr.trim();
+        if (number === "") return null;
+        for (let rule of prefixRules) {
+            if (number.startsWith(rule.prefix)) {
+                return rule.name;
+            }
+        }
+        return "Lainnya";
+    }
+    
+    // Proses array numbers -> groups
+    function processNumbersWithRules(numbersArray) {
+        const groups = {};
+        let validCount = 0;
+        for (let num of numbersArray) {
+            if (num === "") continue;
+            const country = getCountryByPhone(num);
+            if (!groups[country]) groups[country] = [];
+            groups[country].push(num);
+            validCount++;
+        }
+        currentGroups = groups;
+        totalNumbers = validCount;
+        renderGroupsUI();
+        updateStatsUI();
+    }
+    
+    // Membaca file txt dan ekstrak nomor
+    function readNumbersFromFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                const lines = content.split(/\r?\n/);
+                const numbers = [];
+                for (let line of lines) {
+                    let phone = line.trim();
+                    if (phone !== "") {
+                        // bersihkan kemungkinan karakter non-digit? tetapi biarkan saja karena nomor bisa diawali +
+                        numbers.push(phone);
+                    }
+                }
+                resolve(numbers);
+            };
+            reader.onerror = () => reject(new Error("Gagal membaca file"));
+            reader.readAsText(file, "UTF-8");
+        });
+    }
+    
+    // Render grup di UI
+    function renderGroupsUI() {
+        const container = document.getElementById("groupsContainer");
+        if (!container) return;
+        const groupNames = Object.keys(currentGroups);
+        if (groupNames.length === 0 || totalNumbers === 0) {
+            container.innerHTML = '<div class="empty-message">Tidak ada nomor valid. Upload file atau periksa prefix.</div>';
+            return;
+        }
+        // Urutkan: "Lainnya" di akhir, sisanya sesuai nama
+        groupNames.sort((a,b) => {
+            if (a === "Lainnya") return 1;
+            if (b === "Lainnya") return -1;
+            return a.localeCompare(b);
+        });
+        
+        let html = "";
+        for (let country of groupNames) {
+            const numbers = currentGroups[country];
+            const count = numbers.length;
+            const previewList = numbers.slice(0, 12);
+            const previewHtml = previewList.map(n => `<div class="preview-line">📞 ${n}</div>`).join('');
+            const more = count > 12 ? `<div class="preview-line" style="color:#888;">... dan ${count-12} lainnya</div>` : '';
+            html += `
+                <div class="group-card" data-country="${country.replace(/[^a-z]/gi, '')}">
+                    <div class="group-header">
+                        <h4>🌍 ${country} <span class="badge">${count} nomor</span></h4>
+                        <button class="download-group-btn" data-country-name="${country}" data-numbers='${JSON.stringify(numbers)}'>⬇️ Download ${country}.txt</button>
+                    </div>
+                    <div class="group-preview">
+                        ${previewHtml}
+                        ${more}
+                    </div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+        
+        // Pasang event download
+        document.querySelectorAll('.download-group-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const countryName = btn.getAttribute('data-country-name');
+                const numbersRaw = btn.getAttribute('data-numbers');
+                try {
+                    const nums = JSON.parse(numbersRaw);
+                    downloadTxt(countryName, nums);
+                } catch(err) {
+                    alert("Gagal generate file.");
+                }
+            });
+        });
+        
+        // Toggle preview ketika header diklik
+        document.querySelectorAll('.group-header').forEach(header => {
+            const card = header.closest('.group-card');
+            const previewDiv = card.querySelector('.group-preview');
+            header.style.cursor = "pointer";
+            header.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') return;
+                if (previewDiv.style.display === 'none') previewDiv.style.display = 'block';
+                else previewDiv.style.display = 'none';
+            });
+            previewDiv.style.display = 'block';
+        });
+    }
+    
+    function updateStatsUI() {
+        const statsPanel = document.getElementById("statsPanel");
+        const totalSpan = document.getElementById("totalNumbers");
+        if (totalNumbers > 0) {
+            statsPanel.style.display = "flex";
+            totalSpan.innerHTML = `📊 Total nomor: ${totalNumbers} | ${Object.keys(currentGroups).length} grup`;
+        } else {
+            statsPanel.style.display = "none";
+        }
+    }
+    
+    function downloadTxt(countryName, numbersArray) {
+        if (!numbersArray.length) return;
+        const content = numbersArray.join('\n');
+        const fileName = `${countryName.replace(/\s/g, '_')}_numbers.txt`;
+        const blob = new Blob([content], {type: 'text/plain;charset=utf-8'});
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+    
+    // Reset semua data
+    function resetAll() {
+        currentNumbers = [];
+        currentGroups = {};
+        totalNumbers = 0;
+        document.getElementById("groupsContainer").innerHTML = '<div class="empty-message">⬆️ Upload file .txt untuk memulai grouping.</div>';
+        document.getElementById("statsPanel").style.display = "none";
+        document.getElementById("fileInfo").innerHTML = "Belum ada file dipilih";
+        document.getElementById("fileInput").value = "";
+        updateStatsUI();
+    }
+    
+    // Handler upload file
+    async function handleFileUpload(file) {
+        if (!file) return;
+        if (!file.name.endsWith('.txt')) {
+            alert("Harap pilih file .txt yang berisi nomor telepon per baris.");
+            return;
+        }
+        try {
+            const numbers = await readNumbersFromFile(file);
+            if (numbers.length === 0) throw new Error("File kosong atau tidak ada nomor.");
+            currentNumbers = numbers;
+            processNumbersWithRules(currentNumbers);
+            document.getElementById("fileInfo").innerHTML = `✅ ${file.name} (${(file.size/1024).toFixed(1)} KB) | ${numbers.length} nomor terbaca`;
+        } catch(err) {
+            alert("Error: " + err.message);
+        }
+    }
+    
+    // Inisialisasi event, drag drop
+    function init() {
+        loadPrefixRules();
+        sortRulesByLength();
+        renderPrefixTable();
+        
+        const fileInput = document.getElementById("fileInput");
+        const dropZone = document.getElementById("dropZone");
+        const addBtn = document.getElementById("addPrefixBtn");
+        const resetDataBtn = document.getElementById("resetDataBtn");
+        
+        fileInput.addEventListener("change", (e) => {
+            if (e.target.files.length) handleFileUpload(e.target.files[0]);
+        });
+        
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = "#2c7a6e";
+            dropZone.style.background = "#eef7f2";
+        });
+        dropZone.addEventListener("dragleave", () => {
+            dropZone.style.borderColor = "#b9d0df";
+            dropZone.style.background = "#fafdff";
+        });
+        dropZone.addEventListener("drop", async (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = "#b9d0df";
+            dropZone.style.background = "#fafdff";
+            const files = e.dataTransfer.files;
+            if (files.length && files[0].name.endsWith('.txt')) {
+                await handleFileUpload(files[0]);
+            } else {
+                alert("Hanya file .txt yang didukung.");
+            }
+        });
+        
+        addBtn.addEventListener("click", () => {
+            const prefixInput = document.getElementById("newPrefix");
+            const countryInput = document.getElementById("newCountry");
+            let prefix = prefixInput.value.trim();
+            let country = countryInput.value.trim();
+            if (prefix === "" || country === "") {
+                alert("Prefix dan nama negara harus diisi.");
+                return;
+            }
+            // validasi prefix hanya angka dan +
+            if (!/^[0-9+]+$/.test(prefix)) {
+                alert("Prefix hanya boleh berisi angka dan tanda +");
+                return;
+            }
+            prefixRules.push({ prefix, name: country });
+            sortRulesByLength();
+            renderPrefixTable();
+            savePrefixRules();
+            // jika ada data, ulang proses
+            if (currentNumbers.length > 0) {
+                processNumbersWithRules(currentNumbers);
+            }
+            prefixInput.value = "";
+            countryInput.value = "";
+        });
+        
+        resetDataBtn.addEventListener("click", resetAll);
+    }
+    
+    init();
+</script>
+</body>
+</html>
