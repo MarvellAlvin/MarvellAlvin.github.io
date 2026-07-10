@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tembak AM Premium</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: #0f3460;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            padding: 30px;
+            width: 100%;
+            max-width: 480px;
+            color: #e0e0e0;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 28px;
+            color: #e94560;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #b0b0b0;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #f0f0f0;
+        }
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 12px;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s;
+            border: 1px solid #2a2a4a;
+        }
+        input:focus {
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233,69,96,0.2);
+        }
+        .btn-row {
+            display: flex;
+            gap: 12px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #fff;
+            background: #e94560;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        button:hover {
+            background: #d63851;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(233,69,96,0.3);
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .result {
+            margin-top: 24px;
+            padding: 14px;
+            border-radius: 12px;
+            background: #1a1a2e;
+            font-size: 14px;
+            word-break: break-all;
+            display: none;
+            border-left: 4px solid #e94560;
+            color: #d0d0d0;
+        }
+        .result.success {
+            border-left-color: #00c853;
+            background: #1a2e1a;
+        }
+        .result.error {
+            border-left-color: #ff1744;
+            background: #2e1a1a;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Tembak AM</h1>
+        <p class="subtitle">Premium Account Generator</p>
+        
+        <div class="input-group">
+            <label>🔑 API Key</label>
+            <input type="text" id="apikey" value="dkf_aa95e003" placeholder="Masukkan API Key Anda">
+        </div>
+        
+        <div class="input-group">
+            <label>📧 Email Target</label>
+            <input type="email" id="email" placeholder="contoh@email.com">
+        </div>
+        
+        <div class="btn-row">
+            <button id="sendBtn" onclick="sendEmail()">
+                <span id="sendSpinner" class="spinner" style="display:none;"></span> Kirim
+            </button>
+        </div>
+        
+        <div class="input-group" style="margin-top: 16px;">
+            <label>🔗 Verification Link</label>
+            <input type="text" id="link" placeholder="Tempel link verifikasi dari email">
+        </div>
+        
+        <div class="btn-row">
+            <button id="verifyBtn" onclick="verifyLink()">
+                <span id="verifySpinner" class="spinner" style="display:none;"></span> Verifikasi
+            </button>
+        </div>
+        
+        <div id="result" class="result"></div>
+        <div class="footer">v2.1 · Proxy: cors.siputzx.my.id</div>
+    </div>
+
+    <script>
+        // Domain API asli
+        const BASE_URL = 'https://am-prem.vxz.my.id';
+        // Proxy CORS yang digunakan (format: https://cors.siputzx.my.id/ + URL lengkap)
+        const PROXY_BASE = 'https://cors.siputzx.my.id/';
+        
+        // Gabungkan proxy + url target
+        function buildProxyUrl(targetUrl) {
+            return PROXY_BASE + targetUrl;
+        }
+        
+        function showResult(message, isSuccess) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = message;
+            resultDiv.className = 'result';
+            if (isSuccess === true) resultDiv.classList.add('success');
+            else if (isSuccess === false) resultDiv.classList.add('error');
+        }
+        
+        function setLoading(buttonId, spinnerId, isLoading) {
+            document.getElementById(buttonId).disabled = isLoading;
+            document.getElementById(spinnerId).style.display = isLoading ? 'inline-block' : 'none';
+        }
+        
+        async function sendEmail() {
+            const email = document.getElementById('email').value.trim();
+            const apikey = document.getElementById('apikey').value.trim();
+            
+            if (!email) {
+                showResult('❌ Masukkan email terlebih dahulu.', false);
+                return;
+            }
+            if (!apikey) {
+                showResult('❌ API Key tidak boleh kosong.', false);
+                return;
+            }
+            
+            setLoading('sendBtn', 'sendSpinner', true);
+            showResult('', null);
+            
+            const targetUrl = `${BASE_URL}/api/send?email=${encodeURIComponent(email)}&apikey=${encodeURIComponent(apikey)}`;
+            const proxyUrl = buildProxyUrl(targetUrl);
+            
+            console.log('Fetching:', proxyUrl);
+            
+            try {
+                const response = await fetch(proxyUrl);
+                const data = await response.json().catch(() => null);
+                
+                if (response.ok) {
+                    showResult(`✅ Berhasil mengirim ke ${email}\nRespon: ${JSON.stringify(data)}`, true);
+                } else {
+                    const errorMsg = data?.message || data?.error || `HTTP ${response.status}`;
+                    showResult(`❌ Gagal: ${errorMsg}`, false);
+                }
+            } catch (err) {
+                showResult(`❌ Gagal terhubung: ${err.message}. Periksa koneksi atau coba lagi.`, false);
+            } finally {
+                setLoading('sendBtn', 'sendSpinner', false);
+            }
+        }
+        
+        async function verifyLink() {
+            const email = document.getElementById('email').value.trim();
+            const link = document.getElementById('link').value.trim();
+            const apikey = document.getElementById('apikey').value.trim();
+            
+            if (!email || !link) {
+                showResult('❌ Isi email dan link verifikasi.', false);
+                return;
+            }
+            if (!apikey) {
+                showResult('❌ API Key tidak boleh kosong.', false);
+                return;
+            }
+            
+            setLoading('verifyBtn', 'verifySpinner', true);
+            showResult('', null);
+            
+            const targetUrl = `${BASE_URL}/api/verify?email=${encodeURIComponent(email)}&link=${encodeURIComponent(link)}&apply=true&apikey=${encodeURIComponent(apikey)}`;
+            const proxyUrl = buildProxyUrl(targetUrl);
+            
+            console.log('Fetching:', proxyUrl);
+            
+            try {
+                const response = await fetch(proxyUrl);
+                const data = await response.json().catch(() => null);
+                
+                if (response.ok) {
+                    showResult(`✅ Verifikasi sukses!\nRespon: ${JSON.stringify(data)}`, true);
+                } else {
+                    const errorMsg = data?.message || data?.error || `HTTP ${response.status}`;
+                    showResult(`❌ Gagal verifikasi: ${errorMsg}`, false);
+                }
+            } catch (err) {
+                showResult(`❌ Gagal terhubung: ${err.message}. Coba lagi atau gunakan ekstensi CORS.`, false);
+            } finally {
+                setLoading('verifyBtn', 'verifySpinner', false);
+            }
+        }
+    </script>
+</body>
+</html>
