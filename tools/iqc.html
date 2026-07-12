@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Tools Generate | iPhone Quote Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #e0e7ff 0%, #f0f4fe 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .generator-card {
+            max-width: 860px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #ffffff;
+            padding: 1.8rem 2rem 1.2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .badge i { color: #3b82f6; font-size: 0.85rem; }
+
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a, #2d3a6e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            margin-bottom: 0.4rem;
+        }
+
+        .sub {
+            color: #475569;
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .input-area {
+            padding: 1.8rem 2rem 1.2rem;
+            background: #fefefe;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 0.9rem;
+        }
+
+        .required-star {
+            color: #ef4444;
+            margin-left: 2px;
+        }
+
+        .optional-badge {
+            font-weight: 400;
+            font-size: 0.7rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .char-count {
+            font-weight: 500;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 1.2rem;
+            background: #ffffff;
+            transition: all 0.2s;
+            font-weight: 500;
+            color: #0f172a;
+            outline: none;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+        }
+
+        .file-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+            border: 1.5px dashed #cbd5e1;
+            padding: 0.7rem 1.2rem;
+            border-radius: 1.2rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .file-upload-btn:hover {
+            border-color: #3b82f6;
+            background: #eef2ff;
+        }
+
+        .file-upload-btn.uploading {
+            opacity: 0.6;
+            pointer-events: none;
+            background: #e2e8f0;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.4rem;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .file-info .success {
+            color: #16a34a;
+        }
+
+        .file-info .error {
+            color: #ef4444;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.6rem;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0.75rem 1.6rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 2.2rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #0f172a;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary:hover {
+            background: #1e293b;
+            transform: scale(0.97);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover { background: #e6edf5; }
+
+        .btn-outline {
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: #334155;
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+
+        .preview-area {
+            padding: 0.5rem 2rem 2rem 2rem;
+            background: #fbfdff;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 1.4rem;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .preview-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1rem;
+            background: #eef2ff;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+        }
+
+        .preview-container {
+            background: #f8fafc;
+            border-radius: 2rem;
+            padding: 1.8rem;
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.8), 0 8px 20px rgba(0,0,0,0.02);
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .image-preview:hover { transform: scale(1.01); }
+
+        .loading-spinner {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem 1rem;
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 1rem 1.2rem;
+            border-radius: 1.2rem;
+            font-size: 0.9rem;
+            text-align: left;
+            border-left: 4px solid #ef4444;
+        }
+
+        .info-note {
+            background: #fef9e3;
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            color: #b45309;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-area {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        footer {
+            padding: 1rem 2rem 1.5rem;
+            font-size: 0.7rem;
+            text-align: center;
+            color: #62748c;
+            border-top: 1px solid #eef2ff;
+            background: white;
+        }
+
+        @media (max-width: 640px) {
+            .generator-card { border-radius: 1.8rem; }
+            .header, .input-area, .preview-area { padding-left: 1.2rem; padding-right: 1.2rem; }
+            .btn-group { flex-direction: column; align-items: stretch; }
+            .btn { justify-content: center; }
+            h1 { font-size: 1.5rem; }
+            .form-row { flex-direction: column; }
+            .form-row .form-group { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="generator-card">
+    <div class="header">
+        <div class="badge">
+            <i class="fab fa-apple"></i> iMessage style
+            <i class="fas fa-comment-dots" style="margin-left: 4px;"></i>
+        </div>
+        <h1><i class="fas fa-iphone" style="margin-right: 10px; color: #0f172a;"></i> iPhone Quote Chat</h1>
+        <div class="sub">Buat screenshot chat ala iPhone dengan teks, nama, jam & foto profil kustom</div>
+    </div>
+
+    <div class="input-area">
+        <!-- Text (Wajib) -->
+        <div class="form-group">
+            <div class="form-label">
+                <span><i class="fas fa-pen-fancy"></i> Pesan / Kutipan <span class="required-star">*</span></span>
+                <span class="char-count" id="charCounter">0 / 500</span>
+            </div>
+            <textarea class="form-textarea" id="messageInput" rows="3" placeholder="Contoh: Hidup Jokowi.. atau tulis sesuatu yang keren..."></textarea>
+        </div>
+
+        <!-- User & Jam (Opsional) -->
+        <div class="form-row">
+            <div class="form-group">
+                <div class="form-label">
+                    <span><i class="fas fa-user"></i> Nama Pengguna</span>
+                    <span class="optional-badge">Opsional</span>
+                </div>
+                <input type="text" class="form-input" id="userInput" placeholder="Anonymous" maxlength="50">
+            </div>
+            <div class="form-group">
+                <div class="form-label">
+                    <span><i class="fas fa-clock"></i> Jam</span>
+                    <span class="optional-badge">Opsional</span>
+                </div>
+                <input type="text" class="form-input" id="timeInput" placeholder="00.00" maxlength="5">
+            </div>
+        </div>
+
+        <!-- Foto Profil (Opsional) -->
+        <div class="form-group">
+            <div class="form-label">
+                <span><i class="fas fa-image"></i> Foto Profil</span>
+                <span class="optional-badge">Opsional</span>
+            </div>
+            <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center;">
+                <input type="text" class="form-input" id="profileUrlInput" placeholder="https://example.com/foto.jpg" style="flex: 1; min-width: 200px;">
+                <span style="color: #94a3b8; font-size: 0.85rem;">atau</span>
+                <div class="file-upload-wrapper" id="fileUploadWrapper">
+                    <input type="file" id="profileFileInput" accept="image/jpeg, image/png">
+                    <span class="file-upload-btn" id="fileUploadBtn">
+                        <i class="fas fa-upload"></i> Pilih File
+                    </span>
+                </div>
+            </div>
+            <div id="fileStatus" class="file-info"></div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" id="generateBtn">
+                <i class="fas fa-magic"></i> Generate Chat
+            </button>
+            <button class="btn btn-secondary" id="exampleBtn">
+                <i class="fas fa-lightbulb"></i> Contoh Teks
+            </button>
+            <button class="btn btn-outline" id="clearBtn">
+                <i class="fas fa-eraser"></i> Bersihkan
+            </button>
+        </div>
+    </div>
+
+    <div class="preview-area">
+        <div class="preview-header">
+            <span class="preview-title"><i class="fas fa-image"></i> Pratinjau Hasil</span>
+            <small style="color:#5b6e8c;"><i class="fas fa-download"></i> Klik gambar untuk zoom</small>
+        </div>
+        <div class="preview-container" id="previewContainer">
+            <div id="previewContent">
+                <div style="padding: 2rem 1rem; text-align: center; color: #6c7e9e;">
+                    <i class="fas fa-comment" style="font-size: 2.5rem; opacity: 0.5; margin-bottom: 12px; display: block;"></i>
+                    <span>Belum ada pratinjau. <br> Tulis pesan dan klik "Generate Chat"</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="download-area" id="downloadArea" style="display: none;">
+            <button class="btn btn-primary" id="downloadBtn">
+                <i class="fas fa-download"></i> Unduh Gambar
+            </button>
+        </div>
+        <div id="infoMessage"></div>
+    </div>
+    <footer>
+        <i class="fas fa-code-branch"></i> Hasil berupa gambar gaya <strong>iPhone Quote Chat</strong>
+    </footer>
+</div>
+
+<script>
+    (function() {
+        // DOM elements
+        const messageInput = document.getElementById('messageInput');
+        const userInput = document.getElementById('userInput');
+        const timeInput = document.getElementById('timeInput');
+        const profileUrlInput = document.getElementById('profileUrlInput');
+        const profileFileInput = document.getElementById('profileFileInput');
+        const fileUploadBtn = document.getElementById('fileUploadBtn');
+        const fileStatus = document.getElementById('fileStatus');
+        const generateBtn = document.getElementById('generateBtn');
+        const exampleBtn = document.getElementById('exampleBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const previewContentDiv = document.getElementById('previewContent');
+        const downloadArea = document.getElementById('downloadArea');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const charCounter = document.getElementById('charCounter');
+        const infoMessageDiv = document.getElementById('infoMessage');
+        
+        // API endpoints
+        const IQC_API = 'https://ytdlpyton.nvlgroup.my.id/maker/iqc';
+        const IMGBB_API = 'https://api.imgbb.com/1/upload';
+        const IMGBB_KEY = 'f3a4ed7bbdfa6f7c73ab174771999c3c';
+        
+        let currentImageUrl = '';
+        let uploadedImageUrl = '';
+        const MAX_LENGTH = 500;
+        
+        // Update character counter
+        function updateCharCounter() {
+            const len = messageInput.value.length;
+            charCounter.innerText = `${len} / ${MAX_LENGTH}`;
+            charCounter.style.color = len > MAX_LENGTH ? '#e53e3e' : '#64748b';
+            charCounter.style.fontWeight = len > MAX_LENGTH ? 'bold' : 'normal';
+        }
+        
+        function enforceMaxLength() {
+            if (messageInput.value.length > MAX_LENGTH) {
+                messageInput.value = messageInput.value.slice(0, MAX_LENGTH);
+                updateCharCounter();
+            }
+        }
+        
+        messageInput.addEventListener('input', () => {
+            updateCharCounter();
+            enforceMaxLength();
+        });
+        
+        // Upload file ke ImgBB
+        async function uploadToImgBB(file) {
+            const formData = new FormData();
+            formData.append('key', IMGBB_KEY);
+            formData.append('image', file);
+            
+            const response = await fetch(IMGBB_API, {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Upload gagal (HTTP ${response.status})`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success && data.data && data.data.url) {
+                return data.data.url;
+            } else {
+                throw new Error('Respons tidak valid');
+            }
+        }
+        
+        // Handle file selection - URL TIDAK DITAMPILKAN
+        profileFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Validasi tipe file
+            if (!file.type.match(/image\/(jpeg|png)/)) {
+                fileStatus.innerHTML = '<span class="error"><i class="fas fa-times-circle"></i> Hanya file JPG/PNG yang didukung</span>';
+                profileFileInput.value = '';
+                return;
+            }
+            
+            // Validasi ukuran (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                fileStatus.innerHTML = '<span class="error"><i class="fas fa-times-circle"></i> Ukuran file maksimal 5MB</span>';
+                profileFileInput.value = '';
+                return;
+            }
+            
+            // Tampilkan status uploading
+            fileUploadBtn.classList.add('uploading');
+            fileUploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Upload...';
+            fileStatus.innerHTML = '<span><i class="fas fa-cloud-upload-alt"></i> Mengupload...</span>';
+            profileUrlInput.value = '';
+            profileUrlInput.style.borderColor = '#e2e8f0';
+            profileUrlInput.style.backgroundColor = '#ffffff';
+            
+            try {
+                const imageUrl = await uploadToImgBB(file);
+                uploadedImageUrl = imageUrl;
+                // URL TIDAK DITAMPILKAN - hanya indikator sukses
+                profileUrlInput.value = '';
+                profileUrlInput.placeholder = '✅ Foto profil berhasil diupload';
+                profileUrlInput.style.borderColor = '#16a34a';
+                profileUrlInput.style.backgroundColor = '#f0fdf4';
+                fileStatus.innerHTML = '<span class="success"><i class="fas fa-check-circle"></i> Silahkan generate chat!</span>';
+                
+                // Reset style setelah 3 detik
+                setTimeout(() => {
+                    profileUrlInput.style.borderColor = '#e2e8f0';
+                    profileUrlInput.style.backgroundColor = '#ffffff';
+                    profileUrlInput.placeholder = 'https://example.com/foto.jpg';
+                }, 3000);
+            } catch (err) {
+                console.error('Upload error:', err);
+                fileStatus.innerHTML = '<span class="error"><i class="fas fa-times-circle"></i> Gagal upload. Coba gunakan link URL manual.</span>';
+                uploadedImageUrl = '';
+                profileFileInput.value = '';
+            } finally {
+                fileUploadBtn.classList.remove('uploading');
+                fileUploadBtn.innerHTML = '<i class="fas fa-upload"></i> Pilih File';
+            }
+        });
+        
+        // Jika user mengetik URL manual, reset upload tersembunyi
+        profileUrlInput.addEventListener('input', () => {
+            if (profileUrlInput.value.trim()) {
+                uploadedImageUrl = '';
+                profileFileInput.value = '';
+                fileStatus.innerHTML = '';
+                profileUrlInput.style.borderColor = '#e2e8f0';
+                profileUrlInput.style.backgroundColor = '#ffffff';
+            }
+        });
+        
+        // Clear button
+        clearBtn.addEventListener('click', () => {
+            messageInput.value = '';
+            userInput.value = '';
+            timeInput.value = '';
+            profileUrlInput.value = '';
+            profileUrlInput.placeholder = 'https://example.com/foto.jpg';
+            profileUrlInput.style.borderColor = '#e2e8f0';
+            profileUrlInput.style.backgroundColor = '#ffffff';
+            profileFileInput.value = '';
+            uploadedImageUrl = '';
+            fileStatus.innerHTML = '';
+            fileUploadBtn.innerHTML = '<i class="fas fa-upload"></i> Pilih File';
+            updateCharCounter();
+            showPlaceholder();
+            downloadArea.style.display = 'none';
+            currentImageUrl = '';
+            if (infoMessageDiv) infoMessageDiv.innerHTML = '';
+        });
+        
+        // Example texts
+        exampleBtn.addEventListener('click', () => {
+            const examples = [
+                "Halo! Ini tools generate chat ala iPhone",
+                "Terimakasih Pak Prabowo"
+            ];
+            messageInput.value = examples[Math.floor(Math.random() * examples.length)];
+            updateCharCounter();
+            enforceMaxLength();
+        });
+        
+        function showPlaceholder() {
+            previewContentDiv.innerHTML = `
+                <div style="padding: 2rem 1rem; text-align: center; color: #6c7e9e;">
+                    <i class="fas fa-comment" style="font-size: 2.5rem; opacity: 0.5; margin-bottom: 12px; display: block;"></i>
+                    <span>Belum ada pratinjau. <br> Tulis pesan dan klik "Generate Chat"</span>
+                </div>
+            `;
+            downloadArea.style.display = 'none';
+        }
+        
+        function showLoading(msg = 'Mengenerate gambar iPhone QuoteMaker ...') {
+            previewContentDiv.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <div style="font-weight: 500; color: #3b82f6;">${msg}</div>
+                    <small style="color:#6c7e9e;">Memproses API, mohon tunggu</small>
+                </div>
+            `;
+            downloadArea.style.display = 'none';
+            if (infoMessageDiv) infoMessageDiv.innerHTML = '';
+        }
+        
+        function showImage(imageUrl) {
+            const imgElement = document.createElement('img');
+            imgElement.src = imageUrl;
+            imgElement.alt = 'iPhone QuoteMaker Result';
+            imgElement.className = 'image-preview';
+            imgElement.style.maxWidth = '100%';
+            imgElement.style.cursor = 'pointer';
+            imgElement.addEventListener('click', () => window.open(imageUrl, '_blank'));
+            
+            previewContentDiv.innerHTML = '';
+            previewContentDiv.appendChild(imgElement);
+            downloadArea.style.display = 'flex';
+            currentImageUrl = imageUrl;
+        }
+        
+        function showError(errorMsg, technicalHint = '') {
+            previewContentDiv.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                    <strong>Gagal memuat gambar</strong><br>
+                    ${errorMsg}
+                    ${technicalHint ? `<div style="margin-top: 8px; font-size: 0.75rem;">${technicalHint}</div>` : ''}
+                </div>
+                <div class="info-note">
+                    <i class="fas fa-shield-alt"></i> 
+                    Pastikan koneksi internet stabil dan coba lagi.
+                </div>
+            `;
+            downloadArea.style.display = 'none';
+            currentImageUrl = '';
+        }
+        
+        // Build API URL - pakai URL manual atau URL dari upload tersembunyi
+        function buildApiUrl() {
+            const text = messageInput.value.trim();
+            const user = userInput.value.trim() || 'Anonymous';
+            const time = timeInput.value.trim() || '00.00';
+            const profileUrl = profileUrlInput.value.trim() || uploadedImageUrl;
+            
+            let url = `${IQC_API}?text=${encodeURIComponent(text)}&user=${encodeURIComponent(user)}&jam=${encodeURIComponent(time)}`;
+            
+            if (profileUrl) {
+                url += `&profile_url=${encodeURIComponent(profileUrl)}`;
+            }
+            
+            return url;
+        }
+        
+        // Generate image
+        async function generateImage() {
+            const text = messageInput.value.trim();
+            
+            if (!text) {
+                showError('Pesan tidak boleh kosong!', 'Silakan isi pesan/kutipan terlebih dahulu. Field ini wajib diisi.');
+                return Promise.reject(new Error('Empty text'));
+            }
+            
+            const apiUrl = buildApiUrl();
+            showLoading();
+            
+            return new Promise((resolve, reject) => {
+                const testImg = new Image();
+                let loaded = false;
+                const timeoutId = setTimeout(() => {
+                    if (!loaded) {
+                        testImg.onload = null;
+                        testImg.onerror = null;
+                        reject(new Error('Timeout: API tidak merespon dalam 20 detik.'));
+                    }
+                }, 20000);
+                
+                testImg.onload = () => {
+                    loaded = true;
+                    clearTimeout(timeoutId);
+                    showImage(apiUrl);
+                    resolve(apiUrl);
+                };
+                
+                testImg.onerror = () => {
+                    loaded = true;
+                    clearTimeout(timeoutId);
+                    reject(new Error('API mengembalikan error (kemungkinan 403 Forbidden atau CORS).'));
+                };
+                
+                testImg.src = apiUrl;
+            }).catch(error => {
+                let errMsg = error.message || 'Gagal menghasilkan gambar.';
+                if (errMsg.includes('403') || errMsg.includes('Forbidden')) {
+                    showError('Akses ditolak (403 Forbidden).', 'Coba periksa kembali URL API.');
+                } else if (errMsg.includes('CORS')) {
+                    showError('CORS policy memblokir akses.', 'Refresh halaman atau coba lagi nanti.');
+                } else {
+                    showError(errMsg, 'Periksa koneksi internet atau coba lagi nanti.');
+                }
+                return Promise.reject(error);
+            });
+        }
+        
+        // Generate button
+        generateBtn.addEventListener('click', async () => {
+            const text = messageInput.value.trim();
+            if (!text) {
+                showError('Pesan tidak boleh kosong!', 'Field pesan/kutipan wajib diisi.');
+                downloadArea.style.display = 'none';
+                return;
+            }
+            
+            enforceMaxLength();
+            
+            generateBtn.disabled = true;
+            generateBtn.style.opacity = '0.7';
+            const originalBtnText = generateBtn.innerHTML;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Memproses...';
+            
+            try {
+                await generateImage();
+                if (infoMessageDiv) {
+                    infoMessageDiv.innerHTML = `<div style="background:#e6f7e6; color:#2e7d32; padding:8px 12px; border-radius:20px; font-size:0.75rem; margin-top:8px;"><i class="fas fa-check-circle"></i> Pratinjau berhasil dimuat!</div>`;
+                    setTimeout(() => { if (infoMessageDiv) infoMessageDiv.innerHTML = ''; }, 4000);
+                }
+            } catch (err) {
+                console.warn("Generate error:", err);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.style.opacity = '1';
+                generateBtn.innerHTML = originalBtnText;
+            }
+        });
+        
+        // Download image
+        async function downloadImage(url, filename = 'iphone_quotemaker.png') {
+            if (!url) {
+                alert('Tidak ada gambar untuk diunduh. Generate terlebih dahulu.');
+                return;
+            }
+            
+            const originalDownloadText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Mengunduh...';
+            downloadBtn.disabled = true;
+            
+            try {
+                const response = await fetch(url, { mode: 'cors', credentials: 'omit' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+                if (infoMessageDiv) {
+                    infoMessageDiv.innerHTML = `<div style="background:#e3f2fd; color:#0b5e7e; padding:6px 12px; border-radius:20px; font-size:0.7rem; margin-top:8px;"><i class="fas fa-save"></i> Unduhan dimulai!</div>`;
+                    setTimeout(() => { if (infoMessageDiv) infoMessageDiv.innerHTML = ''; }, 3000);
+                }
+            } catch (err) {
+                console.warn('Download gagal, fallback ke tab baru', err);
+                const userConfirmed = confirm('Unduhan otomatis gagal.\nIngin membuka gambar di tab baru? Klik kanan -> Save Image As.');
+                if (userConfirmed) window.open(url, '_blank');
+            } finally {
+                downloadBtn.innerHTML = originalDownloadText;
+                downloadBtn.disabled = false;
+            }
+        }
+        
+        downloadBtn.addEventListener('click', () => {
+            if (currentImageUrl) {
+                downloadImage(currentImageUrl, `iphone_quotemaker_${Date.now()}.png`);
+            } else {
+                alert('Tidak ada URL gambar. Silakan generate terlebih dahulu.');
+            }
+        });
+        
+        // Keyboard shortcut
+        messageInput.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                generateBtn.click();
+            }
+        });
+        
+        // Init
+        updateCharCounter();
+        showPlaceholder();
+        console.log('✅ iPhone QuoteMaker siap');
+    })();
+</script>
+</body>
+</html>
