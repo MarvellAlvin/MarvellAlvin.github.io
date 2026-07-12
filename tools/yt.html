@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools Downloader | SaveFrom YT</title>
+    <style>
+        :root {
+            --bg: #f5f5f7;
+            --card-bg: #ffffff;
+            --text: #1a1a2e;
+            --text-secondary: #555;
+            --accent: #e63946;
+            --accent-hover: #c62838;
+            --border: #e0e0e0;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 6px 24px rgba(0, 0, 0, 0.14);
+            --radius: 14px;
+            --radius-sm: 10px;
+            --transition: 0.25s ease;
+            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px 16px 60px;
+            line-height: 1.5;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 820px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 10px 0 6px;
+        }
+        .header .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+        }
+        .header .logo .icon {
+            width: 42px;
+            height: 42px;
+            background: var(--accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.4rem;
+        }
+        .header .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Input Card */
+        .input-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .input-card label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .input-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .input-row input {
+            flex: 1 1 260px;
+            padding: 13px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-family: var(--font);
+            transition: var(--transition);
+            background: #fafafa;
+            color: var(--text);
+            min-width: 200px;
+        }
+        .input-row input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.08);
+        }
+        .input-row input::placeholder {
+            color: #aaa;
+        }
+        .btn {
+            padding: 13px 24px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-family: var(--font);
+            transition: var(--transition);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            letter-spacing: 0.2px;
+        }
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(230, 57, 70, 0.3);
+        }
+        .btn:active {
+            transform: scale(0.97);
+            transition: 0.1s;
+        }
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .btn-outline {
+            background: #fff;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+        .btn-outline:hover {
+            background: #fff5f5;
+            box-shadow: 0 4px 16px rgba(230, 57, 70, 0.15);
+        }
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.82rem;
+            border-radius: 8px;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+        }
+        .loading.active {
+            display: block;
+        }
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e0e0e0;
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 10px;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Error */
+        .error-msg {
+            display: none;
+            background: #fff0f0;
+            border: 1px solid #fcc;
+            color: #c0392b;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+        }
+        .error-msg.active {
+            display: block;
+        }
+
+        /* Results */
+        .results {
+            display: none;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .results.active {
+            display: flex;
+        }
+
+        /* Video Info Card */
+        .video-info-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+        .video-info-card .thumb-wrap {
+            flex: 0 0 200px;
+            min-width: 160px;
+            background: #000;
+            position: relative;
+        }
+        .video-info-card .thumb-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            min-height: 140px;
+        }
+        .video-info-card .thumb-wrap .duration-badge {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .video-info-card .info {
+            flex: 1 1 300px;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+        }
+        .video-info-card .info .title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .video-info-card .info .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            font-size: 0.83rem;
+            color: var(--text-secondary);
+        }
+        .video-info-card .info .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 2px;
+        }
+        .video-info-card .info .tag {
+            background: #f0f0f5;
+            color: #555;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.73rem;
+            font-weight: 500;
+        }
+
+        /* Section Card */
+        .section-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px 20px;
+        }
+        .section-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text);
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .section-card h3 .section-icon {
+            font-size: 1.3rem;
+        }
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 10px;
+        }
+        .download-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 14px 12px;
+            background: #fafafa;
+            border: 1.5px solid #eee;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            transition: var(--transition);
+            cursor: default;
+        }
+        .download-item:hover {
+            border-color: #ddd;
+            background: #fff;
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+        .download-item .quality-label {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+        .download-item .format-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .download-item .size-label {
+            font-size: 0.7rem;
+            color: #999;
+        }
+        .download-item .dl-btn {
+            margin-top: 2px;
+            width: 100%;
+        }
+        .download-item.no-audio {
+            border-left: 3px solid #ff9800;
+        }
+        .download-item.audio-only {
+            border-left: 3px solid #4caf50;
+        }
+        .download-item.bundle {
+            border-left: 3px solid #2196f3;
+        }
+        .download-item.converter {
+            border-left: 3px solid #9c27b0;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.68rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .badge-warn {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .badge-info {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+        .badge-success {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+        .badge-purple {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #aaa;
+        }
+        .empty-state .icon-big {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #bbb;
+            padding: 10px;
+            margin-top: 6px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .video-info-card .thumb-wrap {
+                flex: 0 0 100%;
+                max-height: 200px;
+            }
+            .video-info-card .thumb-wrap img {
+                height: 200px;
+                object-fit: cover;
+            }
+            .download-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 8px;
+            }
+            .download-item {
+                padding: 10px 8px;
+                gap: 4px;
+            }
+            .download-item .quality-label {
+                font-size: 0.85rem;
+            }
+            .btn {
+                padding: 12px 18px;
+                font-size: 0.88rem;
+            }
+            .header .logo {
+                font-size: 1.4rem;
+            }
+        }
+        @media (max-width: 380px) {
+            .download-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .download-item {
+                padding: 8px 6px;
+            }
+            .input-row input {
+                font-size: 0.85rem;
+                padding: 11px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <span class="icon">⬇</span> SaveFrom YT
+            </div>
+            <p class="subtitle">Unduh video YouTube dengan mudah • Gratis</p>
+        </div>
+
+        <!-- Input Card -->
+        <div class="input-card">
+            <label>🎬 Masukkan URL Video YouTube</label>
+            <div class="input-row">
+                <input
+                type="text"
+                id="urlInput"
+                placeholder="https://www.youtube.com/watch?v=..."
+                autocomplete="off"
+                spellcheck="false"
+                >
+                <button class="btn" id="fetchBtn" onclick="fetchVideo()">
+                    🔍 Cari Video
+                </button>
+            </div>
+            <button class="btn btn-outline btn-sm" id="pasteBtn" onclick="pasteURL()" style="align-self:flex-start;">
+                📋 Tempel dari Clipboard
+            </button>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Mengambil data video...</p>
+        </div>
+
+        <!-- Error -->
+        <div class="error-msg" id="errorMsg"></div>
+
+        <!-- Results -->
+        <div class="results" id="results"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Powered by <strong>Velz</strong> • Untuk video YouTube
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api.siputzx.my.id';
+        const API_URL = `${API_BASE}/api/d/savefrom`;
+
+        const urlInput = document.getElementById('urlInput');
+        const fetchBtn = document.getElementById('fetchBtn');
+        const loading = document.getElementById('loading');
+        const errorMsg = document.getElementById('errorMsg');
+        const resultsDiv = document.getElementById('results');
+
+        // Enter key to fetch
+        urlInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') fetchVideo();
+        });
+
+        // Paste from clipboard
+        async function pasteURL() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text && (text.includes('youtube.com') || text.includes('youtu.be'))) {
+                    urlInput.value = text.trim();
+                    fetchVideo();
+                } else if (text) {
+                    urlInput.value = text.trim();
+                }
+            } catch {
+                alert('Tidak dapat mengakses clipboard. Silakan tempel URL secara manual.');
+            }
+        }
+
+        // Format bytes
+        function formatBytes(bytes) {
+            if (!bytes || isNaN(bytes)) return '';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        // Validate YouTube URL
+        function isValidYouTubeURL(url) {
+            return /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]{11}/i.test(url);
+        }
+
+        // Extract video ID
+        function extractVideoID(url) {
+            const match = url.match(
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/i
+            );
+            return match ? match[1] : null;
+        }
+
+        // Fetch video data
+        async function fetchVideo() {
+            const url = urlInput.value.trim();
+            if (!url) {
+                showError('Silakan masukkan URL YouTube terlebih dahulu.');
+                return;
+            }
+            if (!isValidYouTubeURL(url)) {
+                showError('URL tidak valid. Pastikan URL berasal dari YouTube (youtube.com/watch?v=... atau youtu.be/...).');
+                return;
+            }
+
+            // Reset
+            hideError();
+            resultsDiv.classList.remove('active');
+            resultsDiv.innerHTML = '';
+            loading.classList.add('active');
+            fetchBtn.disabled = true;
+
+            try {
+                const encodedURL = encodeURIComponent(url);
+                const response = await fetch(`${API_URL}?url=${encodedURL}`);
+                if (!response.ok) {
+                    throw new Error(`Server merespons dengan status ${response.status}`);
+                }
+                const json = await response.json();
+
+                if (!json.status || !json.data || !json.data.length) {
+                    throw new Error('Data video tidak ditemukan. Pastikan URL benar dan video tersedia.');
+                }
+
+                renderResults(json);
+                resultsDiv.classList.add('active');
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (err) {
+                showError('Gagal mengambil data: ' + err.message);
+            } finally {
+                loading.classList.remove('active');
+                fetchBtn.disabled = false;
+            }
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = '⚠️ ' + msg;
+            errorMsg.classList.add('active');
+        }
+
+        function hideError() {
+            errorMsg.textContent = '';
+            errorMsg.classList.remove('active');
+        }
+
+        function renderResults(json) {
+            // We expect json.data[0].data[0] for the first video
+            const videoData = json.data[0]?.data?.[0];
+            if (!videoData) {
+                showError('Struktur data tidak sesuai.');
+                return;
+            }
+
+            const meta = videoData.meta || {};
+            const thumb = videoData.thumb || '';
+            const urlItems = videoData.url || [];
+            const stream = videoData.stream || {};
+            const streamMp4 = stream.mp4 || {};
+            const streamMp3 = stream.mp3 || {};
+
+            // Categorize url items
+            const bundleDownloads = urlItems.filter(item => item.isBundle && item.downloadable);
+            const videoOnlyDownloads = urlItems.filter(item => item.no_audio && !item.audio);
+            const audioOnlyDownloads = urlItems.filter(item => item.audio && !item.no_audio);
+            const converterDownloads = urlItems.filter(item => item.isConverterUI);
+
+            let html = '';
+
+            // --- Video Info Card ---
+            const tagsArr = meta.tags ? meta.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+            html += `
+            <div class="video-info-card">
+                <div class="thumb-wrap">
+                    <img src="${escapeHTML(thumb)}" alt="Thumbnail" loading="lazy" onerror="this.style.display='none'">
+                    ${meta.duration ? `<span class="duration-badge">⏱ ${escapeHTML(meta.duration)}</span>` : ''}
+                </div>
+                <div class="info">
+                    <div class="title">${escapeHTML(meta.title || 'Judul tidak tersedia')}</div>
+                    <div class="meta-row">
+                        <span>📅 Durasi: <strong>${escapeHTML(meta.duration || 'N/A')}</strong></span>
+                        <span>🆔 ID: <strong>${escapeHTML(videoData.id || 'N/A')}</strong></span>
+                    </div>
+                    ${tagsArr.length ? `
+                    <div class="tags">
+                        ${tagsArr.map(t => `<span class="tag">#${escapeHTML(t)}</span>`).join('')}
+                    </div>` : ''}
+                </div>
+            </div>`;
+
+            // --- Section: MP4 with Audio (Bundle + Stream MP4) ---
+            const hasBundle = bundleDownloads.length > 0;
+            const hasStreamMp4 = Object.keys(streamMp4).length > 0;
+            if (hasBundle || hasStreamMp4) {
+                html += `<div class="section-card">
+                    <h3><span class="section-icon">📹</span> MP4 Video (dengan Audio)</h3>
+                    <div class="download-grid">`;
+
+                // Bundle (direct download with audio)
+                bundleDownloads.forEach(item => {
+                    const sizeStr = formatBytes(item.filesize || item.contentLength);
+                    html += buildDownloadItem(item, 'bundle', sizeStr);
+                });
+
+                // Stream MP4 (local converter)
+                for (const [quality, qData] of Object.entries(streamMp4)) {
+                    const streams = qData.streams || [];
+                    streams.forEach((streamPath, idx) => {
+                        const fullURL = streamPath.startsWith('/') ? API_BASE + streamPath :
+                            streamPath;
+                        const label = streams.length > 1 ? `${qData.quality} #${idx+1}` :
+                            qData.quality;
+                        html += `
+                        <div class="download-item converter">
+                            <span class="quality-label">🎬 ${escapeHTML(label)}</span>
+                            <span class="format-label">${escapeHTML(qData.format || 'mp4')} (converter)</span>
+                            <a href="${escapeHTML(fullURL)}" class="btn btn-sm dl-btn" target="_blank" rel="noopener">
+                                ⬇ Unduh
+                            </a>
+                        </div>`;
+                    });
+                }
+
+                html += `</div></div>`;
+            }
+
+            // --- Section: Video Only (DASH, no audio) ---
+            if (videoOnlyDownloads.length > 0) {
+                html += `<div class="section-card">
+                    <h3><span class="section-icon">🎬</span> MP4 Video Saja (Tanpa Audio - DASH) <span class="badge badge-warn">Perlu digabung dengan audio</span></h3>
+                    <div class="download-grid">`;
+                videoOnlyDownloads.forEach(item => {
+                    const sizeStr = formatBytes(item.filesize || item.contentLength);
+                    html += buildDownloadItem(item, 'no-audio', sizeStr);
+                });
+                html += `</div></div>`;
+            }
+
+            // --- Section: Audio Only (M4A/OPUS) ---
+            if (audioOnlyDownloads.length > 0) {
+                html += `<div class="section-card">
+                    <h3><span class="section-icon">🎵</span> Audio Only (M4A / OPUS)</h3>
+                    <div class="download-grid">`;
+                audioOnlyDownloads.forEach(item => {
+                    const sizeStr = formatBytes(item.filesize || item.contentLength);
+                    html += buildDownloadItem(item, 'audio-only', sizeStr);
+                });
+                html += `</div></div>`;
+            }
+
+            // --- Section: MP3 Converted ---
+            const hasStreamMp3 = Object.keys(streamMp3).length > 0;
+            if (hasStreamMp3) {
+                html += `<div class="section-card">
+                    <h3><span class="section-icon">🎧</span> MP3 Audio (Konversi) <span class="badge badge-purple">via converter</span></h3>
+                    <div class="download-grid">`;
+                for (const [quality, qData] of Object.entries(streamMp3)) {
+                    const streams = qData.streams || [];
+                    streams.forEach((streamPath, idx) => {
+                        const fullURL = streamPath.startsWith('/') ? API_BASE + streamPath :
+                            streamPath;
+                        const label = streams.length > 1 ? `${qData.quality} #${idx+1}` :
+                            qData.quality;
+                        html += `
+                        <div class="download-item converter">
+                            <span class="quality-label">🎵 ${escapeHTML(label)}</span>
+                            <span class="format-label">${escapeHTML(qData.format || 'mp3')}</span>
+                            <a href="${escapeHTML(fullURL)}" class="btn btn-sm dl-btn" target="_blank" rel="noopener">
+                                ⬇ Unduh MP3
+                            </a>
+                        </div>`;
+                    });
+                }
+                html += `</div></div>`;
+            }
+
+            // --- Section: External Converter ---
+            if (converterDownloads.length > 0) {
+                html += `<div class="section-card">
+                    <h3><span class="section-icon">🌐</span> Download via Converter Eksternal <span class="badge badge-info">sf-converter</span></h3>
+                    <div class="download-grid">`;
+                converterDownloads.forEach(item => {
+                    html += `
+                    <div class="download-item converter">
+                        <span class="quality-label">📥 ${escapeHTML(item.quality || item.subname || 'N/A')}p</span>
+                        <span class="format-label">${escapeHTML(item.ext || 'mp4')} • ${escapeHTML(item.name || '')}</span>
+                        <a href="${escapeHTML(item.url)}" class="btn btn-sm dl-btn" target="_blank" rel="noopener">
+                            ⬇ Buka Converter
+                        </a>
+                    </div>`;
+                });
+                html += `</div></div>`;
+            }
+
+            // --- If no downloads at all ---
+            const totalItems = bundleDownloads.length + videoOnlyDownloads.length + audioOnlyDownloads
+                .length + converterDownloads.length + Object.keys(streamMp4).length + Object.keys(streamMp3)
+                .length;
+            if (totalItems === 0) {
+                html += `
+                <div class="empty-state">
+                    <span class="icon-big">📭</span>
+                    <p>Tidak ada link download yang tersedia untuk video ini.</p>
+                </div>`;
+            }
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function buildDownloadItem(item, cssClass, sizeStr) {
+            const url = item.url || '#';
+            const quality = item.quality || item.subname || '?';
+            const ext = item.ext || '';
+            const name = item.name || '';
+            const titleAttr = item.attr?.title || '';
+            const isDownloadable = item.downloadable;
+            const target = item.attr?.target || (isDownloadable ? '_blank' : '_blank');
+
+            return `
+            <div class="download-item ${cssClass}">
+                <span class="quality-label">${escapeHTML(quality)}${ext ? ' ' + escapeHTML(ext.toUpperCase()) : ''}</span>
+                <span class="format-label">${escapeHTML(name || titleAttr || ext)}</span>
+                ${sizeStr ? `<span class="size-label">📦 ${escapeHTML(sizeStr)}</span>` : ''}
+                ${!isDownloadable && cssClass === 'no-audio' ? '<span class="badge badge-warn" style="font-size:0.65rem;">tanpa audio</span>' : ''}
+                <a href="${escapeHTML(url)}" class="btn btn-sm dl-btn" target="${target}" rel="noopener" title="${escapeHTML(titleAttr)}">
+                    ⬇ Unduh
+                </a>
+            </div>`;
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
