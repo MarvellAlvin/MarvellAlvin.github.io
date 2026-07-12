@@ -1,110 +1,1291 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-  <title>Tools Online</title>
-  <link rel="stylesheet" href="/assets/css/style.css">
-  <link rel="shortcut icon" href="/assets/images/favicon.png" type="image/webp">
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon.png">
-  <link rel="icon" href="/assets/images/favicon.png" type="image/webp">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toolbox API · Kumpulan Tools dari API Publik</title>
+    <meta name="description" content="Kumpulan tools gratis dari berbagai API publik: downloader, generator, islamic, dan utility. Buka langsung di browser, tanpa instalasi." />
+    <meta name="theme-color" content="#0b0f1a" />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:title" content="Toolbox API · Kumpulan Tools dari API Publik" />
+    <meta property="og:description" content="Downloader, generator konten, tools islami, dan utility. Semua gratis & open source." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧰</text></svg>" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #0b0f1a;
+            color: #e8edf5;
+            min-height: 100vh;
+            padding: 28px 20px 60px;
+            display: flex;
+            justify-content: center;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1360px;
+            width: 100%;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            text-align: center;
+            padding: 24px 0 36px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 40px;
+        }
+
+        .header .logo-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            border-radius: 24px;
+            font-size: 32px;
+            color: #fff;
+            margin-bottom: 14px;
+            box-shadow: 0 12px 32px rgba(108, 92, 231, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .header .logo-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 16px 40px rgba(108, 92, 231, 0.45);
+        }
+
+        .header h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #f0f4ff, #a5b4fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0;
+        }
+
+        .header .sub {
+            color: #94a3b8;
+            font-size: 1.05rem;
+            margin-top: 6px;
+            font-weight: 400;
+        }
+
+        .header .stats {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .header .stats span {
+            font-size: 0.85rem;
+            color: #7e8aa8;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 6px 18px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .header .stats span:hover {
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .header .stats i {
+            color: #a5b4fc;
+        }
+
+        /* ===== SEARCH / FILTER ===== */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 24px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-wrapper {
+            flex: 1 1 320px;
+            position: relative;
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #5a6a8c;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            padding: 14px 48px 14px 52px;
+            border-radius: 60px;
+            border: 1.5px solid #222c42;
+            background: #101624;
+            color: #e8edf5;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        .search-wrapper input:focus {
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.15);
+        }
+
+        .search-wrapper input:focus~i {
+            color: #a29bfe;
+        }
+
+        .search-wrapper input::placeholder {
+            color: #4a5a78;
+            opacity: 0.8;
+        }
+
+        .search-wrapper .clear-btn {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #5a6a8c;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 50%;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .search-wrapper .clear-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .search-wrapper .clear-btn:hover {
+            color: #e8edf5;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .category-tabs button {
+            background: transparent;
+            border: 1.5px solid #222c42;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .category-tabs button:hover {
+            border-color: #4a5a78;
+            color: #e8edf5;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .category-tabs button.active {
+            background: #6c5ce7;
+            border-color: #6c5ce7;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(108, 92, 231, 0.25);
+        }
+
+        .category-tabs button:focus-visible {
+            outline: 2px solid #a5b4fc;
+            outline-offset: 3px;
+        }
+
+        /* ===== RESULT COUNT ===== */
+        .result-info {
+            margin-bottom: 20px;
+            color: #5a6a8c;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .result-info .reset-filter-btn {
+            background: transparent;
+            border: 1px solid #2a3a58;
+            color: #b0c0dd;
+            padding: 2px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .result-info .reset-filter-btn:hover {
+            border-color: #6c5ce7;
+            color: #fff;
+            background: rgba(108, 92, 231, 0.1);
+        }
+
+        /* ===== TOOL GRID ===== */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* ===== TOOL CARD ===== */
+        .tool-card {
+            background: #121a2a;
+            border-radius: 24px;
+            border: 1px solid #1e2940;
+            padding: 24px 22px 22px;
+            transition: 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+            animation: fadeInUp 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .tool-card:hover {
+            border-color: #3a4a6a;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-card .icon-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .icon-wrap.purple { background: rgba(108, 92, 231, 0.15); color: #a29bfe; }
+        .icon-wrap.green { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+        .icon-wrap.orange { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+        .icon-wrap.blue { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+        .icon-wrap.red { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+        .icon-wrap.pink { background: rgba(244, 114, 182, 0.15); color: #f472b6; }
+        .icon-wrap.teal { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; }
+        .icon-wrap.yellow { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+        .icon-wrap.cyan { background: rgba(34, 211, 238, 0.15); color: #22d3ee; }
+        .icon-wrap.rose { background: rgba(251, 113, 133, 0.15); color: #fb7185; }
+
+        .tool-card .tool-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tool-card .tool-name .badge-api {
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            background: rgba(108, 92, 231, 0.2);
+            color: #a29bfe;
+            padding: 2px 12px;
+            border-radius: 40px;
+            border: 1px solid rgba(108, 92, 231, 0.15);
+        }
+
+        .tool-card .tool-desc {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 6px 0 12px;
+            flex: 1;
+        }
+
+        .tool-card .tool-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 14px;
+            font-size: 0.75rem;
+            color: #5a6a8c;
+            padding-top: 12px;
+            border-top: 1px solid #1e2940;
+            margin-bottom: 14px;
+        }
+
+        .tool-card .tool-meta i {
+            width: 16px;
+            color: #6c7a9a;
+        }
+
+        .tool-card .tool-meta .tag {
+            background: #1a2438;
+            padding: 2px 12px;
+            border-radius: 40px;
+            color: #8a9abb;
+            font-weight: 500;
+            display: inline-block;
+            font-size: 0.7rem;
+        }
+
+        .tool-card .tool-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .tool-card .btn-demo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #6c5ce7;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            justify-content: center;
+        }
+
+        .tool-card .btn-demo:hover {
+            background: #7c6cf0;
+            transform: scale(0.97);
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3);
+        }
+
+        .tool-card .btn-demo:focus-visible {
+            outline: 2px solid #a5b4fc;
+            outline-offset: 3px;
+        }
+
+        .tool-card .btn-demo.outline {
+            background: transparent;
+            border: 1.5px solid #2a3a58;
+            color: #b0c0dd;
+        }
+
+        .tool-card .btn-demo.outline:hover {
+            border-color: #6c5ce7;
+            color: #fff;
+            background: rgba(108, 92, 231, 0.08);
+            box-shadow: none;
+            transform: scale(0.97);
+        }
+
+        /* ===== MODAL DOKUMENTASI ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-dialog {
+            background: #121a2a;
+            border: 1px solid #1e2940;
+            border-radius: 24px;
+            padding: 28px 24px 24px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+            transform: translateY(20px);
+            transition: transform 0.25s ease;
+        }
+
+        .modal-overlay.active .modal-dialog {
+            transform: translateY(0);
+        }
+
+        .modal-dialog .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #1e2940;
+            color: #94a3b8;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            z-index: 1;
+        }
+
+        .modal-dialog .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .modal-dialog h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+            padding-right: 40px;
+        }
+
+        .modal-dialog .modal-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: rgba(108, 92, 231, 0.2);
+            color: #a29bfe;
+            padding: 3px 14px;
+            border-radius: 40px;
+            margin-bottom: 16px;
+        }
+
+        .modal-dialog .modal-section {
+            margin-bottom: 16px;
+        }
+
+        .modal-dialog .modal-section h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #a5b4fc;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-dialog .modal-section p,
+        .modal-dialog .modal-section ul {
+            color: #b0c0dd;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .modal-dialog .modal-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .modal-dialog .modal-section ul li {
+            padding: 4px 0;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .modal-dialog .modal-section ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #6c5ce7;
+            font-weight: bold;
+        }
+
+        .endpoint-box {
+            background: #0a0f1c;
+            border: 1px solid #1e2940;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            font-size: 0.8rem;
+            color: #60a5fa;
+            word-break: break-all;
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .endpoint-box .copy-btn {
+            background: rgba(108, 92, 231, 0.2);
+            border: 1px solid rgba(108, 92, 231, 0.3);
+            color: #a29bfe;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: 0.2s;
+            flex-shrink: 0;
+            font-family: inherit;
+        }
+
+        .endpoint-box .copy-btn:hover {
+            background: rgba(108, 92, 231, 0.35);
+            color: #fff;
+        }
+
+        .endpoint-box .copy-btn.copied {
+            background: #34d399;
+            color: #000;
+            border-color: #34d399;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #5a6a8c;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            opacity: 0.3;
+            display: block;
+            margin-bottom: 16px;
+        }
+
+        .empty-state .reset-btn {
+            display: inline-block;
+            margin-top: 14px;
+            background: transparent;
+            border: 1.5px solid #2a3a58;
+            color: #b0c0dd;
+            padding: 8px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+
+        .empty-state .reset-btn:hover {
+            border-color: #6c5ce7;
+            color: #fff;
+            background: rgba(108, 92, 231, 0.08);
+        }
+
+        /* ===== BACK TO TOP ===== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 48px;
+            height: 48px;
+            background: #6c5ce7;
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(108, 92, 231, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: 0.3s ease;
+            z-index: 900;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .back-to-top:hover {
+            background: #7c6cf0;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(108, 92, 231, 0.4);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 56px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #3a4a68;
+            border-top: 1px solid #1a2438;
+            padding-top: 28px;
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer a {
+            color: #5a7a9a;
+            text-decoration: none;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer a:hover {
+            color: #a5b4fc;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 16px 40px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .header .stats {
+                gap: 12px;
+            }
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-wrapper {
+                flex: 1 1 auto;
+            }
+            .category-tabs {
+                justify-content: center;
+            }
+            .tool-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .tool-card .tool-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .tool-card .btn-demo {
+                justify-content: center;
+            }
+            .modal-dialog {
+                padding: 20px 16px 16px;
+            }
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 44px;
+                height: 44px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header .logo-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 26px;
+            }
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            .header .sub {
+                font-size: 0.9rem;
+            }
+            .category-tabs button {
+                padding: 6px 14px;
+                font-size: 0.7rem;
+            }
+            .tool-card {
+                padding: 20px 16px 16px;
+            }
+            .tool-card .tool-name {
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Snowfall Background Animation -->
-  <section class="animated-background">
-    <div id="stars1"></div>
-    <div id="stars2"></div>
-    <div id="stars3"></div>
-  </section>
-  <!-- End of Snowfall Background Animation -->
-  <div class="min-h-full flex-h-center" id="background_div">
-    <input type="hidden" value="https:                         
-    <input type="hidden" value="null" id="is-featured">
-    <canvas id="bg-canvas" class="background-overlay"></canvas>
-    <div class="mt-48 page-full-wrap relative">
-      <input type="hidden" value="creator-page" id="page-type">
-      <img class="display-image m-auto" data-src="/assets/images/logo.png" src="/assets/images/logo.png" alt="[Your photo alt]">
-      <h2 class="page-title page-text-color page-text-font mt-16 text-center">Tools Online</h2>
-      <div class="mt-24">
-        <!-- Link Bab 1 - 6 -->
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/livecoding">
-            <i class="material-icons">code</i>
-            <span class="item-title">Live Coding</span>
-          </a>
-          </a>
+    <div class="container">
+        <header class="header">
+            <div class="logo-icon" aria-hidden="true">
+                <i class="fas fa-cubes"></i>
+            </div>
+            <h1>Toolbox API</h1>
+            <p class="sub">Kumpulan tools gratis dari berbagai API publik</p>
+            <div class="stats">
+                <span><i class="fas fa-cube" aria-hidden="true"></i> <span id="toolCount">10</span> Tools</span>
+                <span><i class="fas fa-code" aria-hidden="true"></i> Open Source</span>
+            </div>
+        </header>
+
+        <div class="filter-bar">
+            <div class="search-wrapper">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="text" id="searchInput" placeholder="Cari tools berdasarkan nama atau deskripsi..." aria-label="Cari tools" autocomplete="off" />
+                <button class="clear-btn" id="clearSearch" aria-label="Hapus pencarian" title="Hapus pencarian">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="category-tabs" id="categoryTabs" role="group" aria-label="Filter kategori">
+                <button class="active" data-cat="all" aria-pressed="true">Semua</button>
+                <button data-cat="downloader" aria-pressed="false">Downloader</button>
+                <button data-cat="generator" aria-pressed="false">Generator</button>
+                <button data-cat="islamic" aria-pressed="false">Islamic</button>
+                <button data-cat="utility" aria-pressed="false">Utility</button>
+            </div>
         </div>
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/uploader-imgbb">
-            <i class="material-icons">image</i>
-            <span class="item-title">Uploader Foto - IMGBB</span>
-          </a>
+
+        <div class="result-info" id="resultInfo">
+            <span id="resultText">Menampilkan 10 tools</span>
+            <button class="reset-filter-btn" id="resetFilterBtn" style="display: none;">
+                <i class="fas fa-undo"></i> Reset filter
+            </button>
         </div>
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/unshort-link">
-            <i class="material-icons">link</i>
-            <span class="item-title">UnShort Link</span>
-          </a>
-        </div>
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/password-generator">
-            <i class="material-icons">key</i>
-            <span class="item-title">Password Generator</span>
-          </a>
-        </div>
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/instagram-downloader">
-            <i class="material-icons">camera_alt</i>
-            <span class="item-title">Instagram Downloader</span>
-          </a>
-        </div>
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/all-downloader">
-            <i class="material-icons">downloading</i>
-            <span class="item-title">All Downloader</span>
-          </a>
-        </div>
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/chat-ai">
-            <i class="material-icons">smart_toy</i>
-            <span class="item-title">Chat AI</span>
-          </a>
-        </div>
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/cek-mahasiswa">
-            <i class="material-icons">school</i>
-            <span class="item-title">Cek Mahasiswa</span>
-          </a>
-        </div>
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/iphone_quotemaker">
-            <i class="material-icons">phone_iphone</i>
-            <span class="item-title">iPhone QuoteMaker</span>
-          </a>
-        </div>
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/cek-cuaca">
-            <i class="material-icons">cloud</i>
-            <span class="item-title">Cek Cuaca Terkini</span>
-          </a>
-        </div>
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/xlsx-to-txt">
-            <i class="material-icons">document</i>
-            <span class="item-title"xlsx to txt</span>
-          </a>
-        </div>
-        <div class="page-item-wrap">
-          <a class="page-item-each" href="/tools/smart-prefix">
-            <i class="material-icons">number</i>
-            <span class="item-title">Number Prefix</span>
-          </a>
-        </div>
-      </div>
+
+        <div class="tool-grid" id="toolGrid"></div>
+
+        <footer class="footer">
+            <span>&copy; 2026 VELZ</span>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i> GitHub</a>
+            <span>Dibangun dengan API publik &mdash; gratis selamanya</span>
+        </footer>
     </div>
-  </div>
-  <audio src="https://b.top4top.io/m_3389s9v4b4.mp3" loop="1" autoplay="1"></audio>
+
+    <!-- Modal Dokumentasi -->
+    <div class="modal-overlay" id="docsModal" role="dialog" aria-modal="true" aria-labelledby="docsModalTitle">
+        <div class="modal-dialog">
+            <button class="modal-close" id="closeModal" aria-label="Tutup dokumentasi">&times;</button>
+            <div id="docsModalContent"></div>
+        </div>
+    </div>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Kembali ke atas" title="Kembali ke atas">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        (function() {
+            // ================================================================
+            //  DATA TOOLS
+            // ================================================================
+            const toolsData = [{
+                id: 'all-downloader',
+                name: 'All Media Downloader',
+                desc: 'Download video & foto dari Instagram, TikTok, Twitter (X), Threads, YouTube Shorts, dan lainnya.',
+                icon: 'fa-solid fa-cloud-arrow-down',
+                iconColor: 'blue',
+                category: 'downloader',
+                api: 'api.ryzumi.net',
+                endpoint: '/api/downloader/all-in-one?url=',
+                params: [{ name: 'url', type: 'text', required: true, desc: 'URL media' }],
+                file: '/tools/all-downloader.html',
+                badge: 'Ryzumi'
+            }, {
+                id: 'yt',
+                name: 'YouTube Downloader',
+                desc: 'Unduh video YouTube dengan berbagai kualitas, termasuk audio MP3, DASH, dan converter eksternal.',
+                icon: 'fa-brands fa-youtube',
+                iconColor: 'red',
+                category: 'downloader',
+                api: 'api.siputzx.my.id',
+                endpoint: '/api/d/savefrom?url=',
+                params: [{ name: 'url', type: 'text', required: true, desc: 'URL YouTube' }],
+                file: '/tools/yt.html',
+                badge: 'Siputzx'
+            }, {
+                id: 'iqc',
+                name: 'iPhone Quote Chat',
+                desc: 'Buat screenshot chat ala iPhone dengan pesan, nama, jam, dan foto profil kustom.',
+                icon: 'fa-brands fa-apple',
+                iconColor: 'pink',
+                category: 'generator',
+                api: 'nvlgroup.my.id',
+                endpoint: '/maker/iqc?text=&user=&jam=&profile_url=',
+                params: [
+                    { name: 'text', type: 'text', required: true, desc: 'Pesan / kutipan' },
+                    { name: 'user', type: 'text', required: false, desc: 'Nama pengguna' },
+                    { name: 'jam', type: 'text', required: false, desc: 'Jam (00.00)' },
+                    { name: 'profile_url', type: 'text', required: false, desc: 'URL foto profil' }
+                ],
+                file: '/tools/iqc.html',
+                badge: 'NVL'
+            }, {
+                id: 'tweet',
+                name: 'Fake Tweet Generator',
+                desc: 'Buat screenshot tweet palsu dengan display name, username, komentar, avatar, verified & tema dark/light.',
+                icon: 'fa-brands fa-twitter',
+                iconColor: 'cyan',
+                category: 'generator',
+                api: 'api.siputzx.my.id',
+                endpoint: '/api/canvas/tweet?displayName=&username=&comment=&avatar=&verified=&theme=',
+                params: [
+                    { name: 'displayName', type: 'text', required: true, desc: 'Nama tampilan' },
+                    { name: 'username', type: 'text', required: true, desc: 'Username' },
+                    { name: 'comment', type: 'text', required: true, desc: 'Komentar tweet' },
+                    { name: 'avatar', type: 'text', required: false, desc: 'URL avatar' },
+                    { name: 'verified', type: 'boolean', required: false, desc: 'Centang biru' },
+                    { name: 'theme', type: 'select', required: false, desc: 'dark / light' }
+                ],
+                file: '/tools/tweet.html',
+                badge: 'Siputzx'
+            }, {
+                id: 'strong-password',
+                name: 'Strong Password Generator',
+                desc: 'Generate password kuat dengan panjang & karakter yang bisa disesuaikan. Bisa generate hingga 12 password sekaligus.',
+                icon: 'fa-solid fa-key',
+                iconColor: 'yellow',
+                category: 'utility',
+                api: '— (Pure JS)',
+                endpoint: '—',
+                params: [
+                    { name: 'panjang', type: 'range', required: true, desc: '4–32 karakter' },
+                    { name: 'karakter', type: 'checkbox', required: true, desc: 'Huruf besar, kecil, angka, simbol' },
+                    { name: 'jumlah', type: 'range', required: false, desc: '1–12 password' }
+                ],
+                file: '/tools/strong-password.html',
+                badge: 'Offline'
+            }, {
+                id: 'alquran',
+                name: 'Al-Qur\'an Digital',
+                desc: 'Baca Al-Qur\'an per surat dengan terjemahan, audio, dan tampilan Arab yang rapi. Mendukung 114 surat.',
+                icon: 'fa-solid fa-book-quran',
+                iconColor: 'green',
+                category: 'islamic',
+                api: 'api.myquran.com',
+                endpoint: '/v3/quran/{surah}',
+                params: [{ name: 'surah', type: 'number', required: true, desc: 'Nomor surat 1–114' }],
+                file: '/tools/alquran.html',
+                badge: 'MyQuran'
+            }, {
+                id: 'asmaul-husna',
+                name: 'Asmaul Husna',
+                desc: '99 Nama Allah yang indah. Cari berdasarkan nomor atau tampilkan semua lengkap dengan Arab, Latin, dan artinya.',
+                icon: 'fa-solid fa-star-and-crescent',
+                iconColor: 'teal',
+                category: 'islamic',
+                api: 'api.myquran.com',
+                endpoint: '/v2/husna/{nomor}',
+                params: [{ name: 'nomor', type: 'number', required: false, desc: '1–99 (kosong = semua)' }],
+                file: '/tools/asmaul-husna.html',
+                badge: 'MyQuran'
+            }, {
+                id: 'hadits',
+                name: 'Pencari Hadits',
+                desc: 'Cari hadits berdasarkan kata kunci. Menampilkan hasil dengan paginasi dan informasi sumber.',
+                icon: 'fa-solid fa-mosque',
+                iconColor: 'orange',
+                category: 'islamic',
+                api: 'api.myquran.com',
+                endpoint: '/v3/hadis/enc/cari/{keyword}?page=&limit=',
+                params: [
+                    { name: 'keyword', type: 'text', required: true, desc: 'Kata kunci pencarian' },
+                    { name: 'page', type: 'number', required: false, desc: 'Halaman (default 1)' }
+                ],
+                file: '/tools/hadits.html',
+                badge: 'MyQuran'
+            }, {
+                id: 'jadwal-sholat',
+                name: 'Jadwal Sholat',
+                desc: 'Jadwal sholat harian berdasarkan kota. Dilengkapi kalender Masehi & Hijriah serta informasi kota.',
+                icon: 'fa-solid fa-clock',
+                iconColor: 'purple',
+                category: 'islamic',
+                api: 'api.myquran.com',
+                endpoint: '/v3/sholat/jadwal/{kota}/today?tz=Asia/Jakarta',
+                params: [{ name: 'kota', type: 'text', required: true, desc: 'Nama kota (contoh: Kediri)' }],
+                file: '/tools/jadwal-sholat.html',
+                badge: 'MyQuran'
+            }, {
+                id: 'murottal',
+                name: 'Murottal Al-Qur\'an',
+                desc: 'Dengarkan murottal per surat dengan fitur play otomatis berurutan, pengulangan, dan toggle terjemahan.',
+                icon: 'fa-solid fa-headphones',
+                iconColor: 'rose',
+                category: 'islamic',
+                api: 'api.myquran.com',
+                endpoint: '/v3/quran/{surah}',
+                params: [
+                    { name: 'surah', type: 'number', required: true, desc: 'Nomor surat 1–114' },
+                    { name: 'repeat', type: 'number', required: false, desc: 'Ulangi surat (kali)' }
+                ],
+                file: '/tools/murottal.html',
+                badge: 'MyQuran'
+            }];
+
+            // ================================================================
+            //  DOM ELEMENTS
+            // ================================================================
+            const grid = document.getElementById('toolGrid');
+            const searchInput = document.getElementById('searchInput');
+            const clearSearchBtn = document.getElementById('clearSearch');
+            const categoryTabs = document.getElementById('categoryTabs');
+            const toolCountSpan = document.getElementById('toolCount');
+            const resultText = document.getElementById('resultText');
+            const resetFilterBtn = document.getElementById('resetFilterBtn');
+            const docsModal = document.getElementById('docsModal');
+            const docsModalContent = document.getElementById('docsModalContent');
+            const closeModalBtn = document.getElementById('closeModal');
+            const backToTopBtn = document.getElementById('backToTop');
+
+            let currentCategory = 'all';
+            let currentSearch = '';
+
+            toolCountSpan.textContent = toolsData.length;
+
+            // ================================================================
+            //  RENDER
+            // ================================================================
+            const colorMap = {
+                blue: 'blue', green: 'green', orange: 'orange', red: 'red',
+                pink: 'pink', teal: 'teal', yellow: 'yellow', purple: 'purple',
+                cyan: 'cyan', rose: 'rose'
+            };
+
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function renderTools(tools) {
+                // Update result info
+                const total = tools.length;
+                resultText.textContent = total === toolsData.length ? `Menampilkan semua ${total} tools` : `Menampilkan ${total} tool`;
+                resetFilterBtn.style.display = (currentCategory !== 'all' || currentSearch.trim() !== '') ? 'inline-flex' : 'none';
+
+                if (tools.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                            <p>Tidak ada tools yang cocok dengan pencarian <strong>"${escapeHTML(currentSearch)}"</strong></p>
+                            <button class="reset-btn" id="resetSearchBtn">
+                                <i class="fas fa-undo"></i> Reset Pencarian
+                            </button>
+                        </div>
+                    `;
+                    const resetBtn = document.getElementById('resetSearchBtn');
+                    if (resetBtn) resetBtn.addEventListener('click', resetAllFilters);
+                    return;
+                }
+
+                grid.innerHTML = tools.map((tool, index) => {
+                    const iconColor = colorMap[tool.iconColor] || 'purple';
+                    const iconClass = tool.icon.startsWith('fa-') ? tool.icon : tool.icon;
+                    const paramLabels = tool.params.map(p => `<span class="tag">${escapeHTML(p.name)}${p.required ? '*' : ''}</span>`).join('');
+                    const endpointDisplay = tool.endpoint && tool.endpoint !== '—' ? tool.endpoint.substring(0, 30) + (tool.endpoint.length > 30 ? '…' : '') : '';
+
+                    return `
+                        <div class="tool-card" data-category="${tool.category}" style="animation-delay: ${index * 0.04}s">
+                            <div class="icon-wrap ${iconColor}" aria-hidden="true">
+                                <i class="${iconClass}"></i>
+                            </div>
+                            <div class="tool-name">
+                                ${escapeHTML(tool.name)}
+                                <span class="badge-api">${escapeHTML(tool.badge || 'API')}</span>
+                            </div>
+                            <div class="tool-desc">${escapeHTML(tool.desc)}</div>
+                            <div class="tool-meta">
+                                <span><i class="fas fa-database" aria-hidden="true"></i> ${escapeHTML(tool.api)}</span>
+                                ${endpointDisplay ? `<span><i class="fas fa-link" aria-hidden="true"></i> ${escapeHTML(endpointDisplay)}</span>` : ''}
+                                <span><i class="fas fa-sliders-h" aria-hidden="true"></i> ${paramLabels}</span>
+                            </div>
+                            <div class="tool-footer">
+                                <a href="${escapeHTML(tool.file)}" class="btn-demo" target="_blank" rel="noopener noreferrer">
+                                    <i class="fas fa-rocket" aria-hidden="true"></i> Buka Tool
+                                </a>
+                                <button class="btn-demo outline docs-trigger" data-tool-id="${escapeHTML(tool.id)}" aria-label="Lihat dokumentasi ${escapeHTML(tool.name)}">
+                                    <i class="fas fa-book" aria-hidden="true"></i> Dokumen
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                grid.querySelectorAll('.docs-trigger').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        showDocsModal(this.getAttribute('data-tool-id'));
+                    });
+                });
+            }
+
+            // ================================================================
+            //  FILTER & SEARCH
+            // ================================================================
+            function filterTools() {
+                const search = currentSearch.toLowerCase().trim();
+                const category = currentCategory;
+
+                let filtered = toolsData.filter(tool => {
+                    if (category !== 'all' && tool.category !== category) return false;
+                    if (search) {
+                        const match = (tool.name + tool.desc + tool.api + (tool.badge || '')).toLowerCase();
+                        if (!match.includes(search)) return false;
+                    }
+                    return true;
+                });
+
+                renderTools(filtered);
+            }
+
+            function resetAllFilters() {
+                currentSearch = '';
+                searchInput.value = '';
+                clearSearchBtn.classList.remove('visible');
+                currentCategory = 'all';
+                categoryTabs.querySelectorAll('button').forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
+                const allBtn = categoryTabs.querySelector('[data-cat="all"]');
+                if (allBtn) {
+                    allBtn.classList.add('active');
+                    allBtn.setAttribute('aria-pressed', 'true');
+                }
+                filterTools();
+                searchInput.focus();
+            }
+
+            searchInput.addEventListener('input', function() {
+                currentSearch = this.value;
+                clearSearchBtn.classList.toggle('visible', currentSearch.trim().length > 0);
+                filterTools();
+            });
+
+            clearSearchBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                currentSearch = '';
+                clearSearchBtn.classList.remove('visible');
+                filterTools();
+                searchInput.focus();
+            });
+
+            categoryTabs.addEventListener('click', function(e) {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                categoryTabs.querySelectorAll('button').forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
+                btn.classList.add('active');
+                btn.setAttribute('aria-pressed', 'true');
+                currentCategory = btn.getAttribute('data-cat');
+                filterTools();
+            });
+
+            resetFilterBtn.addEventListener('click', resetAllFilters);
+
+            // ================================================================
+            //  MODAL DOKUMENTASI
+            // ================================================================
+            function showDocsModal(toolId) {
+                const tool = toolsData.find(t => t.id === toolId);
+                if (!tool) return;
+
+                const paramsList = tool.params.map(p =>
+                    `<li><strong>${escapeHTML(p.name)}</strong> ${p.required ? '<span style="color:#f87171;">(wajib)</span>' : '<span style="color:#94a3b8;">(opsional)</span>'} — ${escapeHTML(p.desc)}</li>`
+                ).join('');
+
+                const fullEndpoint = tool.api + tool.endpoint;
+
+                docsModalContent.innerHTML = `
+                    <h3 id="docsModalTitle">📘 ${escapeHTML(tool.name)}</h3>
+                    <span class="modal-badge">${escapeHTML(tool.badge || 'API')} · ${escapeHTML(tool.category)}</span>
+                    <div class="modal-section">
+                        <h4>📌 Deskripsi</h4>
+                        <p>${escapeHTML(tool.desc)}</p>
+                    </div>
+                    <div class="modal-section">
+                        <h4>🌐 API & Endpoint</h4>
+                        <p style="margin-bottom:6px;"><strong>Base:</strong> ${escapeHTML(tool.api)}</p>
+                        ${tool.endpoint && tool.endpoint !== '—' ? `
+                        <div class="endpoint-box">
+                            <code style="flex:1;">${escapeHTML(fullEndpoint)}</code>
+                            <button class="copy-btn" data-copy="${escapeHTML(fullEndpoint)}">
+                                <i class="fas fa-copy"></i> Salin
+                            </button>
+                        </div>` : '<p style="color:#5a6a8c;">Endpoint: — (pure client-side)</p>'}
+                    </div>
+                    <div class="modal-section">
+                        <h4>📝 Parameter</h4>
+                        ${paramsList ? `<ul>${paramsList}</ul>` : '<p style="color:#5a6a8c;">Tidak ada parameter</p>'}
+                    </div>
+                    <div class="modal-section">
+                        <h4>📁 File</h4>
+                        <p><code style="background:#0a0f1c; padding:2px 8px; border-radius:6px; color:#60a5fa;">${escapeHTML(tool.file)}</code></p>
+                    </div>
+                `;
+
+                const copyBtn = docsModalContent.querySelector('.copy-btn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', function() {
+                        const text = this.getAttribute('data-copy');
+                        navigator.clipboard.writeText(text).then(() => {
+                            this.innerHTML = '<i class="fas fa-check"></i> Tersalin';
+                            this.classList.add('copied');
+                            setTimeout(() => {
+                                this.innerHTML = '<i class="fas fa-copy"></i> Salin';
+                                this.classList.remove('copied');
+                            }, 2000);
+                        }).catch(() => {
+                            const ta = document.createElement('textarea');
+                            ta.value = text;
+                            ta.style.position = 'fixed'; ta.style.opacity = '0';
+                            document.body.appendChild(ta); ta.select();
+                            document.execCommand('copy'); document.body.removeChild(ta);
+                            this.innerHTML = '<i class="fas fa-check"></i> Tersalin';
+                            this.classList.add('copied');
+                            setTimeout(() => {
+                                this.innerHTML = '<i class="fas fa-copy"></i> Salin';
+                                this.classList.remove('copied');
+                            }, 2000);
+                        });
+                    });
+                }
+
+                docsModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                closeModalBtn.focus();
+            }
+
+            function closeDocsModal() {
+                docsModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            closeModalBtn.addEventListener('click', closeDocsModal);
+            docsModal.addEventListener('click', function(e) {
+                if (e.target === docsModal) closeDocsModal();
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && docsModal.classList.contains('active')) {
+                    closeDocsModal();
+                }
+            });
+
+            // ================================================================
+            //  BACK TO TOP
+            // ================================================================
+            function toggleBackToTop() {
+                if (window.scrollY > 600) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            }
+
+            window.addEventListener('scroll', toggleBackToTop, { passive: true });
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // ================================================================
+            //  INIT
+            // ================================================================
+            renderTools(toolsData);
+            const allTab = categoryTabs.querySelector('[data-cat="all"]');
+            if (allTab) {
+                allTab.classList.add('active');
+                allTab.setAttribute('aria-pressed', 'true');
+            }
+
+            // Initial check for back to top
+            toggleBackToTop();
+
+            console.log('🧰 Toolbox API siap! %c' + toolsData.length + ' tools terdaftar.', 'font-weight:bold;color:#a29bfe;');
+        })();
+    </script>
 </body>
-  </html>
+</html>
