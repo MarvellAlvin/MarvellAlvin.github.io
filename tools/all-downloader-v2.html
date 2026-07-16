@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>All Media Downloader v.2 · Instagram, TikTok, Twitter, Threads</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0f1219;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 30px 20px;
+      color: #e2e8f0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #c0e0ff, #8ab3ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+    .header p {
+      color: #94a3b8;
+      margin-top: 8px;
+      font-size: 0.9rem;
+    }
+
+    .card {
+      background: #1a1f2a;
+      border-radius: 32px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+      padding: 24px 28px;
+      margin-bottom: 30px;
+      transition: 0.2s;
+    }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+    }
+    .input-field {
+      flex: 1;
+      min-width: 220px;
+    }
+    .input-field label {
+      font-weight: 500;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .input-field input,
+    .input-field select {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1.5px solid #2d3548;
+      border-radius: 28px;
+      font-size: 0.9rem;
+      font-family: 'Inter', monospace;
+      transition: 0.2s;
+      outline: none;
+      background: #0f1219;
+      color: #f1f5f9;
+    }
+    .input-field select {
+      font-family: 'Inter', sans-serif;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 18px;
+      padding-right: 42px;
+    }
+    .input-field input:focus,
+    .input-field select:focus {
+      border-color: #5b8cff;
+      box-shadow: 0 0 0 3px rgba(91,140,255,0.2);
+    }
+    .input-field input::placeholder {
+      color: #4a5568;
+    }
+    button {
+      background: #2d3748;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      color: white;
+      font-family: 'Inter';
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 24px;
+    }
+    button:hover:not(:disabled) {
+      background: #3b4a62;
+      transform: scale(0.97);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .result-card {
+      background: #1a1f2a;
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+      display: none;
+      border: 1px solid #2d3548;
+    }
+    .result-header {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #2d3548;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    .thumbnail {
+      width: 100px;
+      height: 100px;
+      background: #0f1219;
+      border-radius: 20px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .info {
+      flex: 1;
+      min-width: 0;
+    }
+    .info h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+    .info .author {
+      color: #94a3b8;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      flex-wrap: wrap;
+      word-break: break-word;
+    }
+    .badge-source {
+      background: #2d3748;
+      padding: 4px 12px;
+      border-radius: 60px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #a5c9ff;
+    }
+
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 10px;
+    }
+    .media-item {
+      background: #0f1219;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid #2d3548;
+      transition: 0.2s;
+    }
+    .media-preview {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #0a0c12;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .media-preview img, .media-preview video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .media-info {
+      padding: 12px 14px;
+    }
+    .media-type {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #7aa2f7;
+    }
+    .quality {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin: 4px 0;
+      word-break: break-word;
+    }
+    .download-btn {
+      background: #2d3748;
+      width: 100%;
+      border: none;
+      padding: 8px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 8px;
+      gap: 6px;
+      justify-content: center;
+    }
+    .download-btn:hover {
+      background: #4a5a78;
+      transform: none;
+    }
+    /* Fallback panel untuk respons non-media (transcript, tags, calculator, dsb.) */
+    .raw-panel {
+      background: #0f1219;
+      border: 1px solid #2d3548;
+      border-radius: 20px;
+      padding: 16px 18px;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .error-message {
+      background: #2d1f24;
+      color: #ffb4a2;
+      padding: 14px;
+      border-radius: 28px;
+      text-align: center;
+      border-left: 4px solid #f97316;
+    }
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 40px;
+      color: #94a3b8;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 0.7rem;
+      color: #5b6e8c;
+    }
+    @media (max-width: 640px) {
+      .card { padding: 18px; }
+      .input-group { flex-direction: column; }
+      .input-field { width: 100%; }
+      button { width: 100%; justify-content: center; }
+      .result-header { flex-direction: column; align-items: center; text-align: center; }
+      .thumbnail { width: 80px; height: 80px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>⚡ All Media Downloader v.2</h1>
+    <p>All-In-One Video Downloader untuk berbagai platform media sosial</p>
+  </div>
+
+  <div class="card">
+    <div class="input-group">
+      <div class="input-field">
+        <label>🔗 Masukkan URL media (Instagram, TikTok, Twitter, dll.)</label>
+        <input type="text" id="media-url" placeholder="https://www.instagram.com/reel/...">
+      </div>
+    </div>
+    <button id="download-btn"><i class="material-icons" style="font-size: 18px;">file_download</i> Proses & Download</button>
+  </div>
+
+  <div id="result-area" class="result-card"></div>
+  <div class="footer">Supports Instagram, TikTok, Twitter dan lainnya.</div>
+</div>
+
+<script>
+  const API_BASE = 'https://api.jerexd.my.id/api/downloader/aio';
+  const API_KEY = 'jere_rIaKiOTpm9-K';
+  const inputUrl = document.getElementById('media-url');
+  const processBtn = document.getElementById('download-btn');
+  const resultDiv = document.getElementById('result-area');
+
+  async function fetchMedia() {
+    const url = inputUrl.value.trim();
+    if (!url) {
+      showError('Masukkan URL media terlebih dahulu.');
+      return;
+    }
+
+    // Nonaktifkan tombol & ubah teks
+    processBtn.disabled = true;
+    processBtn.innerHTML = '<i class="material-icons" style="font-size:18px;">hourglass_top</i> Memproses...';
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `<div class="loading"><i class="material-icons">hourglass_top</i> Memproses link, harap tunggu...</div>`;
+
+    try {
+      const encodedUrl = encodeURIComponent(url);
+      const requestUrl = `${API_BASE}?apikey=${API_KEY}&url=${encodedUrl}`;
+
+      const data = await fetchJsonWithFallback(requestUrl);
+
+      if (data && data.status === false) {
+        throw new Error(data.message || 'API menolak permintaan. Cek URL yang dimasukkan.');
+      }
+
+      // Struktur nyata api.jerexd.my.id: { title, thumbnail, creator, downloads: [{ type, url }] }
+      const items = data.downloads || data.result || data.medias || null;
+
+      if (!items || items.length === 0) {
+        throw new Error('Tidak ada media yang ditemukan. Cek URL atau coba sumber lain.');
+      }
+
+      const medias = items.map(item => {
+        const type = detectType(item);
+        return {
+          url: item.url,
+          quality: item.type || 'default',
+          type,
+          extension: detectExtension(item, type),
+          thumbnail: data.thumbnail
+        };
+      });
+
+      renderResult({
+        title: data.title || 'Tanpa judul',
+        author: data.creator || data.owner,
+        thumbnail: data.thumbnail,
+        medias
+      });
+    } catch (err) {
+      console.error(err);
+      const msg = (err instanceof TypeError)
+        ? 'Gagal menghubungi server (kemungkinan diblokir CORS/jaringan, dan proxy cadangan juga gagal). Coba lagi beberapa saat.'
+        : (err.message || 'Terjadi kesalahan saat memproses URL. Pastikan URL valid dan didukung.');
+      showError(msg);
+    } finally {
+      // Kembalikan tombol seperti semula
+      processBtn.disabled = false;
+      processBtn.innerHTML = '<i class="material-icons" style="font-size:18px;">file_download</i> Proses & Download';
+    }
+  }
+
+  // API ini menaruh info format di teks "type" (mis. "Download MP3",
+  // "Download (720x1280p)"), bukan field type/extension terpisah.
+  function detectType(item) {
+    const t = (item.type || '').toUpperCase();
+    if (t.includes('MP3') || t.includes('AUDIO')) return 'audio';
+    if (t.includes('PHOTO') || t.includes('IMAGE') || t.includes('JPG') || t.includes('JPEG') || t.includes('PNG')) return 'image';
+    return 'video';
+  }
+
+  function detectExtension(item, type) {
+    if (type === 'audio') return 'mp3';
+    if (type === 'image') return 'jpg';
+    return 'mp4';
+  }
+
+  // Coba fetch langsung dulu. Kalau gagal karena diblokir CORS (browser
+  // melempar TypeError "Failed to fetch" sebelum request sampai ke server),
+  // coba lagi lewat proxy CORS publik sebagai fallback.
+  async function fetchJsonWithFallback(requestUrl) {
+    try {
+      const response = await fetch(requestUrl, { headers: { 'Accept': 'application/json' } });
+      if (!response.ok) throw new Error(`HTTP ${response.status} - Gagal mengambil data`);
+      return await response.json();
+    } catch (err) {
+      const isLikelyCors = err instanceof TypeError;
+      if (!isLikelyCors) throw err;
+
+      const proxied = 'https://cors.siputzx.my.id/' + requestUrl;
+      const response2 = await fetch(proxied, { headers: { 'Accept': 'application/json' } });
+      if (!response2.ok) throw new Error(`HTTP ${response2.status} - Gagal mengambil data (via proxy)`);
+      return await response2.json();
+    }
+  }
+
+  function showError(msg) {
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `<div class="error-message"><i class="material-icons">error</i> ${msg}</div>`;
+    // Pastikan tombol tetap aktif meskipun error
+    processBtn.disabled = false;
+    processBtn.innerHTML = '<i class="material-icons" style="font-size:18px;">file_download</i> Proses & Download';
+  }
+
+  function renderResult(data) {
+    let sourceName = 'Media';
+    try {
+      // Coba tebak nama sumber dari domain media pertama, kalau gagal pakai default.
+      const firstUrl = data.medias && data.medias[0] && data.medias[0].url;
+      if (firstUrl) sourceName = new URL(firstUrl).hostname.replace('www.', '');
+    } catch (e) {
+      // biarkan default
+    }
+
+    const title = data.title || 'Tanpa judul';
+    const thumbnail = data.thumbnail || '';
+    const authorRaw = data.author;
+    let authorName = 'Unknown';
+    // Tangani author bisa string atau object
+    if (typeof authorRaw === 'string') {
+      authorName = authorRaw;
+    } else if (authorRaw && (authorRaw.name || authorRaw.username)) {
+      authorName = authorRaw.name || authorRaw.username;
+    }
+    const medias = data.medias || [];
+
+    let html = `
+      <div class="result-header">
+        ${thumbnail ? `<img class="thumbnail" src="${escapeHtml(thumbnail)}" alt="thumbnail" onerror="this.outerHTML='<div class=\\'thumbnail\\' style=\\'display:flex;align-items:center;justify-content:center;background:#0f1219\\'><i class=\\'material-icons\\'>image</i></div>'">` : `<div class="thumbnail" style="display:flex; align-items:center; justify-content:center; background:#0f1219;"><i class="material-icons">image</i></div>`}
+        <div class="info">
+          <h3>${escapeHtml(title)}</h3>
+          <div class="author">
+            <span><i class="material-icons" style="font-size: 14px;">person</i> ${escapeHtml(authorName)}</span>
+            <span class="badge-source">${escapeHtml(sourceName)}</span>
+          </div>
+        </div>
+      </div>
+      <div class="media-grid">
+    `;
+
+    medias.forEach(media => {
+      const mediaUrl = media.url;
+      const mediaType = (media.type || '').toLowerCase();
+      const quality = media.quality || 'default';
+      const extension = media.extension || (mediaType === 'video' ? 'mp4' : (mediaType === 'audio' ? 'mp3' : 'jpg'));
+      const previewThumb = media.thumbnail || thumbnail || '';
+
+      let previewHtml = '';
+      if (mediaType === 'video') {
+        const mimeType = extension === 'mp4' ? 'video/mp4' : 'video/mp4'; // fallback
+        previewHtml = `<video controls preload="metadata" poster="${escapeHtml(previewThumb)}"><source src="${mediaUrl}" type="${mimeType}">Your browser does not support video.</video>`;
+      } else if (mediaType === 'audio') {
+        previewHtml = `<audio controls style="width:100%;"><source src="${mediaUrl}">Your browser does not support audio.</audio>`;
+      } else {
+        previewHtml = `<img src="${mediaUrl}" alt="preview" loading="lazy" onerror="this.outerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0f1219\\'><i class=\\'material-icons\\'>image</i></div>'">`;
+      }
+
+      // Nama file saat download: gunakan judul dan ekstensi
+      const safeTitle = title.replace(/[^a-z0-9]/gi, '_').substring(0, 50);
+      const filename = `${safeTitle}.${extension}`;
+
+      html += `
+        <div class="media-item">
+          <div class="media-preview">
+            ${previewHtml}
+          </div>
+          <div class="media-info">
+            <div class="media-type">${mediaType === 'video' ? '🎬 VIDEO' : (mediaType === 'audio' ? '🎵 AUDIO' : '📷 GAMBAR')}</div>
+            <div class="quality">Kualitas: ${escapeHtml(quality)} • .${extension}</div>
+            <button class="download-btn" data-url="${mediaUrl}" data-filename="${escapeHtml(filename)}" data-type="${mediaType}">
+              <i class="material-icons">download</i> Download
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+    resultDiv.innerHTML = html;
+
+    document.querySelectorAll('.download-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const fileUrl = btn.getAttribute('data-url');
+        const fileName = btn.getAttribute('data-filename') || 'download';
+        if (fileUrl) {
+          const link = document.createElement('a');
+          link.href = fileUrl;
+          link.download = fileName; // Beri nama file yang bermakna
+          link.target = '_blank';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  processBtn.addEventListener('click', fetchMedia);
+  inputUrl.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') fetchMedia();
+  });
+</script>
+</body>
+</html>
